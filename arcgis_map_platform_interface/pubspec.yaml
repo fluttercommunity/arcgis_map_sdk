@@ -1,0 +1,17 @@
+name: arcgis_map_platform_interface
+description: Esri ArcGIS Flutter platform interface.
+version: 0.6.19
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  latlong2: ^0.8.0
+  plugin_platform_interface: ^2.0.0
+
+dev_dependencies:
+  lint: ^1.0.0
+
+flutter:

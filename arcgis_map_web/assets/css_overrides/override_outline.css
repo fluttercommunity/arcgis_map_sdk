@@ -1,0 +1,3 @@
+/* This override is used to disable the blue border shown when interacting with the map*/
+@import"../arcgis_js_api_custom_build/assets/esri/css/main.css";
+ body .esri-view .esri-view-surface--inset-outline:focus::after {outline: none !important;}
