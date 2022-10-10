@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -94,7 +96,23 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
     required PlatformViewCreatedCallback onPlatformViewCreated,
     required ArcgisMapOptions mapOptions,
   }) {
-    throw UnimplementedError('buildView() has not been implemented.');
+    if (Platform.isAndroid) {
+      return AndroidView(
+        viewType: 'native_arcgis_map_$creationId',
+        creationParams: mapOptions.toMap(),
+      );
+    }
+
+    if (Platform.isIOS) {
+      return UiKitView(
+        viewType: 'native_arcgis_map_$creationId',
+        creationParams: mapOptions.toMap(),
+      );
+    }
+
+    throw UnimplementedError(
+      'Unimplemented platform ${Platform.operatingSystem}',
+    );
   }
 
   @override
