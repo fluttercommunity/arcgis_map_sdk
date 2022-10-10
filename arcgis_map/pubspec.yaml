@@ -27,8 +27,8 @@ dev_dependencies:
 flutter:
   plugin:
     platforms:
-      #      android:
-      #        package: com.example.arcgis
-      #        pluginClass: ArcgisMapPlugin
+      android:
+        package: esri.arcgis.flutter_plugin
+        pluginClass: ArcgisMapPlugin
       ios:
         pluginClass: ArcgisMapPlugin
