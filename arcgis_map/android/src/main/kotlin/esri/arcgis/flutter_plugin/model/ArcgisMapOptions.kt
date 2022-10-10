@@ -1,4 +1,4 @@
-package esri.arcgis.flutter_plugin.type
+package esri.arcgis.flutter_plugin.model
 
 data class ArcgisMapOptions(
     val apiKey: String,
@@ -16,11 +16,4 @@ data class ArcgisMapOptions(
     val xMax: Double,
     val yMin: Double,
     val yMax: Double,
-)
-
-class ViewPadding(
-    val left: Double,
-    val top: Double,
-    val right: Double,
-    val bottom: Double,
 )

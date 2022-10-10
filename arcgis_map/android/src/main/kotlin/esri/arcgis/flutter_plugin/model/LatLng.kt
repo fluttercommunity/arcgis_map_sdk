@@ -1,4 +1,4 @@
-package esri.arcgis.flutter_plugin.type
+package esri.arcgis.flutter_plugin.model
 
 data class LatLng(
     val longitude: Double,
