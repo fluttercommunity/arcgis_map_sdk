@@ -1,4 +1,4 @@
-package de.tollcollect.sv.smartmv.map
+package esri.arcgis.flutter_plugin
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

@@ -1,4 +1,4 @@
-package de.tollcollect.sv.smartmv.map
+package esri.arcgis.flutter_plugin
 
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin

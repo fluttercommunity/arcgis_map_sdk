@@ -1,4 +1,4 @@
-package com.example.arcgis_map.type
+package esri.arcgis.flutter_plugin.type
 
 data class ArcgisMapOptions(
     val apiKey: String,

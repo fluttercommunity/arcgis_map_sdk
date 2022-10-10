@@ -1,4 +1,4 @@
-group 'de.tollcollect.sv.smartmv.map'
+group 'esri.arcgis.flutter_plugin'
 version '1.0-SNAPSHOT'
 
 buildscript {

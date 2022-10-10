@@ -1,4 +1,4 @@
-package de.tollcollect.sv.smartmv.map
+package esri.arcgis.flutter_plugin
 
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
