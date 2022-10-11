@@ -1,12 +1,9 @@
 package esri.arcgis.flutter_plugin
 
-import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 
-/** ArcgisMapPlugin */
 class ArcgisMapPlugin : FlutterPlugin {
-
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         flutterPluginBinding
             .platformViewRegistry
             .registerViewFactory(
