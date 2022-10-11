@@ -8,9 +8,11 @@ import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import java.lang.Exception
 
 
 /**
@@ -33,16 +35,33 @@ internal class ArcgisMapView(
 
     override fun getView(): View = view
 
-
     init {
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
+
+        map.basemap = null //TODO
+
         mapView.map = map
+
+
+        /*EventChannel(binaryMessenger, "zoom/viewId").setStreamHandler(object :
+            EventChannel.StreamHandler {
+
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCancel(arguments: Any?) {
+                TODO("Not yet implemented")
+            }
+        });*/
 
         setupMethodChannel()
     }
 
     override fun dispose() {}
+
+    // region helper
 
     private fun setupMethodChannel() {
         methodChannel.setMethodCallHandler { call, result ->
@@ -54,12 +73,26 @@ internal class ArcgisMapView(
         }
     }
 
-
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
 
+        val newScale = mapView.mapScale + lodFactor
+
+        mapView
+            .setViewpointScaleAsync(newScale)
+            .addDoneListener { result.success(true) }
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
 
+        val newScale = mapView.mapScale - lodFactor
+
+        mapView
+            .setViewpointScaleAsync(newScale)
+            .addDoneListener { result.success(true) }
     }
+
+
+    // endregion
 }

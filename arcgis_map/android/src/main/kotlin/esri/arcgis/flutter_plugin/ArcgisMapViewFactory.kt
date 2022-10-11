@@ -14,6 +14,8 @@ class ArcgisMapViewFactory(private val binaryMessenger: BinaryMessenger) :
         val optionParams = args as Map<String, Any>
         val params = optionParams.parseToClass<ArcgisMapOptions>()
 
+
+
         return ArcgisMapView(context!!, viewId, binaryMessenger, params)
     }
 }

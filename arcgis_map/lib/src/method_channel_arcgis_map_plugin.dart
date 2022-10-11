@@ -4,14 +4,13 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-const _methodChannel = MethodChannel("esri.arcgis.flutter_plugin");
-
 class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
+  MethodChannel _methodChannelBuilder(int viewId) =>
+      MethodChannel("esri.arcgis.flutter_plugin/$viewId");
+
   /// This method is called when the plugin is first initialized.
   @override
-  Future<void> init(int mapId) {
-    throw UnimplementedError('init() has not been implemented.');
-  }
+  Future<void> init(int mapId) async {}
 
   @override
   Future<FeatureLayer> addFeatureLayer(
@@ -24,11 +23,6 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
     String layerId,
   ) async {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
-  }
-
-  @override
-  Stream<double> getZoom(int mapId) {
-    throw UnimplementedError('getZoom() has not been implemented');
   }
 
   @override
@@ -88,9 +82,7 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
   }
 
   @override
-  void dispose({required int mapId}) {
-    throw UnimplementedError('dispose() has not been implemented.');
-  }
+  void dispose({required int mapId}) {}
 
   @override
   Widget buildView({
@@ -135,24 +127,27 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
 
   @override
   Future<void> zoomIn(int lodFactor, int mapId) {
-    return _methodChannel.invokeMethod(
+    return _methodChannelBuilder(mapId).invokeMethod(
       "zoom_in",
       {
         "lodFactor": lodFactor,
-        "mapId": mapId,
       },
     );
   }
 
   @override
   Future<void> zoomOut(int lodFactor, int mapId) {
-    return _methodChannel.invokeMethod(
+    return _methodChannelBuilder(mapId).invokeMethod(
       "zoom_out",
       {
         "lodFactor": lodFactor,
-        "mapId": mapId,
       },
     );
+  }
+
+  @override
+  Stream<double> getZoom(int mapId) {
+    throw UnimplementedError('addGraphic() has not been implemented.');
   }
 
   @override
