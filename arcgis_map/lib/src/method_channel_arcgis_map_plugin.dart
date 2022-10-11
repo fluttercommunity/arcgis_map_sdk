@@ -127,12 +127,24 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
 
   @override
   Future<void> zoomIn(int lodFactor, int mapId) {
-    throw UnimplementedError('zoomIn() has not been implemented.');
+    return _methodChannel.invokeMethod(
+      "zoom_in",
+      {
+        "lodFactor": lodFactor,
+        "mapId": mapId,
+      },
+    );
   }
 
   @override
   Future<void> zoomOut(int lodFactor, int mapId) {
-    throw UnimplementedError('zoomOut() has not been implemented.');
+    return _methodChannel.invokeMethod(
+      "zoom_out",
+      {
+        "lodFactor": lodFactor,
+        "mapId": mapId,
+      },
+    );
   }
 
   @override
