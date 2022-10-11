@@ -38,6 +38,17 @@ android {
         jvmTarget = '1.8'
     }
 
+    // We had the following error during the compile process:
+    // Execution failed for task ':app:mergeDebugJavaResource'.
+    // > A failure occurred while executing com.android.build.gradle.internal.tasks.MergeJavaResWorkAction
+    //   > 2 files found with path 'META-INF/DEPENDENCIES' from inputs:
+    //      - /Users/../.gradle/caches/transforms-3/ddf4eb6dce34c0e26537615a5916bd4f/transformed/jetified-httpcore5-h2-5.0.4.jar
+    //      - /Users/../.gradle/caches/transforms-3/d27aa55822e161452aa6d6e4b299715f/transformed/jetified-httpcore5-5.0.4.jar
+    // https://stackoverflow.com/questions/44342455/more-than-one-file-was-found-with-os-independent-path-meta-inf-license
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -47,8 +58,8 @@ android {
         applicationId "com.example.example"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 23
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
