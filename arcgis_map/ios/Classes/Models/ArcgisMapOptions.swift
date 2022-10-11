@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ArcgisMapOptions {
+struct ArcgisMapOptions: Codable {
     let apiKey: String
     let basemap: String
     let initialCenter: LatLng;

@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct ViewPadding {
+struct ViewPadding: Codable {
     let left: Double;
     let top: Double;
     let right: Double;
