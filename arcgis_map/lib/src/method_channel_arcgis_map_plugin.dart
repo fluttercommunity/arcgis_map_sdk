@@ -102,6 +102,9 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
       return AndroidView(
         viewType: 'native_arcgis_map_$creationId',
         creationParams: mapOptions.toMap(),
+        // TODO(Tapped): Add either Directionality.of(context) or make it adjustable
+        layoutDirection: TextDirection.ltr,
+        creationParamsCodec: const StandardMessageCodec(),
       );
     }
 
@@ -109,6 +112,9 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
       return UiKitView(
         viewType: 'native_arcgis_map_$creationId',
         creationParams: mapOptions.toMap(),
+        // TODO(Tapped): Add either Directionality.of(context) or make it adjustable
+        layoutDirection: TextDirection.ltr,
+        creationParamsCodec: const StandardMessageCodec(),
       );
     }
 
