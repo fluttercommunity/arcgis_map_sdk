@@ -11,7 +11,7 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 /// https://developers.arcgis.com/documentation/mapping-apis-and-services/deployment/basemap-attribution/#layout-and-design-guidelines
 class ArcgisMapOptions {
   final String apiKey;
-  final String basemap;
+  final BaseMap basemap;
   final LatLng initialCenter;
   final bool isInteractive;
   final double zoom;
@@ -47,7 +47,7 @@ class ArcgisMapOptions {
   Map<String, dynamic> toMap() {
     return {
       'apiKey': apiKey,
-      'basemap': basemap,
+      'basemap': basemap.name,
       'initialCenter': initialCenter.toMap(),
       'isInteractive': isInteractive,
       'zoom': zoom,

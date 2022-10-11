@@ -17,7 +17,8 @@ class ArcgisMapWebController {
   final int _mapId;
   final ArcgisMapOptions _mapOptions;
 
-  late JsEsriMap? _map = const EsriMap().init(basemap: _mapOptions.basemap);
+  late JsEsriMap? _map =
+      const EsriMap().init(basemap: _mapOptions.basemap.value);
 
   late FeatureLayerController? _featureLayerController = FeatureLayerController(
     minZoom: _mapOptions.minZoom,
@@ -76,7 +77,10 @@ class ArcgisMapWebController {
     _view = MapView().init(
       container: _div,
       map: _map,
-      center: <double>[_mapOptions.initialCenter.longitude, _mapOptions.initialCenter.latitude],
+      center: <double>[
+        _mapOptions.initialCenter.longitude,
+        _mapOptions.initialCenter.latitude
+      ],
       zoom: _mapOptions.zoom,
       padding: _mapOptions.padding,
       rotationEnabled: _mapOptions.rotationEnabled,
@@ -101,9 +105,11 @@ class ArcgisMapWebController {
     }
 
     if (!_mapOptions.isInteractive) {
-      _preventInteractionHandle = _featureLayerController!.preventInteraction(_view!);
+      _preventInteractionHandle =
+          _featureLayerController!.preventInteraction(_view!);
     }
-    _pointerMoveHandle = _featureLayerController!.registerGlobalPointerMoveEventHandler(_view!);
+    _pointerMoveHandle =
+        _featureLayerController!.registerGlobalPointerMoveEventHandler(_view!);
   }
 
   void dispose() {
@@ -127,7 +133,16 @@ class ArcgisMapWebController {
     if (context["FeatureLayer"] == null) {
       await promiseToFuture(loadFeatureLayer());
     }
-    return _featureLayerController!.createLayer(options, data, onPressed, url, getZoom, layerId, _map!, _view!);
+    return _featureLayerController!.createLayer(
+      options,
+      data,
+      onPressed,
+      url,
+      getZoom,
+      layerId,
+      _map!,
+      _view!,
+    );
   }
 
   void onClick(void Function(ArcGisMapAttributes?) onPressed) {
@@ -135,11 +150,16 @@ class ArcgisMapWebController {
   }
 
   void setMouseCursor(SystemMouseCursor cursor) {
-    return _featureLayerController!.setMouseCursor(_getViewType(_mapId), cursor);
+    return _featureLayerController!
+        .setMouseCursor(_getViewType(_mapId), cursor);
   }
 
   void updateGraphicSymbol(Symbol symbol, String polygonId) {
-    return _featureLayerController!.updateGraphicSymbol(view: _view!, symbol: symbol, polygonId: polygonId);
+    return _featureLayerController!.updateGraphicSymbol(
+      view: _view!,
+      symbol: symbol,
+      polygonId: polygonId,
+    );
   }
 
   Stream<double> getZoom() {
@@ -175,11 +195,18 @@ class ArcgisMapWebController {
   }
 
   bool graphicContainsPoint(String polygonId, LatLng pointCoordinates) {
-    return _featureLayerController!
-        .graphicContainsPoint(view: _view!, polygonId: polygonId, pointCoordinates: pointCoordinates);
+    return _featureLayerController!.graphicContainsPoint(
+      view: _view!,
+      polygonId: polygonId,
+      pointCoordinates: pointCoordinates,
+    );
   }
 
-  Future<void> moveCamera({required LatLng point, int? zoomLevel, AnimationOptions? animationOptions}) async {
+  Future<void> moveCamera({
+    required LatLng point,
+    int? zoomLevel,
+    AnimationOptions? animationOptions,
+  }) async {
     await _featureLayerController!.moveCamera(
       point: point,
       zoomLevel: zoomLevel,
@@ -213,4 +240,39 @@ class ArcgisMapWebController {
   }
 
   List<Graphic> get graphicsInView => _featureLayerController!.graphicsInView;
+}
+
+extension BaseMapExt on BaseMap {
+  static const Map<BaseMap, String> values = {
+    BaseMap.arcgisImagery: 'arcgis-imagery',
+    BaseMap.arcgisImageryStandard: 'arcgis-imagery-standard',
+    BaseMap.arcgisImageryLabels: 'arcgis-imagery-labels',
+    BaseMap.arcgisLightGray: 'arcgis-light-gray',
+    BaseMap.arcgisDarkGray: 'arcgis-dark-gray',
+    BaseMap.arcgisNavigation: 'arcgis-navigation',
+    BaseMap.arcgisNavigationNight: 'arcgis-navigation-night',
+    BaseMap.arcgisStreets: 'arcgis-streets',
+    BaseMap.arcgisStreetsNight: 'arcgis-streets-night',
+    BaseMap.arcgisStreetsRelief: 'arcgis-streets-relief',
+    BaseMap.arcgisTopographic: 'arcgis-topographic',
+    BaseMap.arcgisOceans: 'arcgis-oceans',
+    BaseMap.osmStandard: 'osm-standard',
+    BaseMap.osmStandardRelief: 'osm-standard-relief',
+    BaseMap.osmStreets: 'osm-streets',
+    BaseMap.osmStreetsRelief: 'osm-streets-relief',
+    BaseMap.osmLightGray: 'osm-light-gray',
+    BaseMap.osmDarkGray: 'osm-dark-gray',
+    BaseMap.arcgisTerrain: 'arcgis-terrain',
+    BaseMap.arcgisCommunity: 'arcgis-community',
+    BaseMap.arcgisChartedTerritory: 'arcgis-charted-territory',
+    BaseMap.arcgisColoredPencil: 'arcgis-colored-pencil',
+    BaseMap.arcgisNova: 'arcgis-nova',
+    BaseMap.arcgisModernAntique: 'arcgis-modern-antique',
+    BaseMap.arcgisMidcentury: 'arcgis-midcentury',
+    BaseMap.arcgisNewspaper: 'arcgis-newspaper',
+    BaseMap.arcgisHillshadeLight: 'arcgis-hillshade-light',
+    BaseMap.arcgisHillshadeDark: 'arcgis-hillshade-dark',
+  };
+
+  String get value => values[this]!;
 }

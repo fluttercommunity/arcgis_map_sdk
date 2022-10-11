@@ -28,38 +28,3 @@ enum BaseMap {
   arcgisHillshadeLight,
   arcgisHillshadeDark,
 }
-
-extension BaseMapExt on BaseMap {
-  static const Map<BaseMap, String> values = {
-    BaseMap.arcgisImagery: 'arcgis-imagery',
-    BaseMap.arcgisImageryStandard: 'arcgis-imagery-standard',
-    BaseMap.arcgisImageryLabels: 'arcgis-imagery-labels',
-    BaseMap.arcgisLightGray: 'arcgis-light-gray',
-    BaseMap.arcgisDarkGray: 'arcgis-dark-gray',
-    BaseMap.arcgisNavigation: 'arcgis-navigation',
-    BaseMap.arcgisNavigationNight: 'arcgis-navigation-night',
-    BaseMap.arcgisStreets: 'arcgis-streets',
-    BaseMap.arcgisStreetsNight: 'arcgis-streets-night',
-    BaseMap.arcgisStreetsRelief: 'arcgis-streets-relief',
-    BaseMap.arcgisTopographic: 'arcgis-topographic',
-    BaseMap.arcgisOceans: 'arcgis-oceans',
-    BaseMap.osmStandard: 'osm-standard',
-    BaseMap.osmStandardRelief: 'osm-standard-relief',
-    BaseMap.osmStreets: 'osm-streets',
-    BaseMap.osmStreetsRelief: 'osm-streets-relief',
-    BaseMap.osmLightGray: 'osm-light-gray',
-    BaseMap.osmDarkGray: 'osm-dark-gray',
-    BaseMap.arcgisTerrain: 'arcgis-terrain',
-    BaseMap.arcgisCommunity: 'arcgis-community',
-    BaseMap.arcgisChartedTerritory: 'arcgis-charted-territory',
-    BaseMap.arcgisColoredPencil: 'arcgis-colored-pencil',
-    BaseMap.arcgisNova: 'arcgis-nova',
-    BaseMap.arcgisModernAntique: 'arcgis-modern-antique',
-    BaseMap.arcgisMidcentury: 'arcgis-midcentury',
-    BaseMap.arcgisNewspaper: 'arcgis-newspaper',
-    BaseMap.arcgisHillshadeLight: 'arcgis-hillshade-light',
-    BaseMap.arcgisHillshadeDark: 'arcgis-hillshade-dark',
-  };
-
-  String get value => values[this]!;
-}

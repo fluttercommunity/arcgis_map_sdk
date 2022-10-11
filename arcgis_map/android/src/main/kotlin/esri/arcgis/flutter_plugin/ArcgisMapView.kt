@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.ArcGISMap
+import com.esri.arcgisruntime.mapping.Basemap
+import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import io.flutter.plugin.common.BinaryMessenger
@@ -39,8 +41,9 @@ internal class ArcgisMapView(
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
 
-        map.basemap = null //TODO
+        //TODO
 
+        map.basemap = Basemap(BasemapStyle.OSM_STANDARD_RELIEF)
         mapView.map = map
 
 
