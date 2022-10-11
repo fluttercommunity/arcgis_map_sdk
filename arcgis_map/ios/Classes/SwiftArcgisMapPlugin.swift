@@ -5,7 +5,7 @@ import ArcGIS
 public class SwiftArcgisMapPlugin: NSObject, FlutterPlugin {
         
     public static func register(with registrar: FlutterPluginRegistrar) {
-        registrar.register(ArcgisMapViewFactory(messenger: registrar.messenger()), withId: "<vector-map>")
+        registrar.register(ArcgisMapViewFactory(messenger: registrar.messenger()), withId: "<native_map_view>")
     
         let instance = SwiftArcgisMapPlugin()
         let channel = FlutterMethodChannel(
