@@ -45,22 +45,28 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
         
-        map.basemap = AGSBasemap()
+        super.init()
+        map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap))
         mapView.map = map
+        
         
     
         let viewport = AGSViewpoint(
-            latitude: mapOptions.initialCenter.longitude,
-            longitude: mapOptions.initialCenter.latitude,
-            scale: mapOptions.zoom
+            latitude: mapOptions.initialCenter.latitude,
+            longitude: mapOptions.initialCenter.longitude,
+            // TODO(tapped): we might not be able to have zoom and scale under the same api
+            // for now we just multiply it by 1000 to have a similar effect
+            scale: mapOptions.zoom * 1000
         )
         mapView.setViewpoint(viewport, duration: 0) { _ in }
+        
         map.maxExtent = AGSEnvelope(
             min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
             max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
         )
+        /*
         map.minScale = Double(mapOptions.minZoom)
-        map.maxScale = Double(mapOptions.maxZoom)
+        map.maxScale = Double(mapOptions.maxZoom)*/
         
         //map.basemap =
         
@@ -96,7 +102,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         
         */
-        super.init()
+        
         setupMethodChannel()
         
         mapErrorObservation = map.observe(\.loadError) { [weak self] (map, notifier) in
@@ -123,5 +129,124 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
         })
+    }
+    
+    private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
+        return AGSBasemapStyle.allCases.first { enumValue in
+            enumValue.getJsonValue() == string
+        }!
+    }
+}
+
+extension AGSBasemapStyle: CaseIterable {
+    public static var allCases: [AGSBasemapStyle] {
+        return [ .arcGISImagery, .arcGISImageryStandard, .arcGISImageryLabels, .arcGISLightGray, .arcGISLightGrayBase, .arcGISLightGrayLabels, .arcGISDarkGray,.arcGISDarkGrayBase, .arcGISDarkGrayLabels, .arcGISNavigation, .arcGISNavigationNight, .arcGISStreets, .arcGISStreetsNight, .arcGISStreetsRelief, .arcGISTopographic,
+                 .arcGISOceans, .arcGISOceansBase,.arcGISOceansLabels, .arcGISTerrain, .arcGISTerrainBase, .arcGISTerrainDetail,
+                 .arcGISCommunity, .arcGISChartedTerritory,.arcGISColoredPencil, .arcGISNova, .arcGISModernAntique,
+                 .arcGISMidcentury, .arcGISNewspaper, .arcGISHillshadeLight, .arcGISHillshadeDark, .arcGISStreetsReliefBase,
+                 .arcGISTopographicBase, .arcGISChartedTerritoryBase, .arcGISModernAntiqueBase, .osmStandard, .osmStandardRelief,
+                 .osmStandardReliefBase, .osmStreets, .osmStreetsRelief, .osmLightGray, .osmLightGrayBase, .osmLightGrayLabels,
+                 .osmDarkGray, .osmDarkGrayBase, .osmDarkGrayLabels, .osmStreetsReliefBase]
+    }
+}
+
+extension AGSBasemapStyle {
+    func getJsonValue() -> String? {
+        switch self {
+        case .arcGISImagery:
+            return "arcgisImagery"
+        case .arcGISImageryStandard:
+            return "arcgisImageryStandard"
+        case .arcGISImageryLabels:
+            return "arcgisImageryLabels"
+        case .arcGISLightGray:
+            return "arcgisLightGray"
+        case .arcGISLightGrayBase:
+            return "arcgisDarkGray"
+        case .arcGISLightGrayLabels:
+            return nil
+        case .arcGISDarkGray:
+            return nil
+        case .arcGISDarkGrayBase:
+            return nil
+        case .arcGISDarkGrayLabels:
+            return nil
+        case .arcGISNavigation:
+            return "arcgisNavigation"
+        case .arcGISNavigationNight:
+            return "arcgisNavigationNight"
+        case .arcGISStreets:
+            return "arcgisStreets"
+        case .arcGISStreetsNight:
+            return "arcgisStreetsNight"
+        case .arcGISStreetsRelief:
+            return "arcgisStreetsRelief"
+        case .arcGISTopographic:
+            return "arcgisTopographic"
+        case .arcGISOceans:
+            return "arcgisOceans"
+        case .arcGISOceansBase:
+            return nil
+        case .arcGISOceansLabels:
+            return nil
+        case .arcGISTerrain:
+            return "arcgisTerrain"
+        case .arcGISTerrainBase:
+            return nil
+        case .arcGISTerrainDetail:
+            return nil
+        case .arcGISCommunity:
+            return "arcgisCommunity"
+        case .arcGISChartedTerritory:
+            return "arcgisChartedTerritory"
+        case .arcGISColoredPencil:
+            return "arcgisColoredPencil"
+        case .arcGISNova:
+            return "arcgisNova"
+        case .arcGISModernAntique:
+            return "arcgisModernAntique"
+        case .arcGISMidcentury:
+            return "arcgisMidcentury"
+        case .arcGISNewspaper:
+            return "arcgisNewspaper"
+        case .arcGISHillshadeLight:
+            return "arcgisHillshadeLight"
+        case .arcGISHillshadeDark:
+            return "arcgisHillshadeDark"
+        case .arcGISStreetsReliefBase:
+            return nil
+        case .arcGISTopographicBase:
+            return nil
+        case .arcGISChartedTerritoryBase:
+            return nil
+        case .arcGISModernAntiqueBase:
+            return nil
+        case .osmStandard:
+            return "osmStandard"
+        case .osmStandardRelief:
+            return "osmStandardRelief"
+        case .osmStandardReliefBase:
+            return "osmStreetsReliefBase"
+        case .osmStreets:
+            return "osmStreets"
+        case .osmStreetsRelief:
+            return "osmStreetsRelief"
+        case .osmLightGray:
+            return "osmLightGray"
+        case .osmLightGrayBase:
+            return nil
+        case .osmLightGrayLabels:
+            return nil
+        case .osmDarkGray:
+            return "osmDarkGray"
+        case .osmDarkGrayBase:
+            return nil
+        case .osmDarkGrayLabels:
+            return nil
+        case .osmStreetsReliefBase:
+            return nil
+        @unknown default:
+            return nil
+        }
     }
 }
