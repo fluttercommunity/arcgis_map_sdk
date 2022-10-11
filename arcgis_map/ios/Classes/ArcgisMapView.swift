@@ -45,7 +45,34 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
         
+        map.basemap = AGSBasemap()
         mapView.map = map
+        
+    
+        let viewport = AGSViewpoint(
+            latitude: mapOptions.initialCenter.longitude,
+            longitude: mapOptions.initialCenter.latitude,
+            scale: mapOptions.zoom
+        )
+        mapView.setViewpoint(viewport, duration: 0) { _ in }
+        map.maxExtent = AGSEnvelope(
+            min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
+            max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
+        )
+        map.minScale = Double(mapOptions.minZoom)
+        map.maxScale = Double(mapOptions.maxZoom)
+        
+        //map.basemap =
+        
+        /*
+
+         let basemap: String
+
+         let hideDefaultZoomButtons: Bool
+         let hideAttribution: Bool
+         let padding: ViewPadding
+         let rotationEnabled: Bool
+         */
         
         /*
         let layer: AGSArcGISVectorTiledLayer = {
