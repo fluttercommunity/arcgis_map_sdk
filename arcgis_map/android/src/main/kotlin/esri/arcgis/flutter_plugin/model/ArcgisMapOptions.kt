@@ -4,6 +4,7 @@ import com.esri.arcgisruntime.mapping.BasemapStyle
 
 data class ArcgisMapOptions(
     val apiKey: String,
+    val basemap: BasemapStyle,
     val initialCenter: LatLng,
     val isInteractive: Boolean,
     val zoom: Double,
@@ -17,6 +18,4 @@ data class ArcgisMapOptions(
     val xMax: Double,
     val yMin: Double,
     val yMax: Double,
-) {
-    val basemap: BasemapStyle = BasemapStyle.ARCGIS_DARK_GRAY
-}
+)
