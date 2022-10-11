@@ -8,7 +8,7 @@ import ArcGIS
 import Foundation
 
 
-struct LatLng {
+struct LatLng: Codable {
     let latitude: Double
     let longitude: Double
 }

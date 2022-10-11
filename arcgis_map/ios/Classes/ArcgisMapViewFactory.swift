@@ -21,10 +21,13 @@ class ArcgisMapViewFactory: NSObject, FlutterPlatformViewFactory {
         viewIdentifier viewId: Int64,
         arguments args: Any?
     ) -> FlutterPlatformView {
+        let dict = args as! Dictionary<String, Any>
+        let mapOptions: ArcgisMapOptions = try! JsonUtil.objectOfJson(dict)
+        
         return ArcgisMapView(
             frame: frame,
             viewIdentifier: viewId,
-            arguments: args,
+            mapOptions: mapOptions,
             binaryMessenger: messenger
         )
     }

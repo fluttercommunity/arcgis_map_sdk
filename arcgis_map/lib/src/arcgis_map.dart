@@ -3,9 +3,12 @@
 // cache key. This needs to be provided from the outside, because web
 // views seem to re-render much more often that mobile platform views.
 import 'dart:async';
+import 'dart:io';
 
 import 'package:arcgis_map/src/arcgis_map_controller.dart';
+import 'package:arcgis_map/src/method_channel_arcgis_map_plugin.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 int _nextMapCreationId = 0;
@@ -78,6 +81,18 @@ class _ArcgisMapState extends State<ArcgisMap> {
   Future<void> onPlatformViewCreated(int id) async {
     controller = await ArcgisMapController.init(id);
     widget.onMapCreated?.call(controller);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      return;
+      // TODO(tapped): split impl up into AndroidArcgisMapPlugin and CupertinoArcgisMapPlugin() ?
+    } else if (Platform.isIOS || Platform.isAndroid) {
+      ArcgisMapPlatform.instance = MethodChannelArcgisMapPlugin();
+    }
   }
 
   @override

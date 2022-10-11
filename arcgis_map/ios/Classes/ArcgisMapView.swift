@@ -34,47 +34,47 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     init(
         frame: CGRect,
         viewIdentifier viewId: Int64,
-        arguments args: Any?,
+        mapOptions: ArcgisMapOptions,
         binaryMessenger messenger: FlutterBinaryMessenger
     ) {
-
-        /*
-        let dict = args as! Dictionary<String, Any>
-        let creationParams = try! JsonUtil.objectOfJson(dict)
-        
-        AGSArcGISRuntimeEnvironment.apiKey = creationParams.apiKey
-        
-        mapView = AGSMapView.init(frame: frame)
-        
-
         channel = FlutterMethodChannel(
             name: "esri.arcgis.flutter_plugin.native_view\(viewId)",
             binaryMessenger: messenger
         )
         
-        super.init()
-        setupMap(creationParams: creationParams)
-        setupMethodChannel()
+        AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
+        mapView = AGSMapView.init(frame: frame)
         
-        mapErrorObservation = map.observe(\.loadError) { [weak self] (map, notifier) in
-            guard let error = map.loadError else { return }
-            
-            DispatchQueue.main.async {
-                self?.notifyError("\(error)")
-            }
-        }
+        map.basemap = AGSBasemap()
+        mapView.map = map
         
-        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
-            DispatchQueue.main.async {
-                let status = map.loadStatus
-                self?.notifyStatus(status)
-            }
-        }*/
-    }
     
-    private func setupMap() {
-        /*
+        let viewport = AGSViewpoint(
+            latitude: mapOptions.initialCenter.longitude,
+            longitude: mapOptions.initialCenter.latitude,
+            scale: mapOptions.zoom
+        )
+        mapView.setViewpoint(viewport, duration: 0) { _ in }
+        map.maxExtent = AGSEnvelope(
+            min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
+            max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
+        )
+        map.minScale = Double(mapOptions.minZoom)
+        map.maxScale = Double(mapOptions.maxZoom)
         
+        //map.basemap =
+        
+        /*
+
+         let basemap: String
+
+         let hideDefaultZoomButtons: Bool
+         let hideAttribution: Bool
+         let padding: ViewPadding
+         let rotationEnabled: Bool
+         */
+        
+        /*
         let layer: AGSArcGISVectorTiledLayer = {
             let url = URL(string: creationParams.tileServerUrl)!
             let layer = AGSArcGISVectorTiledLayer(url: url)
@@ -85,7 +85,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         map.maxScale = creationParams.maxScaleFactor
         map.basemap = AGSBasemap.init(baseLayer: layer)
         
-        mapView.map = map
+        
         mapView.graphicsOverlays.add(graphicsOverlay)
         
         
@@ -93,7 +93,26 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         let viewport = AGSViewpoint(latitude: center.lat, longitude: center.long, scale: mapView.mapScale)
         mapView.setViewpoint(viewport, duration: 0) { _ in }
-         */
+        
+        
+        */
+        super.init()
+        setupMethodChannel()
+        
+        mapErrorObservation = map.observe(\.loadError) { [weak self] (map, notifier) in
+            guard let error = map.loadError else { return }
+            
+            DispatchQueue.main.async {
+                //self?.notifyError("\(error)")
+            }
+        }
+        
+        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
+            DispatchQueue.main.async {
+                let status = map.loadStatus
+                //self?.notifyStatus(status)
+            }
+        }
     }
     
     
