@@ -1,8 +1,10 @@
 package esri.arcgis.flutter_plugin.model
 
+import com.esri.arcgisruntime.mapping.BasemapStyle
+
 data class ArcgisMapOptions(
     val apiKey: String,
-    val basemap: String,
+    val basemap: BasemapStyle,
     val initialCenter: LatLng,
     val isInteractive: Boolean,
     val zoom: Double,

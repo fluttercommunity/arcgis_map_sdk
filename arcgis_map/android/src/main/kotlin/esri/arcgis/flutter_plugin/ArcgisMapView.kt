@@ -41,9 +41,7 @@ internal class ArcgisMapView(
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
 
-        //TODO
-
-        map.basemap = Basemap(BasemapStyle.OSM_STANDARD_RELIEF)
+        map.basemap = Basemap(mapOptions.basemap)
         mapView.map = map
 
 

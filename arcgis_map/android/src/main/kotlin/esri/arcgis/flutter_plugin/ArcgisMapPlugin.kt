@@ -7,7 +7,7 @@ class ArcgisMapPlugin : FlutterPlugin {
         flutterPluginBinding
             .platformViewRegistry
             .registerViewFactory(
-                "<vector-map>",
+                "<native_map_view>",
                 ArcgisMapViewFactory(flutterPluginBinding.binaryMessenger)
             )
     }
