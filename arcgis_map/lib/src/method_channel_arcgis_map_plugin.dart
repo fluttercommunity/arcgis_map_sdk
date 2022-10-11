@@ -77,12 +77,14 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
   }
 
   @override
-  bool graphicContainsPoint(
-      {required String polygonId,
-      required LatLng pointCoordinates,
-      required int mapId}) {
+  bool graphicContainsPoint({
+    required String polygonId,
+    required LatLng pointCoordinates,
+    required int mapId,
+  }) {
     throw UnimplementedError(
-        'graphicContainsPoint() has not been implemented.');
+      'graphicContainsPoint() has not been implemented.',
+    );
   }
 
   @override
@@ -175,6 +177,7 @@ class MethodChannelArcgisMapPlugin implements ArcgisMapPlatform {
   @override
   List<String> getVisibleGraphicIds(int mapId) {
     throw UnimplementedError(
-        'getVisibleGraphicIds() has not been implemented.');
+      'getVisibleGraphicIds() has not been implemented.',
+    );
   }
 }
