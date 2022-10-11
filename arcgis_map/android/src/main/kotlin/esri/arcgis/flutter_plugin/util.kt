@@ -10,7 +10,7 @@ import com.google.gson.stream.JsonWriter
 
 val gson: Gson by lazy {
     val builder = GsonBuilder()
-    builder.registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
+    //builder.registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
     builder.create()
 }
 
@@ -24,8 +24,8 @@ fun toMap(data: Any): Map<Any, Any> {
     return gson.fromJson(jsonString, object : TypeToken<Map<Any, Any>>() {}.type)
 }
 
-// TODO 
-class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
+//TODO
+/*class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     override fun write(out: JsonWriter, value: BasemapStyle) {
         out.value(BasemapStyle.OSM_STANDARD_RELIEF.name)
     }
@@ -33,4 +33,4 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     override fun read(reader: JsonReader): BasemapStyle {
         return BasemapStyle.OSM_STANDARD_RELIEF
     }
-}
+}*/
