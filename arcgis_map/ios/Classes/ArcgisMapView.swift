@@ -56,11 +56,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         mapView.setViewpoint(viewport, duration: 0) { _ in }
         
+        /*
         map.maxExtent = AGSEnvelope(
             min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
             max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
         )
-        
+        */
         
         /*
          TODO: check if those properties are supported natively

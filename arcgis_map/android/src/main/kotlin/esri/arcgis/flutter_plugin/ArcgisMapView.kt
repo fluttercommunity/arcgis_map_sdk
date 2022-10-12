@@ -6,6 +6,7 @@ import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
+import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import io.flutter.plugin.common.BinaryMessenger
@@ -39,6 +40,15 @@ internal class ArcgisMapView(
 
         map.basemap = Basemap(mapOptions.basemap)
         mapView.map = map
+
+        val viewPoint = Viewpoint(
+            mapOptions.initialCenter.latitude,
+            mapOptions.initialCenter.longitude,
+            // TODO: we might not be able to have zoom and scale under the same api
+            // for now we just multiply it by 1000 to have a similar effect
+            mapOptions.zoom * 1000
+        )
+        mapView.setViewpoint(viewPoint)
 
         setupMethodChannel()
     }
