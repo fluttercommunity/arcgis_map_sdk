@@ -47,7 +47,8 @@ class PointGraphic implements Graphic {
       };
 
   @override
-  String toString() => 'PointGraphic(longitude: $longitude, latitude: $latitude, attributes: $attributes)';
+  String toString() =>
+      'PointGraphic(longitude: $longitude, latitude: $latitude, attributes: $attributes)';
 
   @override
   String getAttributesId() => attributes.id;
@@ -89,7 +90,8 @@ class PolygonGraphic implements Graphic {
       };
 
   @override
-  String toString() => 'PolygonGraphic(rings: $rings, symbol: $symbol, attributes: $attributes)';
+  String toString() =>
+      'PolygonGraphic(rings: $rings, symbol: $symbol, attributes: $attributes)';
 
   @override
   String getAttributesId() => attributes.id;

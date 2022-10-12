@@ -75,8 +75,14 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('destroyFeatureLayer() has not been implemented.');
   }
 
-  bool graphicContainsPoint({required String polygonId, required LatLng pointCoordinates, required int mapId}) {
-    throw UnimplementedError('graphicContainsPoint() has not been implemented.');
+  bool graphicContainsPoint({
+    required String polygonId,
+    required LatLng pointCoordinates,
+    required int mapId,
+  }) {
+    throw UnimplementedError(
+      'graphicContainsPoint() has not been implemented.',
+    );
   }
 
   void dispose({required int mapId}) {
@@ -129,6 +135,8 @@ class ArcgisMapPlatform extends PlatformInterface {
   }
 
   List<String> getVisibleGraphicIds(int mapId) {
-    throw UnimplementedError('getVisibleGraphicIds() has not been implemented.');
+    throw UnimplementedError(
+      'getVisibleGraphicIds() has not been implemented.',
+    );
   }
 }

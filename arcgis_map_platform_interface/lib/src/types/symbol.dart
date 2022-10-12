@@ -42,7 +42,12 @@ class SimpleMarkerSymbol implements Symbol {
         'type': 'simple-marker',
         'color': [color.red, color.green, color.blue, colorOpacity],
         'outline': <String, dynamic>{
-          'color': [outlineColor.red, outlineColor.green, outlineColor.blue, outlineColorOpacity],
+          'color': [
+            outlineColor.red,
+            outlineColor.green,
+            outlineColor.blue,
+            outlineColorOpacity
+          ],
           'width': outlineWidth,
         },
       };
@@ -101,7 +106,11 @@ class SimpleFillSymbol implements Symbol {
         'type': 'simple-fill',
         'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
         'outline': {
-          'color': [outlineColor.red, outlineColor.green, outlineColor.blue], // White
+          'color': [
+            outlineColor.red,
+            outlineColor.green,
+            outlineColor.blue
+          ], // White
           'width': outlineWidth
         }
       };

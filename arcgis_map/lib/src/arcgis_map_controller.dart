@@ -23,7 +23,15 @@ class ArcgisMapController {
     String? url,
     void Function(double)? getZoom,
   }) async {
-    return ArcgisMapPlatform.instance.addFeatureLayer(options, data, onPressed, url, mapId, getZoom, layerId);
+    return ArcgisMapPlatform.instance.addFeatureLayer(
+      options,
+      data,
+      onPressed,
+      url,
+      mapId,
+      getZoom,
+      layerId,
+    );
   }
 
   Stream<double> getZoom() {
@@ -63,17 +71,32 @@ class ArcgisMapController {
   }
 
   bool destroyFeatureLayer({required String id}) {
-    return ArcgisMapPlatform.instance.destroyFeatureLayer(layerId: id, mapId: mapId);
+    return ArcgisMapPlatform.instance
+        .destroyFeatureLayer(layerId: id, mapId: mapId);
   }
 
-  bool graphicContainsPoint({required String polygonId, required LatLng pointCoordinates}) {
-    return ArcgisMapPlatform.instance
-        .graphicContainsPoint(polygonId: polygonId, pointCoordinates: pointCoordinates, mapId: mapId);
+  bool graphicContainsPoint({
+    required String polygonId,
+    required LatLng pointCoordinates,
+  }) {
+    return ArcgisMapPlatform.instance.graphicContainsPoint(
+      polygonId: polygonId,
+      pointCoordinates: pointCoordinates,
+      mapId: mapId,
+    );
   }
 
-  Future<void> moveCamera({required LatLng point, int? zoomLevel, AnimationOptions? animationOptions}) {
-    return ArcgisMapPlatform.instance
-        .moveCamera(mapId: mapId, point: point, zoomLevel: zoomLevel, animationOptions: animationOptions);
+  Future<void> moveCamera({
+    required LatLng point,
+    int? zoomLevel,
+    AnimationOptions? animationOptions,
+  }) {
+    return ArcgisMapPlatform.instance.moveCamera(
+      mapId: mapId,
+      point: point,
+      zoomLevel: zoomLevel,
+      animationOptions: animationOptions,
+    );
   }
 
   Future<void> zoomIn({required int lodFactor}) {
