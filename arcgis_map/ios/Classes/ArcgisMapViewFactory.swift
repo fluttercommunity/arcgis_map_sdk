@@ -1,10 +1,3 @@
-//
-//  VectorMapViewFactory.swift
-//  Runner
-//
-//  Created by Julian Bissekkou on 10.05.22.
-//
-
 import Flutter
 import UIKit
 

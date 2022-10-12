@@ -9,9 +9,9 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 
 val gson: Gson by lazy {
-    val builder = GsonBuilder()
-    builder.registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
-    builder.create()
+    GsonBuilder()
+        .registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
+        .create()
 }
 
 inline fun <reified O> Map<String, Any>.parseToClass(): O {

@@ -15,8 +15,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 
 /**
- * Native android view for the map since the Flutter map is super slow on old Android devices.
- * Some documentation for the current implementation: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
+ * The PlatformView that displays an ArcGis MapView.
+ * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
     context: Context,
@@ -40,6 +40,7 @@ internal class ArcgisMapView(
 
         map.basemap = Basemap(mapOptions.basemap)
         mapView.map = map
+
 
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude,
