@@ -273,7 +273,8 @@ class _ExampleMapState extends State<ExampleMap> {
         children: [
           ArcgisMap(
             apiKey: "YOUR KEY HERE",
-            basemap: _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
+            basemap:
+                _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
             zoom: 4,
             hideDefaultZoomButtons: true,
