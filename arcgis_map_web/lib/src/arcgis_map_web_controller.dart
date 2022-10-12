@@ -76,7 +76,10 @@ class ArcgisMapWebController {
     _view = MapView().init(
       container: _div,
       map: _map,
-      center: <double>[_mapOptions.initialCenter.longitude, _mapOptions.initialCenter.latitude],
+      center: <double>[
+        _mapOptions.initialCenter.longitude,
+        _mapOptions.initialCenter.latitude
+      ],
       zoom: _mapOptions.zoom,
       padding: _mapOptions.padding,
       rotationEnabled: _mapOptions.rotationEnabled,
@@ -101,9 +104,11 @@ class ArcgisMapWebController {
     }
 
     if (!_mapOptions.isInteractive) {
-      _preventInteractionHandle = _featureLayerController!.preventInteraction(_view!);
+      _preventInteractionHandle =
+          _featureLayerController!.preventInteraction(_view!);
     }
-    _pointerMoveHandle = _featureLayerController!.registerGlobalPointerMoveEventHandler(_view!);
+    _pointerMoveHandle =
+        _featureLayerController!.registerGlobalPointerMoveEventHandler(_view!);
   }
 
   void dispose() {
@@ -127,7 +132,16 @@ class ArcgisMapWebController {
     if (context["FeatureLayer"] == null) {
       await promiseToFuture(loadFeatureLayer());
     }
-    return _featureLayerController!.createLayer(options, data, onPressed, url, getZoom, layerId, _map!, _view!);
+    return _featureLayerController!.createLayer(
+      options,
+      data,
+      onPressed,
+      url,
+      getZoom,
+      layerId,
+      _map!,
+      _view!,
+    );
   }
 
   void onClick(void Function(ArcGisMapAttributes?) onPressed) {
@@ -135,11 +149,16 @@ class ArcgisMapWebController {
   }
 
   void setMouseCursor(SystemMouseCursor cursor) {
-    return _featureLayerController!.setMouseCursor(_getViewType(_mapId), cursor);
+    return _featureLayerController!
+        .setMouseCursor(_getViewType(_mapId), cursor);
   }
 
   void updateGraphicSymbol(Symbol symbol, String polygonId) {
-    return _featureLayerController!.updateGraphicSymbol(view: _view!, symbol: symbol, polygonId: polygonId);
+    return _featureLayerController!.updateGraphicSymbol(
+      view: _view!,
+      symbol: symbol,
+      polygonId: polygonId,
+    );
   }
 
   Stream<double> getZoom() {
@@ -175,11 +194,18 @@ class ArcgisMapWebController {
   }
 
   bool graphicContainsPoint(String polygonId, LatLng pointCoordinates) {
-    return _featureLayerController!
-        .graphicContainsPoint(view: _view!, polygonId: polygonId, pointCoordinates: pointCoordinates);
+    return _featureLayerController!.graphicContainsPoint(
+      view: _view!,
+      polygonId: polygonId,
+      pointCoordinates: pointCoordinates,
+    );
   }
 
-  Future<void> moveCamera({required LatLng point, int? zoomLevel, AnimationOptions? animationOptions}) async {
+  Future<void> moveCamera({
+    required LatLng point,
+    int? zoomLevel,
+    AnimationOptions? animationOptions,
+  }) async {
     await _featureLayerController!.moveCamera(
       point: point,
       zoomLevel: zoomLevel,

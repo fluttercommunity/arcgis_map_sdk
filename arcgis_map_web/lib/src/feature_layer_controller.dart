@@ -54,7 +54,10 @@ class FeatureLayerController {
       );
     } else {
       // Checks if a feature layer with the layerId is already in use
-      if (!featureLayers.map((featureLayer) => featureLayer.id).toList(growable: false).contains(layerId)) {
+      if (!featureLayers
+          .map((featureLayer) => featureLayer.id)
+          .toList(growable: false)
+          .contains(layerId)) {
         layer = JsFeatureLayer(
           jsify({
             'id': layerId,
@@ -86,10 +89,12 @@ class FeatureLayerController {
       view.on(
         ['click'],
         allowInterop((event) async {
-          final JsHitTestResult hitTestResult = await view.hitTest(event).toFuture();
+          final JsHitTestResult hitTestResult =
+              await view.hitTest(event).toFuture();
           if (hitTestResult.results?.isNotEmpty ?? false) {
             for (final HitTestResultItem result in hitTestResult.results!) {
-              final Map item = result.graphic.attributes as Map<dynamic, dynamic>;
+              final Map item =
+                  result.graphic.attributes as Map<dynamic, dynamic>;
               onPressed(item);
             }
           }
@@ -106,7 +111,11 @@ class FeatureLayerController {
 
   /// Check if the polygon with the [polygonId] contains the point with the
   /// [pointCoordinates]
-  bool graphicContainsPoint({required JsMapView view, required String polygonId, required LatLng pointCoordinates}) {
+  bool graphicContainsPoint({
+    required JsMapView view,
+    required String polygonId,
+    required LatLng pointCoordinates,
+  }) {
     final JsGraphic? graphic = view.graphics.find(
       allowInterop((JsGraphic graphic, _, __) {
         final result = graphic.attributes.id as String?;
@@ -130,7 +139,8 @@ class FeatureLayerController {
     // In order to stop watching on the zoom when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     dynamic handle;
-    final StreamController<double> _zoomController = StreamController(onCancel: () => handle.remove());
+    final StreamController<double> _zoomController =
+        StreamController(onCancel: () => handle.remove());
     handle = view.watch(
       'zoom',
       allowInterop(
@@ -162,7 +172,10 @@ class FeatureLayerController {
       allowInterop(
         (newValue, _, __, ___) {
           if (newValue != null) {
-            final _centerViewPoint = LatLng(newValue.latitude as double, newValue.longitude as double);
+            final _centerViewPoint = LatLng(
+              newValue.latitude as double,
+              newValue.longitude as double,
+            );
             _positionController.add(_centerViewPoint);
           }
         },
@@ -179,7 +192,8 @@ class FeatureLayerController {
   Stream<List<String>> visibleGraphics(JsMapView view) {
     List<String> graphicIdsInViewBuffer = <String>[];
     dynamic handle;
-    final StreamController<List<String>> _visibleGraphicsController = StreamController(
+    final StreamController<List<String>> _visibleGraphicsController =
+        StreamController(
       onCancel: () {
         handle?.remove();
       },
@@ -190,7 +204,9 @@ class FeatureLayerController {
         final List<String> graphicIdsInView = <String>[];
         view.graphics.forEach(
           allowInterop((graphic, _, __) {
-            final bool isInView = (newValue as JsExtent?)?.intersects(graphic.geometry.extent) ?? false;
+            final bool isInView =
+                (newValue as JsExtent?)?.intersects(graphic.geometry.extent) ??
+                    false;
             if (isInView) {
               graphicIdsInView.add(graphic.attributes.id as String);
             }
@@ -214,7 +230,8 @@ class FeatureLayerController {
     final List<String> graphicIdsInView = <String>[];
     view.graphics.forEach(
       allowInterop((graphic, _, __) {
-        final bool isInView = extent?.intersects(graphic.geometry.extent) ?? false;
+        final bool isInView =
+            extent?.intersects(graphic.geometry.extent) ?? false;
         if (isInView) {
           graphicIdsInView.add(graphic.attributes.id as String);
         }
@@ -241,7 +258,8 @@ class FeatureLayerController {
       'extent',
       allowInterop((newValue, _, __, ___) {
         if (newValue is JsExtent) {
-          final centerViewPoint = LatLng(newValue.center.latitude, newValue.center.longitude);
+          final centerViewPoint =
+              LatLng(newValue.center.latitude, newValue.center.longitude);
           final xDistanceFromViewCenter = newValue.width / 2;
           final yDistanceFromViewCenter = newValue.height / 2;
 
@@ -279,7 +297,8 @@ class FeatureLayerController {
     // In order to stop watching on the JsAttribution when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     dynamic handle;
-    final StreamController<String> attributionController = StreamController(onCancel: () => handle?.remove());
+    final StreamController<String> attributionController =
+        StreamController(onCancel: () => handle?.remove());
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // A Javascript widget is created to get the Stream with the attribution text, then it is removed from the view,
@@ -313,7 +332,11 @@ class FeatureLayerController {
   }
 
   /// Updates the graphic representation of an existing polygon via the [SimpleFillSymbol].
-  void updateGraphicSymbol({required JsMapView view, required Symbol symbol, required String polygonId}) {
+  void updateGraphicSymbol({
+    required JsMapView view,
+    required Symbol symbol,
+    required String polygonId,
+  }) {
     final JsGraphic? graphic = view.graphics.find(
       allowInterop((JsGraphic graphic, _, __) {
         final result = graphic.attributes.id as String?;
@@ -332,11 +355,14 @@ class FeatureLayerController {
     view.on(
       ['click'],
       allowInterop((event) async {
-        final JsHitTestResult hitTestResult = await view.hitTest(event).toFuture();
+        final JsHitTestResult hitTestResult =
+            await view.hitTest(event).toFuture();
         final int resultsLength = hitTestResult.results?.length ?? 0;
 
-        if (resultsLength > 0 && hitTestResult.results![0].graphic.attributes.id != null) {
-          final graphicAttributes = hitTestResult.results![0].graphic.attributes;
+        if (resultsLength > 0 &&
+            hitTestResult.results![0].graphic.attributes.id != null) {
+          final graphicAttributes =
+              hitTestResult.results![0].graphic.attributes;
           onPressed(
             ArcGisMapAttributes(
               id: graphicAttributes.id as String,
@@ -371,7 +397,10 @@ class FeatureLayerController {
   Future<void> _addFeatures(List<Graphic> data, dynamic features) async {
     await layer
         .applyEdits(
-          jsify({"deleteFeatures": features, "addFeatures": data.map((Graphic graphic) => graphic.toJson())}),
+          jsify({
+            "deleteFeatures": features,
+            "addFeatures": data.map((Graphic graphic) => graphic.toJson())
+          }),
         )
         .toFuture();
   }
@@ -419,7 +448,10 @@ class FeatureLayerController {
     final Map targetOptions = {};
 
     if (animationOptions != null) {
-      targetOptions.addAll({'duration': animationOptions.duration, 'easing': animationOptions.animationCurve.value});
+      targetOptions.addAll({
+        'duration': animationOptions.duration,
+        'easing': animationOptions.animationCurve.value
+      });
     }
 
     await view.goTo(jsify(target), jsify(targetOptions)).toFuture();
@@ -470,7 +502,9 @@ class FeatureLayerController {
       );
     }
 
-    if (graphic.onHover == null && graphic.onEnter == null && graphic.onExit == null) return;
+    if (graphic.onHover == null &&
+        graphic.onEnter == null &&
+        graphic.onExit == null) return;
     _graphics[graphic] = HoveredState.notHovered;
   }
 
@@ -486,7 +520,8 @@ class FeatureLayerController {
           () async {
             try {
               executing = true;
-              final JsHitTestResult hitTestResult = await view.hitTest(event).toFuture();
+              final JsHitTestResult hitTestResult =
+                  await view.hitTest(event).toFuture();
               final int resultsLength = hitTestResult.results?.length ?? 0;
               _setGraphicsHoverStatus(resultsLength, hitTestResult);
             } finally {
@@ -498,9 +533,13 @@ class FeatureLayerController {
     );
   }
 
-  void _setGraphicsHoverStatus(int resultsLength, JsHitTestResult hitTestResult) {
+  void _setGraphicsHoverStatus(
+    int resultsLength,
+    JsHitTestResult hitTestResult,
+  ) {
     if (resultsLength < 1) return;
-    final String? hitTestId = hitTestResult.results?[0].graphic.attributes?.id as String?;
+    final String? hitTestId =
+        hitTestResult.results?[0].graphic.attributes?.id as String?;
     for (final Graphic graphic in _graphics.keys) {
       if (hitTestId == graphic.getAttributesId()) {
         graphic.onHover?.call(true);
@@ -540,7 +579,8 @@ class FeatureLayerController {
       handle?.remove();
       _activeHandles.remove(graphicId);
     }
-    _graphics.removeWhere((graphic, _) => graphic.getAttributesId() == graphicId);
+    _graphics
+        .removeWhere((graphic, _) => graphic.getAttributesId() == graphicId);
   }
 
   void toggleBaseMap({required JsMapView view, required BaseMap baseMap}) {

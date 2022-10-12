@@ -74,7 +74,8 @@ class ViewPadding {
           bottom == other.bottom;
 
   @override
-  int get hashCode => left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
+  int get hashCode =>
+      left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
 
   @override
   String toString() {

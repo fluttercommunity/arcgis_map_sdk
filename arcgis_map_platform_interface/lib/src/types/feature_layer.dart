@@ -1,7 +1,14 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 
 class FeatureLayer {
-  FeatureLayer({this.id, this.data, this.onPressed, this.url, this.options, this.onChanged});
+  FeatureLayer({
+    this.id,
+    this.data,
+    this.onPressed,
+    this.url,
+    this.options,
+    this.onChanged,
+  });
 
   final String? id;
   final List<Graphic>? data;

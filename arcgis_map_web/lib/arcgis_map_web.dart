@@ -168,7 +168,13 @@ class Accessor {
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#watch
   external WatchHandle watch(
     String path,
-    void Function(dynamic newValue, dynamic oldValue, String propertyName, dynamic target) callback,
+    void Function(
+      dynamic newValue,
+      dynamic oldValue,
+      String propertyName,
+      dynamic target,
+    )
+        callback,
   );
 }
 

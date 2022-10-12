@@ -83,14 +83,18 @@ const highlightedOrangeFillSymbol = SimpleFillSymbol(
 const polygonGraphic = PolygonGraphic(
   rings: redPolygon,
   symbol: redFillSymbol,
-  attributes: ArcGisMapAttributes(id: 'red-polygon-Id-0', name: 'Red polygon zero'),
+  attributes:
+      ArcGisMapAttributes(id: 'red-polygon-Id-0', name: 'Red polygon zero'),
 );
 
 /// Examples of markers as points or as images
 const pointGraphic = PointGraphic(
   longitude: 10.19569,
   latitude: 48.39283,
-  attributes: ArcGisMapAttributes(id: 'f28f57ad-3756-41ea-94d1-81046ae7a6d8', name: 'Bibertal'),
+  attributes: ArcGisMapAttributes(
+    id: 'f28f57ad-3756-41ea-94d1-81046ae7a6d8',
+    name: 'Bibertal',
+  ),
   symbol: simpleMarkerSymbol,
 );
 

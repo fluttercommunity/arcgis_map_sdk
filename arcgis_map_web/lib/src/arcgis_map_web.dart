@@ -18,13 +18,15 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     final script = ScriptElement()
       ..addEventListener("load", (event) => _hasScriptLoaded.complete())
       // ignore: unsafe_html
-      ..src = "assets/packages/arcgis_map_web/assets/arcgis_js_api_custom_build/main.js";
+      ..src =
+          "assets/packages/arcgis_map_web/assets/arcgis_js_api_custom_build/main.js";
 
     document.head!.append(script);
 
     final link = LinkElement()
       ..type = "text/css"
-      ..href = "assets/packages/arcgis_map_web/assets/css_overrides/override_outline.css"
+      ..href =
+          "assets/packages/arcgis_map_web/assets/css_overrides/override_outline.css"
       ..rel = "stylesheet";
 
     document.head!.append(link);
@@ -53,7 +55,11 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     int? zoomLevel,
     AnimationOptions? animationOptions,
   }) {
-    return _map(mapId).moveCamera(point: point, zoomLevel: zoomLevel, animationOptions: animationOptions);
+    return _map(mapId).moveCamera(
+      point: point,
+      zoomLevel: zoomLevel,
+      animationOptions: animationOptions,
+    );
   }
 
   @override
@@ -99,7 +105,8 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     void Function(double)? getZoom,
     String layerId,
   ) async {
-    return _map(mapId).addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
+    return _map(mapId)
+        .addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
   }
 
   @override
@@ -158,7 +165,11 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  bool graphicContainsPoint({required String polygonId, required LatLng pointCoordinates, required int mapId}) {
+  bool graphicContainsPoint({
+    required String polygonId,
+    required LatLng pointCoordinates,
+    required int mapId,
+  }) {
     return _map(mapId).graphicContainsPoint(polygonId, pointCoordinates);
   }
 
