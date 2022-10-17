@@ -47,6 +47,10 @@ class ArcgisMap extends StatefulWidget {
   final double xMax;
   final double yMin;
   final double yMax;
+
+  /// Adds vector layers to the map. You can add more than one.
+  /// When the [vectorLayerUrls] is not empty, the [basemap] field
+  /// is ignored.
   final List<String>? vectorLayerUrls;
 
   final void Function(ArcgisMapController controller)? onMapCreated;
