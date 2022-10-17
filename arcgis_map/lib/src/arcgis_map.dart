@@ -28,6 +28,7 @@ class ArcgisMap extends StatefulWidget {
     this.yMin = -66,
     this.yMax = 66,
     this.onMapCreated,
+    this.vectorLayerUrls,
     Key? key,
   }) : super(key: key);
 
@@ -46,6 +47,7 @@ class ArcgisMap extends StatefulWidget {
   final double xMax;
   final double yMin;
   final double yMax;
+  final List<String>? vectorLayerUrls;
 
   final void Function(ArcgisMapController controller)? onMapCreated;
 
@@ -73,6 +75,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     xMax: widget.xMax,
     yMin: widget.yMin,
     yMax: widget.yMax,
+    vectorTilesUrls: widget.vectorLayerUrls,
   );
 
   Future<void> onPlatformViewCreated(int id) async {
@@ -102,6 +105,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       xMax: widget.xMax,
       yMin: widget.yMin,
       yMax: widget.yMax,
+      vectorTilesUrls: widget.vectorLayerUrls,
     );
   }
 

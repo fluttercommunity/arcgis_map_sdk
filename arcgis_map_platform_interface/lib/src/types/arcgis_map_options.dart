@@ -25,6 +25,7 @@ class ArcgisMapOptions {
   final double xMax;
   final double yMin;
   final double yMax;
+  final List<String>? vectorTilesUrls;
 
   const ArcgisMapOptions({
     required this.apiKey,
@@ -42,6 +43,7 @@ class ArcgisMapOptions {
     required this.xMax,
     required this.yMin,
     required this.yMax,
+    this.vectorTilesUrls,
   });
 }
 
