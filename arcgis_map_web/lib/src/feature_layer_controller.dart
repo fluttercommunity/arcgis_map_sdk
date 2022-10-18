@@ -585,7 +585,9 @@ class FeatureLayerController {
 
   void toggleBaseMap({required JsMapView view, required BaseMap baseMap}) {
     final basemapToggle = BasemapToggle(
-      jsify({"view": view, "nextBasemap": baseMap.value}),
+      jsify({
+        "viewModel": jsify({"view": view, "nextBasemap": baseMap.value})
+      }),
     );
 
     basemapToggle.toggle();
