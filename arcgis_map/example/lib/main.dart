@@ -276,7 +276,6 @@ class _ExampleMapState extends State<ExampleMap> {
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
-            vectorLayerUrls: const [],
             zoom: 4,
             hideDefaultZoomButtons: true,
             hideAttribution: true,
