@@ -249,15 +249,21 @@ class _ExampleMapState extends State<ExampleMap> {
     );
   }
 
-  void _updateGraphicSymbol(
-      {required String polygonId, required Symbol symbol}) {
+  void _updateGraphicSymbol({
+    required String polygonId,
+    required Symbol symbol,
+  }) {
     _controller?.updateGraphicSymbol(symbol, polygonId);
   }
 
-  bool? _isPointInPolygon(
-      {required String polygonId, required LatLng pointCoordinates}) {
+  bool? _isPointInPolygon({
+    required String polygonId,
+    required LatLng pointCoordinates,
+  }) {
     return _controller?.graphicContainsPoint(
-        polygonId: polygonId, pointCoordinates: pointCoordinates);
+      polygonId: polygonId,
+      pointCoordinates: pointCoordinates,
+    );
   }
 
   @override
@@ -357,10 +363,12 @@ class _ExampleMapState extends State<ExampleMap> {
                 ElevatedButton(
                   onPressed: () {
                     // Checks if polygon 1 contains the pin
-                    debugPrint(_isPointInPolygon(
-                            polygonId: _polygonId1,
-                            pointCoordinates: _pinCoordinates)
-                        .toString());
+                    debugPrint(
+                      _isPointInPolygon(
+                        polygonId: _polygonId1,
+                        pointCoordinates: _pinCoordinates,
+                      ).toString(),
+                    );
                   },
                   child: const Text("Contains Point"),
                 ),
@@ -396,14 +404,16 @@ class _ExampleMapState extends State<ExampleMap> {
                 ElevatedButton(
                   onPressed: () {
                     _controller?.addViewPadding(
-                        padding: const ViewPadding(right: 300));
+                      padding: const ViewPadding(right: 300),
+                    );
                   },
                   child: const Text("Add 300 right"),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     _controller?.addViewPadding(
-                        padding: const ViewPadding(left: 300));
+                      padding: const ViewPadding(left: 300),
+                    );
                   },
                   child: const Text("Add 300 left"),
                 ),
@@ -456,17 +466,22 @@ class _ExampleMapState extends State<ExampleMap> {
                         rings: secondPolygon,
                         symbol: redFillSymbol,
                         attributes: const ArcGisMapAttributes(
-                            id: _polygonId2, name: 'Second Polygon'),
+                          id: _polygonId2,
+                          name: 'Second Polygon',
+                        ),
                         onHover: (isHovered) {
                           isHovered
                               ? _updateGraphicSymbol(
                                   polygonId: _polygonId2,
-                                  symbol: highlightedRedFillSymbol)
+                                  symbol: highlightedRedFillSymbol,
+                                )
                               : _updateGraphicSymbol(
                                   polygonId: _polygonId2,
-                                  symbol: redFillSymbol);
-                          if (_hoveredPolygons[_polygonId2] == isHovered)
+                                  symbol: redFillSymbol,
+                                );
+                          if (_hoveredPolygons[_polygonId2] == isHovered) {
                             return;
+                          }
                           _hoveredPolygons[_polygonId2] = isHovered;
                           _setMouseCursor();
                         },

@@ -4,7 +4,9 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
+abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
+  static const viewType = '<native_map_view>';
+
   MethodChannel _methodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
 
@@ -89,32 +91,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int creationId,
     required PlatformViewCreatedCallback onPlatformViewCreated,
     required ArcgisMapOptions mapOptions,
-  }) {
-    const viewType = '<native_map_view>';
-    if (Platform.isAndroid) {
-      return AndroidView(
-        viewType: viewType,
-        creationParams: mapOptions.toMap(),
-        // TODO(Tapped): Add either Directionality.of(context) or make it adjustable
-        layoutDirection: TextDirection.ltr,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-
-    if (Platform.isIOS) {
-      return UiKitView(
-        viewType: viewType,
-        creationParams: mapOptions.toMap(),
-        // TODO(Tapped): Add either Directionality.of(context) or make it adjustable
-        layoutDirection: TextDirection.ltr,
-        creationParamsCodec: const StandardMessageCodec(),
-      );
-    }
-
-    throw UnimplementedError(
-      'Unimplemented platform ${Platform.operatingSystem}',
-    );
-  }
+  });
 
   @override
   Future<void> moveCamera({

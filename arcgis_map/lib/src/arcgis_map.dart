@@ -6,7 +6,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:arcgis_map/src/arcgis_map_controller.dart';
-import 'package:arcgis_map/src/method_channel_arcgis_map_plugin.dart';
+import 'package:arcgis_map_android/arcgis_map_android.dart';
+import 'package:arcgis_map_ios/arcgis_map_ios.dart';
+import 'package:arcgis_map_platform_interface/src/method_channel_arcgis_map_plugin.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -89,9 +91,12 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
     if (kIsWeb) {
       return;
-      // TODO(tapped): split impl up into AndroidArcgisMapPlugin and CupertinoArcgisMapPlugin() ?
-    } else if (Platform.isIOS || Platform.isAndroid) {
-      ArcgisMapPlatform.instance = MethodChannelArcgisMapPlugin();
+    } else if (Platform.isIOS) {
+      ArcgisMapPlatform.instance = IosArcgisMapPlugin();
+    } else if (Platform.isAndroid) {
+      ArcgisMapPlatform.instance = AndroidArcgisMapPlugin();
+    } else {
+      throw UnimplementedError("Platform not implemented yet.");
     }
   }
 

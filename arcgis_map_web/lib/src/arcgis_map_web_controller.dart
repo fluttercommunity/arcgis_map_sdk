@@ -272,6 +272,23 @@ extension BaseMapExt on BaseMap {
     BaseMap.arcgisNewspaper: 'arcgis-newspaper',
     BaseMap.arcgisHillshadeLight: 'arcgis-hillshade-light',
     BaseMap.arcgisHillshadeDark: 'arcgis-hillshade-dark',
+    BaseMap.nationalGepgraphic: 'national-geographic',
+    BaseMap.streetsNavigationVector: 'streets-navigation-vector',
+    BaseMap.darkGrayVector: 'dark-gray-vector',
+    BaseMap.grayVector: 'gray-vector',
+    BaseMap.topo: 'topo',
+    BaseMap.gray: 'gray',
+    BaseMap.darkGray: 'dark-gray',
+    BaseMap.terrain: 'terrain',
+    BaseMap.hybrid: 'hybrid',
+    BaseMap.streets: 'streets',
+    BaseMap.oceans: 'oceans',
+    BaseMap.osm: 'osm',
+    BaseMap.satellite: 'satellite',
+    BaseMap.topoVector: 'topo-vector',
+    BaseMap.streetsNightVector: 'streets-night-vector',
+    BaseMap.streetsVector: 'streets-vector',
+    BaseMap.streetsReliefVector: 'streets-relief-vector',
   };
 
   String get value => values[this]!;

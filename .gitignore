@@ -31,13 +31,13 @@
 build/
 
 # Android related
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
+arcgis_map_android/android/**/gradle-wrapper.jar
+arcgis_map_android/android/.gradle
+arcgis_map_android/android/captures/
+arcgis_map_android/android/gradlew
+arcgis_map_android/android/gradlew.bat
+arcgis_map_android/android/local.properties
+arcgis_map_android/android/**/GeneratedPluginRegistrant.java
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -45,30 +45,30 @@ build/
 **/ios/**/*.moved-aside
 **/ios/**/*.pbxuser
 **/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
+arcgis_map_ios/ios/**/*sync/
+arcgis_map_ios/ios/**/.sconsign.dblite
+arcgis_map_ios/ios/**/.tags*
+arcgis_map_ios/ios/**/.vagrant/
+arcgis_map_ios/ios/**/DerivedData/
+arcgis_map_ios/ios/**/Icon?
+arcgis_map_ios/ios/**/Pods/
+arcgis_map_ios/ios/**/.symlinks/
+arcgis_map_ios/ios/**/profile
+arcgis_map_ios/ios/**/xcuserdata
+arcgis_map_ios/ios/.generated/
+arcgis_map_ios/ios/Flutter/App.framework
+arcgis_map_ios/ios/Flutter/Flutter.framework
+arcgis_map_ios/ios/Flutter/Flutter.podspec
+arcgis_map_ios/ios/Flutter/Generated.xcconfig
+arcgis_map_ios/ios/Flutter/app.flx
+arcgis_map_ios/ios/Flutter/app.zip
+arcgis_map_ios/ios/Flutter/flutter_assets/
+arcgis_map_ios/ios/Flutter/flutter_export_environment.sh
+arcgis_map_ios/ios/ServiceDefinitions.json
+arcgis_map_ios/ios/Runner/GeneratedPluginRegistrant.*
 
 # Exceptions to above rules.
-!**/ios/**/default.mode1v3
-!**/ios/**/default.mode2v3
-!**/ios/**/default.pbxuser
-!**/ios/**/default.perspectivev3
+!arcgis_map_ios/ios/**/default.mode1v3
+!arcgis_map_ios/ios/**/default.mode2v3
+!arcgis_map_ios/ios/**/default.pbxuser
+!arcgis_map_ios/ios/**/default.perspectivev3
