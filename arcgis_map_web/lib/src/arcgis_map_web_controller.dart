@@ -19,7 +19,7 @@ class ArcgisMapWebController {
 
   late JsEsriMap? _map = const EsriMap().init(
     basemap: _mapOptions.basemap,
-    vectorLayerUrls: _mapOptions.vectorTilesUrls,
+    vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
   );
 
   late FeatureLayerController? _featureLayerController = FeatureLayerController(

@@ -28,11 +28,11 @@ class ArcgisMap extends StatefulWidget {
     this.yMin = -66,
     this.yMax = 66,
     this.onMapCreated,
-    this.vectorLayerUrls,
+    this.vectorTileLayerUrls,
     Key? key,
   })  : assert(
           basemap != null ||
-              (vectorLayerUrls != null && (vectorLayerUrls.length > 0)),
+              (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
         ),
         super(key: key);
 
@@ -52,10 +52,10 @@ class ArcgisMap extends StatefulWidget {
   final double yMin;
   final double yMax;
 
-  /// Adds vector layers to the map. You can add more than one.
-  /// When the [vectorLayerUrls] is not empty, the [basemap] field
+  /// Adds vector tile layers to the map. You can add more than one.
+  /// When the [vectorTileLayerUrls] is not empty, the [basemap] field
   /// is ignored.
-  final List<String>? vectorLayerUrls;
+  final List<String>? vectorTileLayerUrls;
 
   final void Function(ArcgisMapController controller)? onMapCreated;
 
@@ -83,7 +83,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     xMax: widget.xMax,
     yMin: widget.yMin,
     yMax: widget.yMax,
-    vectorTilesUrls: widget.vectorLayerUrls,
+    vectorTilesUrls: widget.vectorTileLayerUrls,
   );
 
   Future<void> onPlatformViewCreated(int id) async {
@@ -113,7 +113,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       xMax: widget.xMax,
       yMin: widget.yMin,
       yMax: widget.yMax,
-      vectorTilesUrls: widget.vectorLayerUrls,
+      vectorTilesUrls: widget.vectorTileLayerUrls,
     );
   }
 
