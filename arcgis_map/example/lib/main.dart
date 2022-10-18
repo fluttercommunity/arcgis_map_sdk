@@ -71,8 +71,8 @@ class _ExampleMapState extends State<ExampleMap> {
       onPressed: (ArcGisMapAttributes? attributes) {
         if (attributes == null) return;
         final snackBar = SnackBar(
-            content:
-                Text('Attributes Name after on Click: ${attributes.name}'));
+          content: Text('Attributes Name after on Click: ${attributes.name}'),
+        );
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(snackBar);
@@ -96,9 +96,13 @@ class _ExampleMapState extends State<ExampleMap> {
         onHover: (isHovered) {
           isHovered
               ? _updateGraphicSymbol(
-                  polygonId: _polygonId1, symbol: highlightedOrangeFillSymbol)
+                  polygonId: _polygonId1,
+                  symbol: highlightedOrangeFillSymbol,
+                )
               : _updateGraphicSymbol(
-                  polygonId: _polygonId1, symbol: orangeFillSymbol);
+                  polygonId: _polygonId1,
+                  symbol: orangeFillSymbol,
+                );
           if (_hoveredPolygons[_polygonId1] == isHovered) return;
           _hoveredPolygons[_polygonId1] = isHovered;
           _setMouseCursor();
@@ -143,9 +147,11 @@ class _ExampleMapState extends State<ExampleMap> {
     _boundingBoxSubscription?.cancel();
     _boundingBoxSubscription = _controller?.getBounds().listen((bounds) {
       debugPrint(
-          'LOWER LEFT  Latitude:${bounds.lowerLeft.latitude} Longitude:${bounds.lowerLeft.longitude}');
+        'LOWER LEFT  Latitude:${bounds.lowerLeft.latitude} Longitude:${bounds.lowerLeft.longitude}',
+      );
       debugPrint(
-          'TOP RIGHT  Latitude:${bounds.topRight.latitude} Longitude:${bounds.topRight.longitude}');
+        'TOP RIGHT  Latitude:${bounds.topRight.latitude} Longitude:${bounds.topRight.longitude}',
+      );
     });
     setState(() {
       _subscribedToBounds = true;
