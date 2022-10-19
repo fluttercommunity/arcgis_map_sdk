@@ -73,7 +73,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   late ArcgisMapOptions _arcgisMapOptions = ArcgisMapOptions(
     apiKey: widget.apiKey,
-    basemap: widget.basemap?.value,
+    basemap: widget.basemap,
     initialCenter: widget.initialCenter,
     isInteractive: widget.isInteractive,
     zoom: widget.zoom,
@@ -118,7 +118,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     }
     _arcgisMapOptions = ArcgisMapOptions(
       apiKey: widget.apiKey,
-      basemap: widget.basemap?.value,
+      basemap: widget.basemap,
       initialCenter: widget.initialCenter,
       isInteractive: widget.isInteractive,
       zoom: widget.zoom,

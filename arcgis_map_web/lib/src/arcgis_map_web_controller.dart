@@ -18,7 +18,7 @@ class ArcgisMapWebController {
   final ArcgisMapOptions _mapOptions;
 
   late JsEsriMap? _map = const EsriMap().init(
-    basemap: _mapOptions.basemap,
+    basemap: _mapOptions.basemap?.value,
     vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
   );
 

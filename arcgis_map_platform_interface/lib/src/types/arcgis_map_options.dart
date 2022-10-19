@@ -24,7 +24,7 @@ class ArcgisMapOptions {
   final double xMax;
   final double yMin;
   final double yMax;
-  final String? basemap;
+  final BaseMap? basemap;
   final List<String>? vectorTilesUrls;
 
   const ArcgisMapOptions({
@@ -49,7 +49,7 @@ class ArcgisMapOptions {
   Map<String, dynamic> toMap() {
     return {
       'apiKey': apiKey,
-      'basemap': basemap.name,
+      'basemap': basemap?.name,
       'initialCenter': initialCenter.toMap(),
       'isInteractive': isInteractive,
       'zoom': zoom,
