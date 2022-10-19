@@ -1,5 +1,4 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
-import 'package:arcgis_map_platform_interface/src/method_channel_arcgis.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -7,7 +6,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class ArcgisMapPlatform extends PlatformInterface {
   ArcgisMapPlatform() : super(token: _token);
 
-  static ArcgisMapPlatform _instance = MethodChannelArcgisMap();
+  static late ArcgisMapPlatform _instance;
 
   static final Object _token = Object();
 

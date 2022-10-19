@@ -301,9 +301,8 @@ class _ExampleMapState extends State<ExampleMap> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             FloatingActionButton(
               onPressed: () {

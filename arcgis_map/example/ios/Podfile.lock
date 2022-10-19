@@ -1,0 +1,33 @@
+PODS:
+  - ArcGIS-Runtime-SDK-iOS (100.14.1)
+  - ArcGIS-Runtime-Toolkit-iOS (100.14.0):
+    - ArcGIS-Runtime-SDK-iOS (~> 100.14.0)
+  - arcgis_map_ios (0.0.1):
+    - ArcGIS-Runtime-Toolkit-iOS
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - arcgis_map_ios (from `.symlinks/plugins/arcgis_map_ios/ios`)
+  - Flutter (from `Flutter`)
+
+SPEC REPOS:
+  trunk:
+    - ArcGIS-Runtime-SDK-iOS
+    - ArcGIS-Runtime-Toolkit-iOS
+
+EXTERNAL SOURCES:
+  arcgis_map_ios:
+    :path: ".symlinks/plugins/arcgis_map_ios/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  ArcGIS-Runtime-SDK-iOS: 6ab51d28f8831ac73c00d34998cff3a555fe304f
+  ArcGIS-Runtime-Toolkit-iOS: e30bb45bd0bd0152bcb1ec73f9b99022a5c7d02d
+  arcgis_map_ios: 6dc8c5cc6a5c73f1cb6f51c8e5088807d6b0d62f
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+
+PODFILE CHECKSUM: cc1f88378b4bfcf93a6ce00d2c587857c6008d3b
+
+COCOAPODS: 1.11.3
