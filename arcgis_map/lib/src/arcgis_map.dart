@@ -17,9 +17,9 @@ int _nextMapCreationId = 0;
 class ArcgisMap extends StatefulWidget {
   const ArcgisMap({
     required this.apiKey,
-    required this.basemap,
     required this.initialCenter,
     required this.zoom,
+    this.basemap,
     this.hideDefaultZoomButtons = false,
     this.hideAttribution = false,
     this.isInteractive = true,
@@ -32,11 +32,16 @@ class ArcgisMap extends StatefulWidget {
     this.yMin = -66,
     this.yMax = 66,
     this.onMapCreated,
+    this.vectorTileLayerUrls,
     Key? key,
-  }) : super(key: key);
+  })  : assert(
+          basemap != null ||
+              (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
+        ),
+        super(key: key);
 
   final String apiKey;
-  final BaseMap basemap;
+  final BaseMap? basemap;
   final LatLng initialCenter;
   final bool isInteractive;
   final double zoom;
@@ -51,6 +56,11 @@ class ArcgisMap extends StatefulWidget {
   final double yMin;
   final double yMax;
 
+  /// Adds vector tile layers to the map. You can add more than one.
+  /// When the [vectorTileLayerUrls] is not empty, the [basemap] field
+  /// is ignored.
+  final List<String>? vectorTileLayerUrls;
+
   final void Function(ArcgisMapController controller)? onMapCreated;
 
   @override
@@ -63,7 +73,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   late ArcgisMapOptions _arcgisMapOptions = ArcgisMapOptions(
     apiKey: widget.apiKey,
-    basemap: widget.basemap,
+    basemap: widget.basemap?.value,
     initialCenter: widget.initialCenter,
     isInteractive: widget.isInteractive,
     zoom: widget.zoom,
@@ -77,6 +87,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     xMax: widget.xMax,
     yMin: widget.yMin,
     yMax: widget.yMax,
+    vectorTilesUrls: widget.vectorTileLayerUrls,
   );
 
   Future<void> onPlatformViewCreated(int id) async {
@@ -102,12 +113,12 @@ class _ArcgisMapState extends State<ArcgisMap> {
   @override
   void didUpdateWidget(ArcgisMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.basemap != widget.basemap) {
-      controller.toggleBaseMap(baseMap: widget.basemap);
+    if ((widget.basemap != null) && oldWidget.basemap != widget.basemap) {
+      controller.toggleBaseMap(baseMap: widget.basemap!);
     }
     _arcgisMapOptions = ArcgisMapOptions(
       apiKey: widget.apiKey,
-      basemap: widget.basemap,
+      basemap: widget.basemap?.value,
       initialCenter: widget.initialCenter,
       isInteractive: widget.isInteractive,
       zoom: widget.zoom,
@@ -121,6 +132,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       xMax: widget.xMax,
       yMin: widget.yMin,
       yMax: widget.yMax,
+      vectorTilesUrls: widget.vectorTileLayerUrls,
     );
   }
 

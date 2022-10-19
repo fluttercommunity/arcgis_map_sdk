@@ -34,22 +34,29 @@ flutter:
         pluginClass: ArcgisMapWeb
         fileName: arcgis_map_web.dart
   assets:
-    - assets/css_overrides/
     - assets/arcgis_js_api_custom_build/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/date-picker/nls/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/icon/
+    - assets/arcgis_js_api_custom_build/assets/esri/core/libs/libtess/
     - assets/arcgis_js_api_custom_build/assets/esri/core/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/core/workers/
     - assets/arcgis_js_api_custom_build/assets/esri/core/workers/chunks/
+    - assets/arcgis_js_api_custom_build/assets/esri/core/workers/
     - assets/arcgis_js_api_custom_build/assets/esri/css/
     - assets/arcgis_js_api_custom_build/assets/esri/geometry/support/
     - assets/arcgis_js_api_custom_build/assets/esri/identity/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/images/Legend/
     - assets/arcgis_js_api_custom_build/assets/esri/images/basemap/
+    - assets/arcgis_js_api_custom_build/assets/esri/images/Legend/
     - assets/arcgis_js_api_custom_build/assets/esri/images/materials/water/
     - assets/arcgis_js_api_custom_build/assets/esri/images/portal/
     - assets/arcgis_js_api_custom_build/assets/esri/images/search/
     - assets/arcgis_js_api_custom_build/assets/esri/images/shared/sliders/
     - assets/arcgis_js_api_custom_build/assets/esri/images/support/
+    - assets/arcgis_js_api_custom_build/assets/esri/layers/support/rasterFormats/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/basisu/
     - assets/arcgis_js_api_custom_build/assets/esri/libs/i3s/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/linkchartlayout/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/vxl/
+    - assets/arcgis_js_api_custom_build/assets/esri/rest/knowledgeGraph/wasmInterface/
     - assets/arcgis_js_api_custom_build/assets/esri/smartMapping/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/symbols/patterns/
     - assets/arcgis_js_api_custom_build/assets/esri/t9n/
@@ -57,27 +64,19 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/colors/patterns_json/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/fonts/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/fonts/fonts/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/base/icons/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/icons/demo-files/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/icons/fonts/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/icons/readme/
+    - assets/arcgis_js_api_custom_build/assets/esri/themes/base/icons/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/images/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/images/files/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/base/images/maneuvers/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark-blue/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark-green/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark-purple/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark-red/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/light-blue/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/light-green/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/light-purple/
-    - assets/arcgis_js_api_custom_build/assets/esri/themes/light-red/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/light/
+    - assets/arcgis_js_api_custom_build/assets/esri/themes/dark/
+    - assets/arcgis_js_api_custom_build/assets/esri/views/3d/analysis/Slice/images/
     - assets/arcgis_js_api_custom_build/assets/esri/views/3d/environment/resources/
-    - assets/arcgis_js_api_custom_build/assets/esri/views/3d/interactive/analysisTools/slice/images/
     - assets/arcgis_js_api_custom_build/assets/esri/views/3d/webgl-engine/lib/
-    - assets/arcgis_js_api_custom_build/assets/esri/views/3d/webgl-engine/lib/edgeRendering/
+    - assets/arcgis_js_api_custom_build/assets/esri/views/interactive/tooltip/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/views/magnifier/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/AreaMeasurement2D/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/AreaMeasurement3D/t9n/
@@ -91,8 +90,8 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Compass/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/CoordinateConversion/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Daylight/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/DirectLineMeasurement3D/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Directions/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/DirectLineMeasurement3D/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/DistanceMeasurement2D/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Editor/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/ElevationProfile/t9n/
@@ -101,6 +100,7 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureForm/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureTable/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureTemplates/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/FloorFilter/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Fullscreen/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Histogram/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/HistogramRangeSlider/t9n/
@@ -117,14 +117,10 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/ScaleRangeSlider/images/scalePreview/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/ScaleRangeSlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Search/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/ShadowCast/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Sketch/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Slice/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Slider/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Swipe/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/TableList/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/TimeSlider/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Track/t9n/
-    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Zoom/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/ClassedColorSlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/ClassedSizeSlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/ColorSizeSlider/t9n/
@@ -132,4 +128,14 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/HeatmapSlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/OpacitySlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/SizeSlider/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/SelectionToolbar/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/SnappingControls/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Swipe/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/TableList/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/TimeSlider/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Track/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkTrace/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Weather/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Zoom/t9n/
+    - assets/css_overrides/

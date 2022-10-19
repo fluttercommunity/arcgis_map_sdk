@@ -11,7 +11,6 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 /// https://developers.arcgis.com/documentation/mapping-apis-and-services/deployment/basemap-attribution/#layout-and-design-guidelines
 class ArcgisMapOptions {
   final String apiKey;
-  final BaseMap basemap;
   final LatLng initialCenter;
   final bool isInteractive;
   final double zoom;
@@ -25,10 +24,11 @@ class ArcgisMapOptions {
   final double xMax;
   final double yMin;
   final double yMax;
+  final String? basemap;
+  final List<String>? vectorTilesUrls;
 
   const ArcgisMapOptions({
     required this.apiKey,
-    required this.basemap,
     required this.initialCenter,
     required this.isInteractive,
     required this.zoom,
@@ -42,6 +42,8 @@ class ArcgisMapOptions {
     required this.xMax,
     required this.yMin,
     required this.yMax,
+    this.basemap,
+    this.vectorTilesUrls,
   });
 
   Map<String, dynamic> toMap() {

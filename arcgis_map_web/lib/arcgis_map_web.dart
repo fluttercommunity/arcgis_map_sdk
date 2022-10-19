@@ -65,6 +65,18 @@ class JsEsriMap {
   external void add(dynamic layer);
 }
 
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-VectorTileLayer.html
+@JS("esri.core.layers.VectorTileLayer")
+class JsVectorTileLayer {
+  external factory JsVectorTileLayer(dynamic url);
+}
+
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-Basemap.html
+@JS("esri.core.Basemap")
+class JsBaseMap {
+  external factory JsBaseMap(dynamic basemap);
+}
+
 @JS("esri.core.Collection")
 class Collection<T> {
   external T? find(Function callback);

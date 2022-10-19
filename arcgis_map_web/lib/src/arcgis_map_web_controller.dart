@@ -17,8 +17,10 @@ class ArcgisMapWebController {
   final int _mapId;
   final ArcgisMapOptions _mapOptions;
 
-  late JsEsriMap? _map =
-      const EsriMap().init(basemap: _mapOptions.basemap.value);
+  late JsEsriMap? _map = const EsriMap().init(
+    basemap: _mapOptions.basemap,
+    vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
+  );
 
   late FeatureLayerController? _featureLayerController = FeatureLayerController(
     minZoom: _mapOptions.minZoom,
