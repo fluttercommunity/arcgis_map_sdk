@@ -8,7 +8,6 @@ import 'dart:io';
 import 'package:arcgis_map/src/arcgis_map_controller.dart';
 import 'package:arcgis_map_android/arcgis_map_android.dart';
 import 'package:arcgis_map_ios/arcgis_map_ios.dart';
-import 'package:arcgis_map_platform_interface/src/method_channel_arcgis_map_plugin.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
