@@ -12,7 +12,9 @@ class AndroidArcgisMapPlugin extends MethodChannelArcgisMapPlugin {
     return AndroidView(
       viewType: MethodChannelArcgisMapPlugin.viewType,
       creationParams: mapOptions.toMap(),
+      layoutDirection: TextDirection.ltr,
       creationParamsCodec: const StandardMessageCodec(),
+      onPlatformViewCreated: onPlatformViewCreated,
     );
   }
 }

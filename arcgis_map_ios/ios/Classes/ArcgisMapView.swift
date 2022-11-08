@@ -29,7 +29,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         binaryMessenger messenger: FlutterBinaryMessenger
     ) {
         channel = FlutterMethodChannel(
-            name: "esri.arcgis.flutter_plugin.native_view\(viewId)",
+            name: "esri.arcgis.flutter_plugin/\(viewId)",
             binaryMessenger: messenger
         )
         
@@ -89,7 +89,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     
     
     private func setupMethodChannel() {
-        channel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+        channel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
             switch(call.method) {
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))

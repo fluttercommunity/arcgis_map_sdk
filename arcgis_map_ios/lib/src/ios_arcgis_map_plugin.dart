@@ -14,6 +14,7 @@ class IosArcgisMapPlugin extends MethodChannelArcgisMapPlugin {
       creationParams: mapOptions.toMap(),
       layoutDirection: TextDirection.ltr,
       creationParamsCodec: const StandardMessageCodec(),
+      onPlatformViewCreated: onPlatformViewCreated,
     );
   }
 }
