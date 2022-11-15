@@ -13,6 +13,8 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import kotlin.math.exp
+import kotlin.math.ln
 
 /**
  * The PlatformView that displays an ArcGis MapView.
@@ -70,19 +72,20 @@ internal class ArcgisMapView(
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
         val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
-
-        val newScale = mapView.mapScale + lodFactor
-
+        val currentZoom = getZoomLevel(mapView)
+        val totalZoom = currentZoom + lodFactor + 1
+        val newScale = getMapScale(totalZoom)
         mapView
             .setViewpointScaleAsync(newScale)
-            .addDoneListener { result.success(true) }
+            .addDoneListener {
+                result.success(true)
+            }
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
         val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
-
-        val newScale = mapView.mapScale - lodFactor
-
+        val totalZoom = getZoomLevel(mapView) - lodFactor + 1
+        val newScale = getMapScale(totalZoom)
         mapView
             .setViewpointScaleAsync(newScale)
             .addDoneListener { result.success(true) }
@@ -90,4 +93,17 @@ internal class ArcgisMapView(
 
 
     // endregion
+}
+
+
+// Convert map scale to zoom level
+fun getZoomLevel(mapView: MapView): Int {
+    val result = -1.443 * ln(mapView.mapScale) + 29.14
+    return result.toInt()
+}
+
+
+// Convert zoom level to map scale
+fun getMapScale(zoomLevel: Int): Double {
+    return 591657527 * (exp(-0.693 * zoomLevel))
 }
