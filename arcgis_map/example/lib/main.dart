@@ -68,6 +68,7 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+    // TODO: Remove when mobile implementation is complete
     if (!kIsWeb) {
       return;
     }
