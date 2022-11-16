@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import kotlin.math.exp
 import kotlin.math.ln
+import kotlin.math.roundToInt
 
 /**
  * The PlatformView that displays an ArcGis MapView.
@@ -71,24 +72,66 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
-        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
-        val currentZoom = getZoomLevel(mapView)
-        val totalZoom = currentZoom + lodFactor + 1
-        val newScale = getMapScale(totalZoom)
-        mapView
-            .setViewpointScaleAsync(newScale)
-            .addDoneListener {
-                result.success(true)
+        val lodFactor = call.argument<Int>("lodFactor")!!
+        val currentZoomLevel = getZoomLevel(mapView)
+        val totalZoomLevel = currentZoomLevel + lodFactor
+        if (totalZoomLevel >= 23) {
+            return
+        }
+        val newScale = getMapScale(totalZoomLevel)
+        val future = mapView.setViewpointScaleAsync(newScale)
+        future.addDoneListener {
+            try {
+                val isSuccessful = future.get()
+                if (isSuccessful) {
+                    result.success(true)
+                } else {
+                    result.error("Error", "Zoom animation has been interrupted", null)
+                }
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
             }
+        }
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
-        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
-        val totalZoom = getZoomLevel(mapView) - lodFactor + 1
-        val newScale = getMapScale(totalZoom)
-        mapView
-            .setViewpointScaleAsync(newScale)
-            .addDoneListener { result.success(true) }
+        val lodFactor = call.argument<Int>("lodFactor")!!
+        val currentZoomLevel = getZoomLevel(mapView)
+        val totalZoomLevel = currentZoomLevel - lodFactor
+        if (totalZoomLevel <= 0) {
+            return
+        }
+        val newScale = getMapScale(totalZoomLevel)
+        val future = mapView.setViewpointScaleAsync(newScale)
+        future.addDoneListener {
+            try {
+                val isSuccessful = future.get()
+                if (isSuccessful) {
+                    result.success(true)
+                } else {
+                    result.error("Error", "Zoom animation has been interrupted", null)
+                }
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
+
+    /**
+     * Convert map scale to zoom level
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private fun getZoomLevel(mapView: MapView): Int {
+        val result = -1.443 * ln(mapView.mapScale) + 29.14
+        return result.roundToInt()
+    }
+
+    /**
+     *  Convert zoom level to map scale
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private fun getMapScale(zoomLevel: Int): Double {
+        return 591657527 * (exp(-0.693 * zoomLevel))
     }
 
 
@@ -96,14 +139,3 @@ internal class ArcgisMapView(
 }
 
 
-// Convert map scale to zoom level
-fun getZoomLevel(mapView: MapView): Int {
-    val result = -1.443 * ln(mapView.mapScale) + 29.14
-    return result.toInt()
-}
-
-
-// Convert zoom level to map scale
-fun getMapScale(zoomLevel: Int): Double {
-    return 591657527 * (exp(-0.693 * zoomLevel))
-}
