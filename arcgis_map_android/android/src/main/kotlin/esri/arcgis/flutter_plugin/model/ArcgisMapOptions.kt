@@ -12,7 +12,7 @@ data class ArcgisMapOptions(
     val hideAttribution: Boolean,
     val padding: ViewPadding,
     val rotationEnabled: Boolean,
-    val minZoom: String,
+    val minZoom: Int,
     val maxZoom: Int,
     val xMin: Double,
     val xMax: Double,

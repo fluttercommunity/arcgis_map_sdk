@@ -31,6 +31,8 @@ internal class ArcgisMapView(
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
+    private val options = mapOptions;
+
 
     private val methodChannel =
         MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
@@ -40,8 +42,9 @@ internal class ArcgisMapView(
     init {
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
-
         map.basemap = Basemap(mapOptions.basemap)
+        map.minScale = getMapScale(mapOptions.minZoom);
+        map.maxScale = getMapScale(mapOptions.maxZoom);
         mapView.map = map
 
 
@@ -75,7 +78,7 @@ internal class ArcgisMapView(
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel >= 23) {
+        if (totalZoomLevel > options.maxZoom) {
             return
         }
         val newScale = getMapScale(totalZoomLevel)
@@ -98,7 +101,7 @@ internal class ArcgisMapView(
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel <= 0) {
+        if (totalZoomLevel < options.minZoom) {
             return
         }
         val newScale = getMapScale(totalZoomLevel)
