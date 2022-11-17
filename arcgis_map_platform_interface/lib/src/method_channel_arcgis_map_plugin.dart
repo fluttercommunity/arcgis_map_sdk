@@ -102,23 +102,25 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> zoomIn(int lodFactor, int mapId) {
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "zoom_in",
-      {
+  Future<bool> zoomIn(int lodFactor, int mapId) async {
+    try {
+      return await _methodChannelBuilder(mapId).invokeMethod("zoom_in", {
         "lodFactor": lodFactor,
-      },
-    );
+      }) as bool;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
-  Future<void> zoomOut(int lodFactor, int mapId) {
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "zoom_out",
-      {
+  Future<bool> zoomOut(int lodFactor, int mapId) async {
+    try {
+      return await _methodChannelBuilder(mapId).invokeMethod("zoom_out", {
         "lodFactor": lodFactor,
-      },
-    );
+      }) as bool;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override

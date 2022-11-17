@@ -13,6 +13,9 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import kotlin.math.exp
+import kotlin.math.ln
+import kotlin.math.roundToInt
 
 /**
  * The PlatformView that displays an ArcGis MapView.
@@ -22,12 +25,13 @@ internal class ArcgisMapView(
     context: Context,
     viewId: Int,
     binaryMessenger: BinaryMessenger,
-    mapOptions: ArcgisMapOptions,
+    private val mapOptions: ArcgisMapOptions,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
+
 
     private val methodChannel =
         MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
@@ -37,8 +41,9 @@ internal class ArcgisMapView(
     init {
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
-
         map.basemap = Basemap(mapOptions.basemap)
+        map.minScale = getMapScale(mapOptions.minZoom);
+        map.maxScale = getMapScale(mapOptions.maxZoom);
         mapView.map = map
 
 
@@ -69,25 +74,66 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
-        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
-
-        val newScale = mapView.mapScale + lodFactor
-
-        mapView
-            .setViewpointScaleAsync(newScale)
-            .addDoneListener { result.success(true) }
+        val lodFactor = call.argument<Int>("lodFactor")!!
+        val currentZoomLevel = getZoomLevel(mapView)
+        val totalZoomLevel = currentZoomLevel + lodFactor
+        if (totalZoomLevel > mapOptions.maxZoom) {
+            return
+        }
+        val newScale = getMapScale(totalZoomLevel)
+        val future = mapView.setViewpointScaleAsync(newScale)
+        future.addDoneListener {
+            try {
+                val isSuccessful = future.get()
+                result.success(isSuccessful)
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
-        val lodFactor = call.argument<Int>("lodFactor")!! //TODO different error handling
+        val lodFactor = call.argument<Int>("lodFactor")!!
+        val currentZoomLevel = getZoomLevel(mapView)
+        val totalZoomLevel = currentZoomLevel - lodFactor
+        if (totalZoomLevel < mapOptions.minZoom) {
+            return
+        }
+        val newScale = getMapScale(totalZoomLevel)
+        val future = mapView.setViewpointScaleAsync(newScale)
+        future.addDoneListener {
+            try {
+                val isSuccessful = future.get()
+                if (isSuccessful) {
+                    result.success(true)
+                } else {
+                    result.error("Error", "Zoom animation has been interrupted", null)
+                }
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
 
-        val newScale = mapView.mapScale - lodFactor
+    /**
+     * Convert map scale to zoom level
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private fun getZoomLevel(mapView: MapView): Int {
+        val result = -1.443 * ln(mapView.mapScale) + 29.14
+        return result.roundToInt()
+    }
 
-        mapView
-            .setViewpointScaleAsync(newScale)
-            .addDoneListener { result.success(true) }
+    /**
+     *  Convert zoom level to map scale
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private fun getMapScale(zoomLevel: Int): Double {
+        return 591657527 * (exp(-0.693 * zoomLevel))
     }
 
 
     // endregion
 }
+
+

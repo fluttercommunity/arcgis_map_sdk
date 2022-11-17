@@ -99,11 +99,11 @@ class ArcgisMapController {
     );
   }
 
-  Future<void> zoomIn({required int lodFactor}) {
+  Future<bool> zoomIn({required int lodFactor}) {
     return ArcgisMapPlatform.instance.zoomIn(lodFactor, mapId);
   }
 
-  Future<void> zoomOut({required int lodFactor}) {
+  Future<bool> zoomOut({required int lodFactor}) {
     return ArcgisMapPlatform.instance.zoomOut(lodFactor, mapId);
   }
 

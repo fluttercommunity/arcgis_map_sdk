@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:arcgis/map_elements.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const ExampleApp());
@@ -67,6 +68,10 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+    // TODO: Remove when mobile implementation is complete
+    if (!kIsWeb) {
+      return;
+    }
     _controller?.onClick(
       onPressed: (ArcGisMapAttributes? attributes) {
         if (attributes == null) return;
