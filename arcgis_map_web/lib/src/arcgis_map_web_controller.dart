@@ -217,12 +217,12 @@ class ArcgisMapWebController {
     );
   }
 
-  Future<void> zoomIn(int lodFactor) async {
-    await _featureLayerController!.zoomIn(lodFactor, _view!);
+  Future<bool> zoomIn(int lodFactor) {
+    return _featureLayerController!.zoomIn(lodFactor, _view!);
   }
 
-  Future<void> zoomOut(int lodFactor) async {
-    await _featureLayerController!.zoomOut(lodFactor, _view!);
+  Future<bool> zoomOut(int lodFactor) {
+    return _featureLayerController!.zoomOut(lodFactor, _view!);
   }
 
   void addGraphic(Graphic graphic) {

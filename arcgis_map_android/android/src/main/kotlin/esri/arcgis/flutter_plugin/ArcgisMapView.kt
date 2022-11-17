@@ -25,13 +25,12 @@ internal class ArcgisMapView(
     context: Context,
     viewId: Int,
     binaryMessenger: BinaryMessenger,
-    mapOptions: ArcgisMapOptions,
+    private val mapOptions: ArcgisMapOptions,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
-    private val options = mapOptions;
 
 
     private val methodChannel =
@@ -78,7 +77,7 @@ internal class ArcgisMapView(
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel > options.maxZoom) {
+        if (totalZoomLevel > mapOptions.maxZoom) {
             return
         }
         val newScale = getMapScale(totalZoomLevel)
@@ -86,11 +85,7 @@ internal class ArcgisMapView(
         future.addDoneListener {
             try {
                 val isSuccessful = future.get()
-                if (isSuccessful) {
-                    result.success(true)
-                } else {
-                    result.error("Error", "Zoom animation has been interrupted", null)
-                }
+                result.success(isSuccessful)
             } catch (e: Exception) {
                 result.error("Error", e.message, null)
             }
@@ -101,7 +96,7 @@ internal class ArcgisMapView(
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel < options.minZoom) {
+        if (totalZoomLevel < mapOptions.minZoom) {
             return
         }
         val newScale = getMapScale(totalZoomLevel)

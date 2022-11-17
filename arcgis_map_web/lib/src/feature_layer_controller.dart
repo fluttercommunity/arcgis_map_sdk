@@ -459,14 +459,19 @@ class FeatureLayerController {
   }
 
   /// Zoom in by a Level Of Detail Factor
-  Future<void> zoomIn(int lodFactor, JsMapView view) async {
+  Future<bool> zoomIn(int lodFactor, JsMapView view) async {
     final currentZoomLevel = view.zoom.toInt();
-    if (currentZoomLevel == maxZoom) return;
+    if (currentZoomLevel == maxZoom) return true;
     final newZoomLevel = currentZoomLevel + lodFactor;
     if (_isZoomInBounds(newZoomLevel)) {
-      await view.goTo(jsify({'zoom': newZoomLevel})).toFuture();
+      try {
+        await view.goTo(jsify({'zoom': newZoomLevel})).toFuture();
+        return true;
+      } catch (e) {
+        return false;
+      }
     } else {
-      throw Exception(
+      throw ZoomOutOfBoundsException(
         'Zoom: $newZoomLevel for zoom in is out of bounds'
         '\nZoom values range from $minZoom to $maxZoom',
       );
@@ -474,14 +479,19 @@ class FeatureLayerController {
   }
 
   /// Zoom out by a Level Of Detail Factor
-  Future<void> zoomOut(int lodFactor, JsMapView view) async {
+  Future<bool> zoomOut(int lodFactor, JsMapView view) async {
     final currentZoomLevel = view.zoom.toInt();
-    if (currentZoomLevel == minZoom) return;
+    if (currentZoomLevel == minZoom) return true;
     final newZoomLevel = currentZoomLevel - lodFactor;
     if (_isZoomInBounds(newZoomLevel)) {
-      await view.goTo(jsify({'zoom': newZoomLevel})).toFuture();
+      try {
+        await view.goTo(jsify({'zoom': newZoomLevel})).toFuture();
+        return true;
+      } catch (e) {
+        return false;
+      }
     } else {
-      throw Exception(
+      throw ZoomOutOfBoundsException(
         'Zoom: $newZoomLevel for zoom out is out of bounds'
         '\nZoom values range from $minZoom to $maxZoom',
       );
@@ -609,4 +619,10 @@ class DeBouncer {
 
     _timer = Timer(Duration(milliseconds: milliseconds), action);
   }
+}
+
+class ZoomOutOfBoundsException implements Exception {
+  String message;
+
+  ZoomOutOfBoundsException(this.message);
 }

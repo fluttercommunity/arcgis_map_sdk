@@ -63,12 +63,12 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> zoomIn(int lodFactor, int mapId) {
+  Future<bool> zoomIn(int lodFactor, int mapId) {
     return _map(mapId).zoomIn(lodFactor);
   }
 
   @override
-  Future<void> zoomOut(int lodFactor, int mapId) {
+  Future<bool> zoomOut(int lodFactor, int mapId) {
     return _map(mapId).zoomOut(lodFactor);
   }
 
