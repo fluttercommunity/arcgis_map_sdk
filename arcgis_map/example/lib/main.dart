@@ -30,11 +30,11 @@ class ExampleMap extends StatefulWidget {
 }
 
 class _ExampleMapState extends State<ExampleMap> {
-  static const String _markerPinId = 'Marker-pin-1';
   static const String _polygonId1 = 'polygon1';
   static const String _polygonId2 = 'polygon2';
 
-  final LatLng _pinCoordinates = LatLng(52.9, 13.2);
+  final LatLng _firstPinCoordinates = LatLng(52.9, 13.2);
+  final LatLng _secondPinCoordinates = LatLng(51, 11);
 
   /// null when executed on a platform that's not supported yet
   ArcgisMapController? _controller;
@@ -48,7 +48,8 @@ class _ExampleMapState extends State<ExampleMap> {
   String _attributionText = '';
   bool _subscribedToBounds = false;
   bool _subscribedToCenterPosition = false;
-  bool _isPinInView = false;
+  bool _isFirstPinInView = false;
+  bool _isSecondPinInView = false;
   bool _subscribedToZoom = false;
   bool _subscribedToGraphicsInView = false;
   final Map<String, bool> _hoveredPolygons = {};
@@ -224,26 +225,57 @@ class _ExampleMapState extends State<ExampleMap> {
     });
   }
 
-  void _addPin() {
+  void _addPin(String id, LatLng location) {
     _controller?.addGraphic(
       PointGraphic(
-        longitude: _pinCoordinates.longitude,
-        latitude: _pinCoordinates.latitude,
-        attributes:
-            const ArcGisMapAttributes(id: _markerPinId, name: 'Marker Pin'),
+        longitude: location.longitude,
+        latitude: location.latitude,
+        attributes: ArcGisMapAttributes(id: id, name: 'Marker Pin'),
         symbol: _markerSymbol,
       ),
     );
-    setState(() {
-      _isPinInView = true;
-    });
   }
 
-  void _removePin() {
-    _controller?.removeGraphic(_markerPinId);
-    setState(() {
-      _isPinInView = false;
-    });
+  void _removePin(String id) {
+    _controller?.removeGraphic(id);
+  }
+
+  void _connectTwoPinsWithPolyline({
+    required String id,
+    required String name,
+    required LatLng start,
+    required LatLng end,
+  }) {
+    _controller?.addGraphic(
+      PolylineGraphic(
+        paths: [
+          [
+            [
+              start.longitude,
+              start.latitude,
+            ],
+            [
+              end.longitude,
+              end.latitude,
+            ],
+          ]
+        ],
+        symbol: const SimpleLineSymbol(
+          color: Colors.purple,
+          style: PolylineStyle.shortDashDotDot,
+          width: 3,
+          marker: LineSymbolMarker(
+            color: Colors.green,
+            colorOpacity: 1,
+            style: MarkerStyle.circle,
+          ),
+        ),
+        attributes: ArcGisMapAttributes(
+          id: id,
+          name: name,
+        ),
+      ),
+    );
   }
 
   void _setMouseCursor() {
@@ -371,7 +403,7 @@ class _ExampleMapState extends State<ExampleMap> {
                     debugPrint(
                       _isPointInPolygon(
                         polygonId: _polygonId1,
-                        pointCoordinates: _pinCoordinates,
+                        pointCoordinates: _firstPinCoordinates,
                       ).toString(),
                     );
                   },
@@ -437,27 +469,50 @@ class _ExampleMapState extends State<ExampleMap> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    if (_isPinInView) {
-                      _removePin();
+                    if (_isFirstPinInView) {
+                      _removePin('_isFirstPinInView');
+                      setState(() {
+                        _isFirstPinInView = false;
+                      });
                     } else {
-                      _addPin();
+                      _addPin('_isFirstPinInView', _firstPinCoordinates);
+                      setState(() {
+                        _isFirstPinInView = true;
+                      });
                     }
                   },
-                  child: _isPinInView
-                      ? const Text('Remove Pin')
-                      : const Text('Add Pin'),
+                  child: _isFirstPinInView
+                      ? const Text('Remove first Pin')
+                      : const Text('Add first Pin'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (_subscribedToZoom) {
-                      _unsubscribeFromZoom();
+                    if (_isSecondPinInView) {
+                      _removePin('_isSecondPinInView');
+                      setState(() {
+                        _isSecondPinInView = false;
+                      });
                     } else {
-                      _subscribeToZoom();
+                      _addPin('_isSecondPinInView', _secondPinCoordinates);
+                      setState(() {
+                        _isSecondPinInView = true;
+                      });
                     }
                   },
-                  child: _subscribedToZoom
-                      ? const Text('Stop zoom')
-                      : const Text('Sub to zoom'),
+                  child: _isSecondPinInView
+                      ? const Text('Remove second Pin')
+                      : const Text('Add second Pin'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _connectTwoPinsWithPolyline(
+                      id: 'connecting-polyline-01',
+                      name: 'Connecting polyline',
+                      start: _firstPinCoordinates,
+                      end: _secondPinCoordinates,
+                    );
+                  },
+                  child: const Text('Connect pins'),
                 ),
               ],
             ),
@@ -498,6 +553,18 @@ class _ExampleMapState extends State<ExampleMap> {
                 ElevatedButton(
                   onPressed: () => _removePolygon(id: _polygonId2),
                   child: const Text('Remove red polygon'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_subscribedToZoom) {
+                      _unsubscribeFromZoom();
+                    } else {
+                      _subscribeToZoom();
+                    }
+                  },
+                  child: _subscribedToZoom
+                      ? const Text('Stop zoom')
+                      : const Text('Sub to zoom'),
                 ),
               ],
             ),
