@@ -1,11 +1,15 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-Graphic.html
 abstract class Graphic {
   String getAttributesId();
+
   Map<String, dynamic> toJson();
 
   void Function()? get onEnter;
+
   void Function()? get onExit;
+
   void Function(bool isHovered)? get onHover;
 }
 
@@ -92,6 +96,60 @@ class PolygonGraphic implements Graphic {
   @override
   String toString() =>
       'PolygonGraphic(rings: $rings, symbol: $symbol, attributes: $attributes)';
+
+  @override
+  String getAttributesId() => attributes.id;
+}
+
+/// The data on the map is displayed as polylines
+///
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html
+///
+/// Currently only supports [SimpleLineSymbol]
+class PolylineGraphic implements Graphic {
+  const PolylineGraphic({
+    required this.paths,
+    required this.symbol,
+    required this.attributes,
+    this.onEnter,
+    this.onExit,
+    this.onHover,
+  });
+
+  /// Each list of LatLongs creates a polyline
+  ///
+  /// An array of paths, or line segments, that make up the polyline.
+  /// Each path is a two-dimensional array of numbers representing the coordinates of each vertex in the
+  /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
+  ///
+  /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
+  final List<List<List<double>>> paths;
+  final SimpleLineSymbol symbol;
+  final ArcGisMapAttributes attributes;
+
+  @override
+  final void Function()? onEnter;
+
+  @override
+  final void Function()? onExit;
+
+  @override
+  final void Function(bool isHovered)? onHover;
+
+  @override
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'geometry': <String, dynamic>{
+          'type': 'polyline',
+          'paths': paths,
+        },
+        'symbol': symbol.toJson(),
+        'attributes': attributes.toMap(),
+      };
+
+  @override
+  String toString() {
+    return 'PolylineGraphic(paths: $paths, symbol: $symbol, attributes: $attributes)';
+  }
 
   @override
   String getAttributesId() => attributes.id;

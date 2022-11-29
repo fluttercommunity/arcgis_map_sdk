@@ -14,4 +14,9 @@ class ArcGisMapAttributes {
   ArcGisMapAttributes.fromMap(Map<String, Object> map)
       : id = map['id'].toString(),
         name = map['name'].toString();
+
+  @override
+  String toString() {
+    return 'ArcGisMapAttributes{id: $id, name: $name}';
+  }
 }

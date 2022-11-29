@@ -332,16 +332,16 @@ class FeatureLayerController {
     document.getElementById(mapId)?.style.cursor = _cursor;
   }
 
-  /// Updates the graphic representation of an existing polygon via the [SimpleFillSymbol].
+  /// Updates the graphic representation of an existing [Graphic] with a the [Symbol].
   void updateGraphicSymbol({
     required JsMapView view,
     required Symbol symbol,
-    required String polygonId,
+    required String graphicId,
   }) {
     final JsGraphic? graphic = view.graphics.find(
       allowInterop((JsGraphic graphic, _, __) {
         final result = graphic.attributes.id as String?;
-        return result == polygonId;
+        return result == graphicId;
       }),
     );
 

@@ -62,8 +62,8 @@ class ArcgisMapController {
     ArcgisMapPlatform.instance.setMouseCursor(cursor, mapId);
   }
 
-  void updateGraphicSymbol(Symbol symbol, String polygonId) {
-    ArcgisMapPlatform.instance.updateGraphicSymbol(symbol, polygonId, mapId);
+  void updateGraphicSymbol(Symbol symbol, String graphicId) {
+    ArcgisMapPlatform.instance.updateGraphicSymbol(symbol, graphicId, mapId);
   }
 
   Future<void> updateFeatureLayer({required List<Graphic> data}) {

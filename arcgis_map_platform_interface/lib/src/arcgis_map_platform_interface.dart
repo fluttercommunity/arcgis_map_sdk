@@ -42,7 +42,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('setMouseCursor() has not been implemented');
   }
 
-  void updateGraphicSymbol(Symbol symbol, String polygonId, int mapId) {
+  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
     throw UnimplementedError('updateGraphicSymbol() has not been implemented');
   }
 

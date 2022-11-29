@@ -101,7 +101,6 @@ const pointGraphic = PointGraphic(
 const simpleMarkerSymbol = SimpleMarkerSymbol(
   color: Color(0xFF102A44),
   outlineColor: Color(0xFF598DD8),
-  outlineWidth: 2,
 );
 
 const pictureMarkerSymbol = PictureMarkerSymbol(

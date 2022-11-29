@@ -115,8 +115,8 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String polygonId, int mapId) {
-    _map(mapId).updateGraphicSymbol(symbol, polygonId);
+  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
+    _map(mapId).updateGraphicSymbol(symbol, graphicId);
   }
 
   @override
