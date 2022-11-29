@@ -156,11 +156,11 @@ class ArcgisMapWebController {
         .setMouseCursor(_getViewType(_mapId), cursor);
   }
 
-  void updateGraphicSymbol(Symbol symbol, String polygonId) {
+  void updateGraphicSymbol(Symbol symbol, String graphicId) {
     return _featureLayerController!.updateGraphicSymbol(
       view: _view!,
       symbol: symbol,
-      polygonId: polygonId,
+      graphicId: graphicId,
     );
   }
 
