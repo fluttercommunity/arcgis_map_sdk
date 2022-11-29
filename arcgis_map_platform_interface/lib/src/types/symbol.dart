@@ -5,6 +5,7 @@ enum SymbolType {
   simpleMarker,
   pictureMarker,
   simpleFill,
+  simpleLine,
 }
 
 extension SymbolTypeExt on SymbolType {
@@ -12,6 +13,7 @@ extension SymbolTypeExt on SymbolType {
     SymbolType.simpleMarker: 'simple-marker',
     SymbolType.pictureMarker: 'picture-marker',
     SymbolType.simpleFill: 'simple-fill',
+    SymbolType.simpleLine: 'simple-line',
   };
 
   String get value => values[this]!;
@@ -28,7 +30,8 @@ class SimpleMarkerSymbol implements Symbol {
     this.colorOpacity = 1,
     required this.outlineColor,
     this.outlineColorOpacity = 1,
-    required this.outlineWidth,
+    this.outlineWidth = 2,
+    this.radius = 4,
   });
 
   final Color color;
@@ -36,11 +39,13 @@ class SimpleMarkerSymbol implements Symbol {
   final Color outlineColor;
   final double outlineColorOpacity;
   final int outlineWidth;
+  final int radius;
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
         'type': 'simple-marker',
         'color': [color.red, color.green, color.blue, colorOpacity],
+        'size': radius,
         'outline': <String, dynamic>{
           'color': [
             outlineColor.red,
@@ -114,4 +119,203 @@ class SimpleFillSymbol implements Symbol {
           'width': outlineWidth
         }
       };
+}
+
+/// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
+/// SimpleLineSymbol is also used for rendering outlines for marker symbols and fill symbols.
+///
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-SimpleLineSymbol.html#style
+class SimpleLineSymbol implements Symbol {
+  const SimpleLineSymbol({
+    this.cap = CapStyle.round,
+    this.color,
+    this.colorOpacity = 1,
+    this.declaredClass,
+    this.join = JoinStyle.round,
+    this.marker,
+    this.miterLimit,
+    this.style = PolylineStyle.solid,
+    this.width = 0.75,
+  });
+
+  /// Specifies the cap style.
+  final CapStyle cap;
+
+  /// The color of the symbol.
+  final Color? color;
+
+  final double? colorOpacity;
+
+  ///  The name of the class.
+  final String? declaredClass;
+
+  ///   Specifies the join style.
+  final JoinStyle join;
+
+  final LineSymbolMarker? marker;
+
+  /// Maximum allowed ratio of the width of a miter join to the line width.
+  final double? miterLimit;
+
+  /// Specifies the line style.
+  final PolylineStyle style;
+
+  /// The width of the symbol in points.
+  final double width;
+
+  @override
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'cap': cap.value,
+        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'declaredClass': declaredClass,
+        'join': join.value,
+        'marker': marker?.toJson(),
+        'miterLimit': miterLimit,
+        'style': style.value,
+        'type': 'simple-line',
+        // autocasts as new SimpleLineSymbol()
+        'width': width,
+      };
+}
+
+/// Specifies the color, style, and placement of a symbol marker on the line.
+///
+/// LineSymbolMarker is used for rendering a simple marker graphic on a SimpleLineSymbol.
+/// Markers can enhance the cartographic information of a line by providing additional visual cues about the associated feature.
+///
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-LineSymbolMarker.htm
+class LineSymbolMarker {
+  const LineSymbolMarker({
+    this.color,
+    this.colorOpacity,
+    this.declaredClass,
+    this.placement = MarkerPlacement.beginEnd,
+    this.style = MarkerStyle.arrow,
+  });
+
+  /// The color of the marker.
+  final Color? color;
+
+  final double? colorOpacity;
+
+  /// The name of the class.
+  final String? declaredClass;
+
+  /// The placement of the marker(s) on the line.
+  final MarkerPlacement placement;
+
+  /// The marker style.
+  final MarkerStyle style;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'declaredClass': declaredClass,
+        'placement': placement.value,
+        'style': style.value,
+        'type': 'line-marker',
+      };
+}
+
+enum CapStyle {
+  butt,
+  round,
+  square,
+}
+
+extension CapStyleExt on CapStyle {
+  static const values = <CapStyle, String>{
+    CapStyle.butt: 'butt',
+    CapStyle.round: 'round',
+    CapStyle.square: 'square',
+  };
+
+  String get value => values[this]!;
+}
+
+enum JoinStyle {
+  miter,
+  round,
+  bevel,
+}
+
+extension JoinStyleExt on JoinStyle {
+  static const values = <JoinStyle, String>{
+    JoinStyle.miter: 'miter',
+    JoinStyle.round: 'round',
+    JoinStyle.bevel: 'bevel',
+  };
+
+  String get value => values[this]!;
+}
+
+enum MarkerPlacement {
+  begin,
+  end,
+  beginEnd,
+}
+
+extension MarkerPlacementExt on MarkerPlacement {
+  static const values = <MarkerPlacement, String>{
+    MarkerPlacement.begin: 'begin',
+    MarkerPlacement.end: 'end',
+    MarkerPlacement.beginEnd: 'begin-end',
+  };
+
+  String get value => values[this]!;
+}
+
+enum MarkerStyle {
+  arrow,
+  circle,
+  square,
+  diamond,
+  cross,
+  x,
+}
+
+extension MarkerStyleExt on MarkerStyle {
+  static const values = <MarkerStyle, String>{
+    MarkerStyle.arrow: 'arrow',
+    MarkerStyle.circle: 'circle',
+    MarkerStyle.square: 'square',
+    MarkerStyle.diamond: 'diamond',
+    MarkerStyle.cross: 'cross',
+    MarkerStyle.x: 'x',
+  };
+
+  String get value => values[this]!;
+}
+
+enum PolylineStyle {
+  dash,
+  dashDot,
+  dot,
+  longDash,
+  longDashDot,
+  longDashDotDot,
+  none,
+  shortDash,
+  shortDashDot,
+  shortDashDotDot,
+  shortDot,
+  solid,
+}
+
+extension PolylineStyleExt on PolylineStyle {
+  static const Map<PolylineStyle, String> values = {
+    PolylineStyle.dash: 'dash',
+    PolylineStyle.dashDot: 'dash-dot',
+    PolylineStyle.dot: 'dot',
+    PolylineStyle.longDash: 'long-dash',
+    PolylineStyle.longDashDot: 'long-dash-dot',
+    PolylineStyle.longDashDotDot: 'long-dash-dot-dot',
+    PolylineStyle.none: 'none',
+    PolylineStyle.shortDash: 'short-dash',
+    PolylineStyle.shortDashDot: 'short-dash-dot',
+    PolylineStyle.shortDashDotDot: 'short-dash-dot-dot',
+    PolylineStyle.shortDot: 'short-dot',
+    PolylineStyle.solid: 'solid',
+  };
+
+  String get value => values[this]!;
 }
