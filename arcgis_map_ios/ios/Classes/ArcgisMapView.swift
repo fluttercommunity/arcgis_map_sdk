@@ -104,6 +104,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             switch(call.method) {
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
+            case "add_view_padding": onAddViewPadding(call, result)
+            case "set_interaction": onSetInteraction(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -134,6 +136,34 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView.setViewpointScale(newScale) { _ in
             result(true)
         }
+    }
+    
+    private func onAddViewPadding(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
+        
+        //TODO implement padding
+        
+        result(true)
+        
+    }
+    
+    private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
+        
+        let newOptions = AGSMapViewInteractionOptions()
+        
+        if !enabled {
+            newOptions.isZoomEnabled = false
+            newOptions.isPanEnabled = false
+            newOptions.isFlickEnabled = false
+            newOptions.isMagnifierEnabled = false
+            newOptions.isRotateEnabled = false
+            newOptions.isEnabled = false
+        }
+        
+        mapView.interactionOptions = newOptions
+        result(true)
     }
     
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
