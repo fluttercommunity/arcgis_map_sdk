@@ -9,6 +9,7 @@ import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
+import esri.arcgis.flutter_plugin.model.ViewPadding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -70,6 +71,7 @@ internal class ArcgisMapView(
             when (call.method) {
                 "zoom_in" -> onZoomIn(call = call, result = result)
                 "zoom_out" -> onZoomOut(call = call, result = result)
+                "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -124,6 +126,20 @@ internal class ArcgisMapView(
                 result.error("Error", e.message, null)
             }
         }
+    }
+
+    private fun onAddViewPadding(call: MethodCall, result: MethodChannel.Result) {
+        val optionParams = call.arguments as Map<String, Any>
+        val viewPadding = optionParams.parseToClass<ViewPadding>()
+
+        mapView.setPadding(
+            viewPadding.left.roundToInt(),
+            viewPadding.top.roundToInt(),
+            viewPadding.right.roundToInt(),
+            viewPadding.bottom.roundToInt(),
+        )
+
+        result.success(true)
     }
 
     /**

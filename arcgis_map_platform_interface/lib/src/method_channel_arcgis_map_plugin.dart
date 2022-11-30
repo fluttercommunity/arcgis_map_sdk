@@ -146,7 +146,9 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    throw UnimplementedError('addViewPadding() has not been implemented.');
+    _methodChannelBuilder(mapId).invokeMethod("add_view_padding", {
+      "add_view_padding": padding.toMap(),
+    });
   }
 
   @override
