@@ -42,10 +42,9 @@ internal class ArcgisMapView(
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
         map.basemap = Basemap(mapOptions.basemap)
-        map.minScale = getMapScale(mapOptions.minZoom);
-        map.maxScale = getMapScale(mapOptions.maxZoom);
+        map.minScale = getMapScale(mapOptions.minZoom)
+        map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
-
 
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude,

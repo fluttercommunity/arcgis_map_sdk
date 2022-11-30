@@ -5,8 +5,13 @@ import 'package:flutter/widgets.dart';
 abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
 
+  Stream<double>? _zoomEventStream;
+
   MethodChannel _methodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
+
+  EventChannel _zoomEventChannelBuilder(int viewId) =>
+      EventChannel('esri.arcgis.flutter_plugin/$viewId/zoom');
 
   /// This method is called when the plugin is first initialized.
   @override
@@ -125,7 +130,13 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<double> getZoom(int mapId) {
-    throw UnimplementedError('addGraphic() has not been implemented.');
+    _zoomEventStream ??=
+        _zoomEventChannelBuilder(mapId).receiveBroadcastStream().map((event) {
+      final value = event as double;
+
+      return value;
+    });
+    return _zoomEventStream!;
   }
 
   @override
