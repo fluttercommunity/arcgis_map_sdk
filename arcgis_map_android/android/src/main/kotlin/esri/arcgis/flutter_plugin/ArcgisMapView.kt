@@ -140,19 +140,16 @@ internal class ArcgisMapView(
     }
 
     private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
-        val isEnabled = call.argument<Boolean>("enabled")!!
+        val enabled = call.argument<Boolean>("enabled")!!
 
-        val interaction = if (isEnabled) MapView.InteractionOptions(mapView)
-        else MapView.InteractionOptions(mapView).apply {
-            isZoomEnabled = false
-            isPanEnabled = false
-            isFlickEnabled = false
-            isMagnifierEnabled = false
-            isRotateEnabled = false
-            setEnabled(false)
+        mapView.interactionOptions.apply {
+            isPanEnabled = enabled
+            isFlickEnabled = enabled
+            isMagnifierEnabled = enabled
+            isRotateEnabled = enabled
+            isZoomEnabled = enabled
+            isEnabled = enabled
         }
-
-        mapView.interactionOptions = interaction
 
         result.success(true)
     }
@@ -162,7 +159,6 @@ internal class ArcgisMapView(
         val point = call.argument<LatLng>("point")!!
         val zoomLevel = call.argument<Int>("zoomLevel")
         val animationOptions = call.argument<AnimationOptions>("animationOptions")
-
 
 
         //TODO

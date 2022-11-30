@@ -376,7 +376,7 @@ class _ExampleMapState extends State<ExampleMap> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _controller?.setInteraction(_isInteractionEnabled);
+                    _controller?.setInteraction(!_isInteractionEnabled);
 
                     setState(() {
                       _isInteractionEnabled = !_isInteractionEnabled;
