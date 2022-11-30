@@ -52,9 +52,8 @@ internal class ArcgisMapView(
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude,
             mapOptions.initialCenter.longitude,
-            // TODO: we might not be able to have zoom and scale under the same api
             // for now we just multiply it by 1000 to have a similar effect
-            mapOptions.zoom * 1000
+            getMapScale(mapOptions.zoom.roundToInt())
         )
         mapView.setViewpoint(viewPoint)
 
@@ -132,12 +131,7 @@ internal class ArcgisMapView(
         val optionParams = call.arguments as Map<String, Any>
         val viewPadding = optionParams.parseToClass<ViewPadding>()
 
-        mapView.setPadding(
-            viewPadding.left.roundToInt(),
-            viewPadding.top.roundToInt(),
-            viewPadding.right.roundToInt(),
-            viewPadding.bottom.roundToInt(),
-        )
+        mapView.setPadding(viewPadding.left, viewPadding.top, viewPadding.right, viewPadding.bottom)
 
         result.success(true)
     }

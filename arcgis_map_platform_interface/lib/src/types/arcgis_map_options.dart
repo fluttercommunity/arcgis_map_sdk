@@ -79,10 +79,10 @@ extension LatLngJsonExtension on LatLng {
 ///
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-View.html#padding
 class ViewPadding {
-  final double left;
-  final double top;
-  final double right;
-  final double bottom;
+  final int left;
+  final int top;
+  final int right;
+  final int bottom;
 
   const ViewPadding({
     this.left = 0,
