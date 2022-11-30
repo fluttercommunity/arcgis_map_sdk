@@ -93,6 +93,12 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
+  void setInteraction(int mapId, {required bool isEnabled}) {
+    // TODO(Matthaios): Impl
+    throw Exception("setInteraction not implemented");
+  }
+
+  @override
   List<Graphic> getGraphicsInView(int mapId) => _map(mapId).graphicsInView;
 
   @override

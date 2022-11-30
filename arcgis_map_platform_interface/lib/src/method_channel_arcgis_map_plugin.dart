@@ -2,7 +2,7 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
+class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
 
   Stream<double>? _zoomEventStream;
@@ -84,6 +84,12 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  void setInteraction(int mapId, {required bool isEnabled}) {
+    _methodChannelBuilder(mapId)
+        .invokeMethod("set_interaction", {"enabled": isEnabled});
+  }
+
+  @override
   void dispose({required int mapId}) {}
 
   @override
@@ -106,9 +112,8 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   @override
   Future<bool> zoomIn(int lodFactor, int mapId) async {
     try {
-      return await _methodChannelBuilder(mapId).invokeMethod("zoom_in", {
-        "lodFactor": lodFactor,
-      }) as bool;
+      return await _methodChannelBuilder(mapId)
+          .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
     } catch (e) {
       return false;
     }
@@ -117,9 +122,8 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   @override
   Future<bool> zoomOut(int lodFactor, int mapId) async {
     try {
-      return await _methodChannelBuilder(mapId).invokeMethod("zoom_out", {
-        "lodFactor": lodFactor,
-      }) as bool;
+      return await _methodChannelBuilder(mapId)
+          .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
     } catch (e) {
       return false;
     }

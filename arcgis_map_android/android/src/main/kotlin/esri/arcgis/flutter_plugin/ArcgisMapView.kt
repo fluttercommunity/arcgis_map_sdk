@@ -71,6 +71,7 @@ internal class ArcgisMapView(
                 "zoom_in" -> onZoomIn(call = call, result = result)
                 "zoom_out" -> onZoomOut(call = call, result = result)
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
+                "set_interaction" -> onSetInteraction(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -132,6 +133,29 @@ internal class ArcgisMapView(
         val viewPadding = optionParams.parseToClass<ViewPadding>()
 
         mapView.setPadding(viewPadding.left, viewPadding.top, viewPadding.right, viewPadding.bottom)
+
+        result.success(true)
+    }
+
+    private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
+        val isEnabled = call.argument<Boolean>("enabled")!!
+
+        val interaction =
+
+            if (isEnabled)
+            // All options are enabled by default
+                MapView.InteractionOptions(mapView)
+            else
+                MapView.InteractionOptions(mapView).apply {
+                    isZoomEnabled = false
+                    isPanEnabled = false
+                    isFlickEnabled = false
+                    isMagnifierEnabled = false
+                    isRotateEnabled = false
+                    setEnabled(false)
+                }
+
+        mapView.interactionOptions = interaction
 
         result.success(true)
     }

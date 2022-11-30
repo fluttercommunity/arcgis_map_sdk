@@ -113,6 +113,10 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('zoomOut() has not been implemented.');
   }
 
+  void setInteraction(int mapId, {required bool isEnabled}) {
+    throw UnimplementedError('addGraphic() has not been implemented.');
+  }
+
   void addGraphic(int mapId, Graphic graphic) {
     throw UnimplementedError('addGraphic() has not been implemented.');
   }
