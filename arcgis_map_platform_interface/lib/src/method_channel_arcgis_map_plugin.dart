@@ -150,9 +150,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    _methodChannelBuilder(mapId).invokeMethod("add_view_padding", {
-      "add_view_padding": padding.toMap(),
-    });
+    _methodChannelBuilder(mapId)
+        .invokeMethod("add_view_padding", padding.toMap());
   }
 
   @override
