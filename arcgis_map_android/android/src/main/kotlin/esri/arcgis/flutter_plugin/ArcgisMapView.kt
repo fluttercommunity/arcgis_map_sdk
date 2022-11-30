@@ -134,7 +134,13 @@ internal class ArcgisMapView(
         val optionParams = call.arguments as Map<String, Any>
         val viewPadding = optionParams.parseToClass<ViewPadding>()
 
-        mapView.setPadding(viewPadding.left, viewPadding.top, viewPadding.right, viewPadding.bottom)
+        // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
+        mapView.setViewInsets(
+            viewPadding.left,
+            viewPadding.top,
+            viewPadding.right,
+            viewPadding.bottom
+        )
 
         result.success(true)
     }
@@ -160,8 +166,18 @@ internal class ArcgisMapView(
         val zoomLevel = call.argument<Int>("zoomLevel")
         val animationOptions = call.argument<AnimationOptions>("animationOptions")
 
+        val scale = if (zoomLevel != null) {
+            getMapScale(zoomLevel)
+        } else {
+            mapView.mapScale
+        }
 
-        //TODO
+        //TODO how to use the animationOptions.animationCurve
+
+        val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
+        mapView
+            .setViewpointAsync(initialViewPort, animationOptions?.duration?.toFloat() ?: 0F)
+            .addDoneListener { result.success(true) }
     }
 
     /**
