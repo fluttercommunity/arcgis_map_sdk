@@ -129,11 +129,8 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   Stream<double> getZoom(int mapId) {
     _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
         .receiveBroadcastStream()
-        .map((event) {
-      final value = event as double;
-
-      return value;
-    });
+        //TODO discuss with other devs
+        .map((event) => (event as int).toDouble());
     return _zoomEventStream!;
   }
 
