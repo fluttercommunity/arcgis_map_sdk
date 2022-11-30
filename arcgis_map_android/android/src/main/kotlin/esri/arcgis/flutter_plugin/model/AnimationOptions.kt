@@ -1,12 +1,6 @@
 package esri.arcgis.flutter_plugin.model
 
-enum class AnimationCurve {
-    LINEAR,
-    EASE,
-    EASY_IN,
-    EASY_OUT,
-    EASY_IN_OUT,
-}
+import com.esri.arcgisruntime.mapping.view.AnimationCurve
 
 data class AnimationOptions(
     val duration: Double,

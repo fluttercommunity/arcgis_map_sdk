@@ -1,13 +1,13 @@
 package esri.arcgis.flutter_plugin
 
 import com.esri.arcgisruntime.mapping.BasemapStyle
+import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import esri.arcgis.flutter_plugin.model.AnimationCurve
 
 val gson: Gson by lazy {
     GsonBuilder()
@@ -51,10 +51,11 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
 fun AnimationCurve.getJsonValue(): String {
     return when (this) {
         AnimationCurve.LINEAR -> "linear"
-        AnimationCurve.EASE -> "ease"
-        AnimationCurve.EASY_IN -> "easeIn"
-        AnimationCurve.EASY_OUT -> "easeOut"
-        AnimationCurve.EASY_IN_OUT -> "easeInOut"
+        AnimationCurve.EASE_IN_EXPO -> "easy"
+        AnimationCurve.EASE_IN_CIRC -> "easeIn"
+        AnimationCurve.EASE_IN_OUT_CIRC -> "easeOut"
+        AnimationCurve.EASE_IN_OUT_CUBIC -> "easeInOut"
+        else -> "linear"
     }
 }
 

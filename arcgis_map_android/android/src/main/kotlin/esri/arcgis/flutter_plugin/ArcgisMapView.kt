@@ -7,6 +7,7 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
+import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
@@ -173,10 +174,13 @@ internal class ArcgisMapView(
         }
 
         //TODO how to use the animationOptions.animationCurve
-
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         mapView
-            .setViewpointAsync(initialViewPort, animationOptions?.duration?.toFloat() ?: 0F)
+            .setViewpointAsync(
+                initialViewPort,
+                animationOptions?.duration?.toFloat() ?: 0F,
+                animationOptions?.animationCurve,
+            )
             .addDoneListener { result.success(true) }
     }
 
