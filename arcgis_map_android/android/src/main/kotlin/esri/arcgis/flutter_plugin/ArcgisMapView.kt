@@ -8,7 +8,9 @@ import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.MapView
+import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
+import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.ViewPadding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
@@ -71,6 +73,7 @@ internal class ArcgisMapView(
                 "zoom_out" -> onZoomOut(call = call, result = result)
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
+                "move_camera" -> onMoveCamera(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -152,6 +155,17 @@ internal class ArcgisMapView(
         mapView.interactionOptions = interaction
 
         result.success(true)
+    }
+
+    private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
+
+        val point = call.argument<LatLng>("point")!!
+        val zoomLevel = call.argument<Int>("zoomLevel")
+        val animationOptions = call.argument<AnimationOptions>("animationOptions")
+
+
+
+        //TODO
     }
 
     /**

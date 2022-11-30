@@ -7,10 +7,12 @@ import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import esri.arcgis.flutter_plugin.model.AnimationCurve
 
 val gson: Gson by lazy {
     GsonBuilder()
         .registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
+        .registerTypeAdapter(AnimationCurveAdapter::class.java, AnimationCurveAdapter())
         .create()
 }
 
@@ -24,6 +26,16 @@ fun toMap(data: Any): Map<Any, Any> {
     return gson.fromJson(jsonString, object : TypeToken<Map<Any, Any>>() {}.type)
 }
 
+class AnimationCurveAdapter : TypeAdapter<AnimationCurve>() {
+    override fun write(out: JsonWriter, value: AnimationCurve) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): AnimationCurve {
+        val jsonValue = reader.nextString()
+        return AnimationCurve.values().first { it.getJsonValue() == jsonValue }
+    }
+}
 
 class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     override fun write(out: JsonWriter, value: BasemapStyle) {
@@ -33,6 +45,16 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     override fun read(reader: JsonReader): BasemapStyle {
         val jsonValue = reader.nextString()
         return BasemapStyle.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun AnimationCurve.getJsonValue(): String {
+    return when (this) {
+        AnimationCurve.LINEAR -> "linear"
+        AnimationCurve.EASE -> "ease"
+        AnimationCurve.EASY_IN -> "easeIn"
+        AnimationCurve.EASY_OUT -> "easeOut"
+        AnimationCurve.EASY_IN_OUT -> "easeInOut"
     }
 }
 

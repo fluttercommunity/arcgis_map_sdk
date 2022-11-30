@@ -106,7 +106,14 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int? zoomLevel,
     AnimationOptions? animationOptions,
   }) {
-    throw UnimplementedError('moveCamera() has not been implemented.');
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "move_camera",
+      {
+        "point": point.toJson(),
+        "zoomLevel": zoomLevel,
+        "animationOptions": animationOptions?.toMap(),
+      },
+    );
   }
 
   @override
