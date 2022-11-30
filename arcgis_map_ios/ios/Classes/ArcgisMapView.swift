@@ -2,7 +2,11 @@ import ArcGIS
 import Foundation
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
-    private let channel: FlutterMethodChannel
+    private let methodChannel: FlutterMethodChannel
+    private let zoomEventChannel: FlutterEventChannel
+    private let zoomStreamHandler = ZoomStreamHandler()
+    
+    private var mapScaleObservation: NSKeyValueObservation?
     
     private var mapView: AGSMapView
     private let map = AGSMap()
@@ -28,10 +32,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapOptions: ArcgisMapOptions,
         binaryMessenger messenger: FlutterBinaryMessenger
     ) {
-        channel = FlutterMethodChannel(
+        methodChannel = FlutterMethodChannel(
             name: "esri.arcgis.flutter_plugin/\(viewId)",
             binaryMessenger: messenger
         )
+        zoomEventChannel = FlutterEventChannel(
+            name: "esri.arcgis.flutter_plugin/\(viewId)/zoom",
+            binaryMessenger: messenger
+        )
+        zoomEventChannel.setStreamHandler(zoomStreamHandler)
         
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
@@ -42,6 +51,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
+        
+        mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                let newZoom = self.getZoomLevel(self.mapView.mapScale)
+                self.zoomStreamHandler.addZoom(zoom: newZoom)
+            }
+        }
+        
         
         let viewport = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
@@ -68,10 +86,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
          let rotationEnabled: Bool
          */
         
-        
-        
-    
-        
         /*
          TODO: at tapped we *might* need support for adding specific layers
         let layer: AGSArcGISVectorTiledLayer = {
@@ -85,9 +99,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         setupMethodChannel()
     }
     
-    
     private func setupMethodChannel() {
-        channel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
+        methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
             switch(call.method) {
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
@@ -105,7 +118,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         let newScale = getMapScale(totalZoomLevel)
-        let future = mapView.setViewpointScale(newScale) { _ in
+        mapView.setViewpointScale(newScale) { _ in
             result(true)
         }
     }
@@ -118,7 +131,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         let newScale = getMapScale(totalZoomLevel)
-        let future = mapView.setViewpointScale(newScale) { _ in
+        mapView.setViewpointScale(newScale) { _ in
             result(true)
         }
     }
