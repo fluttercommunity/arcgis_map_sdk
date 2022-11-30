@@ -151,18 +151,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
         
-        let newOptions = AGSMapViewInteractionOptions()
+        mapView.interactionOptions.isZoomEnabled = enabled
+        mapView.interactionOptions.isPanEnabled = enabled
+        mapView.interactionOptions.isFlickEnabled = enabled
+        mapView.interactionOptions.isMagnifierEnabled = enabled
+        mapView.interactionOptions.isRotateEnabled = enabled
+        mapView.interactionOptions.isEnabled = enabled
         
-        if !enabled {
-            newOptions.isZoomEnabled = false
-            newOptions.isPanEnabled = false
-            newOptions.isFlickEnabled = false
-            newOptions.isMagnifierEnabled = false
-            newOptions.isRotateEnabled = false
-            newOptions.isEnabled = false
-        }
-        
-        mapView.interactionOptions = newOptions
         result(true)
     }
     
