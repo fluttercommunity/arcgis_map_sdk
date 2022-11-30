@@ -53,6 +53,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _subscribedToZoom = false;
   bool _subscribedToGraphicsInView = false;
   final Map<String, bool> _hoveredPolygons = {};
+  var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
 
@@ -309,7 +310,8 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
-            apiKey: "YOUR KEY HERE",
+            apiKey:
+                "AAPKdda165b2cc204412bcb7848f35f6de4650uN61KB-0HViwn-rQl3Xq0DSij91tn_hCPmOGj-0QJxu85bIsM7vWqzz1vEPETa",
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
@@ -372,6 +374,18 @@ class _ExampleMapState extends State<ExampleMap> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _controller?.setInteraction(_isInteractionEnabled);
+
+                    setState(() {
+                      _isInteractionEnabled = !_isInteractionEnabled;
+                    });
+                  },
+                  child: Text(
+                    "${_isInteractionEnabled ? "Disabled" : "Enable"} Interaction",
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     if (_subscribedToGraphicsInView) {

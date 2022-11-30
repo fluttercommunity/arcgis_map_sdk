@@ -84,8 +84,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void setInteraction(int mapId, {required bool isEnabled}) {
-    _methodChannelBuilder(mapId)
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
+    return _methodChannelBuilder(mapId)
         .invokeMethod("set_interaction", {"enabled": isEnabled});
   }
 
@@ -157,9 +157,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    _methodChannelBuilder(mapId).invokeMethod("add_view_padding", {
-      "add_view_padding": padding.toMap(),
-    });
+    _methodChannelBuilder(mapId)
+        .invokeMethod("add_view_padding", padding.toMap());
   }
 
   @override
