@@ -10,6 +10,7 @@ import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
@@ -23,8 +24,8 @@ import kotlin.math.roundToInt
  * */
 internal class ArcgisMapView(
     context: Context,
-    viewId: Int,
-    binaryMessenger: BinaryMessenger,
+    private val viewId: Int,
+    private val binaryMessenger: BinaryMessenger,
     private val mapOptions: ArcgisMapOptions,
 ) : PlatformView {
 
@@ -32,6 +33,7 @@ internal class ArcgisMapView(
     private var mapView: MapView
     private val map = ArcGISMap()
 
+    private lateinit var zoomStreamHandler: ZoomStreamHandler
 
     private val methodChannel =
         MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
@@ -56,6 +58,7 @@ internal class ArcgisMapView(
         mapView.setViewpoint(viewPoint)
 
         setupMethodChannel()
+        setupEventChannel()
     }
 
     override fun dispose() {}
@@ -72,6 +75,13 @@ internal class ArcgisMapView(
         }
     }
 
+    private fun setupEventChannel() {
+        zoomStreamHandler = ZoomStreamHandler()
+
+        EventChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId/zoom")
+            .setStreamHandler(zoomStreamHandler)
+    }
+
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
@@ -84,6 +94,7 @@ internal class ArcgisMapView(
         future.addDoneListener {
             try {
                 val isSuccessful = future.get()
+                zoomStreamHandler.addZoom(getZoomLevel(mapView))
                 result.success(isSuccessful)
             } catch (e: Exception) {
                 result.error("Error", e.message, null)
@@ -104,6 +115,7 @@ internal class ArcgisMapView(
             try {
                 val isSuccessful = future.get()
                 if (isSuccessful) {
+                    zoomStreamHandler.addZoom(getZoomLevel(mapView))
                     result.success(true)
                 } else {
                     result.error("Error", "Zoom animation has been interrupted", null)

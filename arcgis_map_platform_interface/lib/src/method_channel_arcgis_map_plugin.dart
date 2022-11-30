@@ -10,9 +10,6 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   MethodChannel _methodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
 
-  EventChannel _zoomEventChannelBuilder(int viewId) =>
-      EventChannel('esri.arcgis.flutter_plugin/$viewId/zoom');
-
   /// This method is called when the plugin is first initialized.
   @override
   Future<void> init(int mapId) async {}
@@ -130,8 +127,9 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<double> getZoom(int mapId) {
-    _zoomEventStream ??=
-        _zoomEventChannelBuilder(mapId).receiveBroadcastStream().map((event) {
+    _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
+        .receiveBroadcastStream()
+        .map((event) {
       final value = event as double;
 
       return value;
