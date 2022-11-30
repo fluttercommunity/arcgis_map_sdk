@@ -84,8 +84,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void setInteraction(int mapId, {required bool isEnabled}) {
-    _methodChannelBuilder(mapId)
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
+    return _methodChannelBuilder(mapId)
         .invokeMethod("set_interaction", {"enabled": isEnabled});
   }
 

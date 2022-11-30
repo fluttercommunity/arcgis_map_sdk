@@ -93,7 +93,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void setInteraction(int mapId, {required bool isEnabled}) {
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
     // TODO(Matthaios): Impl
     throw Exception("setInteraction not implemented");
   }

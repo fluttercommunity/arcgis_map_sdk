@@ -53,6 +53,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _subscribedToZoom = false;
   bool _subscribedToGraphicsInView = false;
   final Map<String, bool> _hoveredPolygons = {};
+  var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
 
@@ -373,6 +374,18 @@ class _ExampleMapState extends State<ExampleMap> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _controller?.setInteraction(_isInteractionEnabled);
+
+                    setState(() {
+                      _isInteractionEnabled = !_isInteractionEnabled;
+                    });
+                  },
+                  child: Text(
+                    "${_isInteractionEnabled ? "Disabled" : "Enable"} Interaction",
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     if (_subscribedToGraphicsInView) {

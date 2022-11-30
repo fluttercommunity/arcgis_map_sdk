@@ -139,13 +139,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
     
     private func onAddViewPadding(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dict = (call.arguments as! Dictionary<String, Any>)["]
+        let dict = call.arguments as! Dictionary<String, Any>
         let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
         
+        //mapView.setViewpoint()
         //TODO implement padding
         
         result(true)
-        
     }
     
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
