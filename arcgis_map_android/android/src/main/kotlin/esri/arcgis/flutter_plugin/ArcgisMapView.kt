@@ -50,10 +50,9 @@ internal class ArcgisMapView(
         mapView.map = map
 
         val viewPoint = Viewpoint(
-            mapOptions.initialCenter.latitude,
-            mapOptions.initialCenter.longitude,
+            mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
             // for now we just multiply it by 1000 to have a similar effect
-            getMapScale(mapOptions.zoom.roundToInt())
+            getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
 
@@ -140,20 +139,15 @@ internal class ArcgisMapView(
     private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
         val isEnabled = call.argument<Boolean>("enabled")!!
 
-        val interaction =
-
-            if (isEnabled)
-            // All options are enabled by default
-                MapView.InteractionOptions(mapView)
-            else
-                MapView.InteractionOptions(mapView).apply {
-                    isZoomEnabled = false
-                    isPanEnabled = false
-                    isFlickEnabled = false
-                    isMagnifierEnabled = false
-                    isRotateEnabled = false
-                    setEnabled(false)
-                }
+        val interaction = if (isEnabled) MapView.InteractionOptions(mapView)
+        else MapView.InteractionOptions(mapView).apply {
+            isZoomEnabled = false
+            isPanEnabled = false
+            isFlickEnabled = false
+            isMagnifierEnabled = false
+            isRotateEnabled = false
+            setEnabled(false)
+        }
 
         mapView.interactionOptions = interaction
 
