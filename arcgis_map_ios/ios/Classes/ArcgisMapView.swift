@@ -40,6 +40,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap))
         mapView.map = map
         
+        map.minScale = getMapScale(mapOptions.minZoom)
+        map.maxScale = getMapScale(mapOptions.maxZoom)
+        
         let viewport = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
             longitude: mapOptions.initialCenter.longitude,
@@ -65,11 +68,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
          let rotationEnabled: Bool
          */
         
-        /*
-         TODO: scaling is another unit then zoom as described above
-        map.minScale = Double(mapOptions.minZoom)
-        map.maxScale = Double(mapOptions.maxZoom)
-        */
         
         
     
@@ -91,16 +89,61 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func setupMethodChannel() {
         channel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
             switch(call.method) {
+            case "zoom_in": onZoomIn(call, result)
+            case "zoom_out": onZoomOut(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
         })
     }
     
+    private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
+        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel + lodFactor
+        if(totalZoomLevel > getZoomLevel(map.maxScale)) {
+            return
+        }
+        let newScale = getMapScale(totalZoomLevel)
+        let future = mapView.setViewpointScale(newScale) { _ in
+            result(true)
+        }
+    }
+    
+    private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
+        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel - lodFactor
+        if(totalZoomLevel < getZoomLevel(map.minScale)) {
+            return
+        }
+        let newScale = getMapScale(totalZoomLevel)
+        let future = mapView.setViewpointScale(newScale) { _ in
+            result(true)
+        }
+    }
+    
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
         return AGSBasemapStyle.allCases.first { enumValue in
             enumValue.getJsonValue() == string
         }!
+    }
+    
+    /**
+     * Convert map scale to zoom level
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private func getZoomLevel(_ scale: Double) -> Int {
+        let result = -1.443 * log(scale) + 29.14
+        return Int(result.rounded())
+    }
+
+    /**
+     *  Convert zoom level to map scale
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private func getMapScale(_ zoomLevel: Int) -> Double {
+        return 591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 }
 
