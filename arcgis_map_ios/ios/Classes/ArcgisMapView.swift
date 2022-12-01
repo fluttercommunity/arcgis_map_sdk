@@ -165,7 +165,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         mapView.setViewpoint(
             AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-            duration: animationOptions?.duration ?? 0,
+            duration: (animationOptions?.duration ?? 0) / 1000,
             curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { _ in
             result(true)
