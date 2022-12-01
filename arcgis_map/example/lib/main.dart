@@ -2,12 +2,18 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:arcgis/map_elements.dart';
+import 'package:arcgis/vector_layer_example_page.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const ExampleApp());
+
+const arcGisApiKey = String.fromEnvironment(
+  "ARCGIS-API-KEY",
+  defaultValue: "YOUR KEY HERE",
+);
 
 class ExampleApp extends StatelessWidget {
   const ExampleApp({Key? key}) : super(key: key);
@@ -30,11 +36,6 @@ class ExampleMap extends StatefulWidget {
 }
 
 class _ExampleMapState extends State<ExampleMap> {
-  static const _apiKey = String.fromEnvironment(
-    "ARCGIS-API-KEY",
-    defaultValue: "YOUR KEY HERE",
-  );
-
   static const String _polygonId1 = 'polygon1';
   static const String _polygonId2 = 'polygon2';
 
@@ -315,7 +316,7 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
-            apiKey: _apiKey,
+            apiKey: arcGisApiKey,
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
@@ -378,6 +379,12 @@ class _ExampleMapState extends State<ExampleMap> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _routeToVectorLayerMap();
+                  },
+                  child: const Text("Show Vector layer example"),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     _controller?.setInteraction(
@@ -600,4 +607,10 @@ class _ExampleMapState extends State<ExampleMap> {
     width: 56,
     height: 56,
   );
+
+  void _routeToVectorLayerMap() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
 }

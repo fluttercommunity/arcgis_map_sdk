@@ -46,8 +46,19 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView = AGSMapView.init(frame: frame)
         
         super.init()
-        map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap))
+        
+        if mapOptions.basemap != nil {
+            map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
+        } else {
+            let layers = mapOptions.vectorTilesUrls!.map { url in
+                AGSArcGISVectorTiledLayer(url: URL(string: url)!)
+            }
+            map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+        }
+        
         mapView.map = map
+        
+        //TODO handle isInteractive
         
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
