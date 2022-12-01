@@ -9,7 +9,7 @@ import Foundation
 import ArcGIS
 
 struct AnimationOptions: Codable {
-    var duration: Double
+    var duration: Double?
     var animationCurve: String
 }
 

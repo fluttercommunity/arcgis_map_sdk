@@ -157,14 +157,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let dict = call.arguments as! Dictionary<String, Any>
         let point: LatLng = try! JsonUtil.objectOfJson(dict["point"] as! Dictionary<String, Any>)
         let zoomLevel = dict["zoomLevel"] as? Int
-        let animationOptions: AnimationOptions = try! JsonUtil.objectOfJson(dict["animationOptions"] as! Dictionary<String, Any>)
+        
+        let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
+        let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
         
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
         
         mapView.setViewpoint(
             AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-            duration: animationOptions.duration,
-            curve: animationOptions.arcgisAnimationCurve()
+            duration: animationOptions?.duration ?? 0,
+            curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { _ in
             result(true)
         }
