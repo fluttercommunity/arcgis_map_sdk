@@ -18,11 +18,11 @@ extension AnimationOptions {
         switch animationCurve {
         case "linear":
             return .linear
-        case "ease-in":
+        case "easeIn":
             return .easeInCirc
-        case "ease-out":
+        case "easeOut":
             return .easeOutCirc
-        case "ease-in-out":
+        case "easeInOut":
             return .easeInOutCirc
         default:
             return .linear
