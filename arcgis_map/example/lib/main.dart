@@ -30,6 +30,11 @@ class ExampleMap extends StatefulWidget {
 }
 
 class _ExampleMapState extends State<ExampleMap> {
+  static const _apiKey = String.fromEnvironment(
+    "arcgis-api-key",
+    defaultValue: "YOUR KEY HERE",
+  );
+
   static const String _polygonId1 = 'polygon1';
   static const String _polygonId2 = 'polygon2';
 
@@ -310,7 +315,7 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
-            apiKey: "YOUR KEY HERE",
+            apiKey: _apiKey,
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
