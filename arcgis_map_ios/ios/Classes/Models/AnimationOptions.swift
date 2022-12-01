@@ -19,11 +19,11 @@ extension AnimationOptions {
         case "linear":
             return .linear
         case "ease-in":
-            return .easeInCubic
+            return .easeInCirc
         case "ease-out":
-            return .easeOutCubic
+            return .easeOutCirc
         case "ease-in-out":
-            return .easeInOutCubic
+            return .easeInOutCirc
         default:
             return .linear
         }
