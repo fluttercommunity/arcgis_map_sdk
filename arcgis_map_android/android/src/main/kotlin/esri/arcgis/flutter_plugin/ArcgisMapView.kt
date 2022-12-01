@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
@@ -47,7 +48,15 @@ internal class ArcgisMapView(
     init {
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
-        map.basemap = Basemap(mapOptions.basemap)
+
+        if (mapOptions.basemap != null) {
+            map.basemap = Basemap(mapOptions.basemap)
+        } else {
+            val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
+
+            map.basemap = Basemap(layers, null)
+        }
+
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
@@ -64,6 +73,8 @@ internal class ArcgisMapView(
             getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
+
+        setMapInteraction(enabled = mapOptions.isInteractive)
 
         setupMethodChannel()
         setupEventChannel()
@@ -153,14 +164,7 @@ internal class ArcgisMapView(
     private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
         val enabled = call.argument<Boolean>("enabled")!!
 
-        mapView.interactionOptions.apply {
-            isPanEnabled = enabled
-            isFlickEnabled = enabled
-            isMagnifierEnabled = enabled
-            isRotateEnabled = enabled
-            isZoomEnabled = enabled
-            isEnabled = enabled
-        }
+        setMapInteraction(enabled = enabled)
 
         result.success(true)
     }
@@ -211,6 +215,16 @@ internal class ArcgisMapView(
         return 591657527 * (exp(-0.693 * zoomLevel))
     }
 
+    private fun setMapInteraction(enabled: Boolean) {
+        mapView.interactionOptions.apply {
+            isPanEnabled = enabled
+            isFlickEnabled = enabled
+            isMagnifierEnabled = enabled
+            isRotateEnabled = enabled
+            isZoomEnabled = enabled
+            isEnabled = enabled
+        }
+    }
 
     // endregion
 }
