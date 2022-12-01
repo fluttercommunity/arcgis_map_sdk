@@ -165,7 +165,6 @@ internal class ArcgisMapView(
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
-
         val point = call.argument<LatLng>("point")!!
         val zoomLevel = call.argument<Int>("zoomLevel")
         val animationOptions = call.argument<AnimationOptions>("animationOptions")

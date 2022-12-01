@@ -51,7 +51,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
-        
+
         mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -106,6 +106,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "zoom_out": onZoomOut(call, result)
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
+            case "move_camera": onMoveCamera(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -142,10 +143,31 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let dict = call.arguments as! Dictionary<String, Any>
         let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
         
-        //mapView.setViewpoint()
-        //TODO implement padding
+        mapView.contentInset = UIEdgeInsets(
+            top: padding.top,
+            left: padding.left,
+            bottom: padding.bottom,
+            right: padding.right
+        )
         
         result(true)
+    }
+    
+    private func onMoveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let point: LatLng = try! JsonUtil.objectOfJson(dict["point"] as! Dictionary<String, Any>)
+        let zoomLevel = dict["zoomLevel"] as? Int
+        let animationOptions: AnimationOptions = try! JsonUtil.objectOfJson(dict["animationOptions"] as! Dictionary<String, Any>)
+        
+        let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
+        
+        mapView.setViewpoint(
+            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+            duration: animationOptions.duration,
+            curve: animationOptions.arcgisAnimationCurve()
+        ) { _ in
+            result(true)
+        }
     }
     
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
