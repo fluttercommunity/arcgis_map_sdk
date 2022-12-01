@@ -53,8 +53,8 @@ fun AnimationCurve.getJsonValue(): String {
         AnimationCurve.LINEAR -> "linear"
         AnimationCurve.EASE_IN_EXPO -> "easy"
         AnimationCurve.EASE_IN_CIRC -> "easeIn"
-        AnimationCurve.EASE_IN_OUT_CIRC -> "easeOut"
-        AnimationCurve.EASE_IN_OUT_CUBIC -> "easeInOut"
+        AnimationCurve.EASE_OUT_CIRC -> "easeOut"
+        AnimationCurve.EASE_IN_OUT_CIRC-> "easeInOut"
         else -> "linear"
     }
 }
