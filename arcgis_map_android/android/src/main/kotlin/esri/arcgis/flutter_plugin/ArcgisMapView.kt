@@ -7,6 +7,7 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
+import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
@@ -165,9 +166,17 @@ internal class ArcgisMapView(
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
-        val point = call.argument<LatLng>("point")!!
+
+        val arguments = call.arguments as Map<String, Any>
+        val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
+
         val zoomLevel = call.argument<Int>("zoomLevel")
-        val animationOptions = call.argument<AnimationOptions>("animationOptions")
+
+        val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
+
+        val animationOptions =
+            if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+            else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -180,7 +189,7 @@ internal class ArcgisMapView(
             .setViewpointAsync(
                 initialViewPort,
                 animationOptions?.duration?.toFloat() ?: 0F,
-                animationOptions?.animationCurve,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
             )
             .addDoneListener { result.success(true) }
     }
