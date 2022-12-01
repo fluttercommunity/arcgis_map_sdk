@@ -7,7 +7,6 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
-import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
@@ -51,6 +50,12 @@ internal class ArcgisMapView(
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
+
+        mapView.addMapScaleChangedListener {
+            val zoomLevel = getZoomLevel(mapView)
+
+            zoomStreamHandler.addZoom(zoomLevel)
+        }
 
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
@@ -99,7 +104,6 @@ internal class ArcgisMapView(
         future.addDoneListener {
             try {
                 val isSuccessful = future.get()
-                zoomStreamHandler.addZoom(getZoomLevel(mapView))
                 result.success(isSuccessful)
             } catch (e: Exception) {
                 result.error("Error", e.message, null)
@@ -120,7 +124,6 @@ internal class ArcgisMapView(
             try {
                 val isSuccessful = future.get()
                 if (isSuccessful) {
-                    zoomStreamHandler.addZoom(getZoomLevel(mapView))
                     result.success(true)
                 } else {
                     result.error("Error", "Zoom animation has been interrupted", null)
@@ -173,7 +176,6 @@ internal class ArcgisMapView(
             mapView.mapScale
         }
 
-        //TODO how to use the animationOptions.animationCurve
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         mapView
             .setViewpointAsync(
