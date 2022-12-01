@@ -31,7 +31,7 @@ class ExampleMap extends StatefulWidget {
 
 class _ExampleMapState extends State<ExampleMap> {
   static const _apiKey = String.fromEnvironment(
-    "arcgis-api-key",
+    "ARCGIS-API-KEY",
     defaultValue: "YOUR KEY HERE",
   );
 
