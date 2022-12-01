@@ -1,7 +1,6 @@
 import 'package:arcgis/main.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class VectorLayerExamplePage extends StatefulWidget {
