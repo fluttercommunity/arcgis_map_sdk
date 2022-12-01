@@ -140,7 +140,6 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   Stream<double> getZoom(int mapId) {
     _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
         .receiveBroadcastStream()
-        //TODO discuss with other devs
         .map((event) => (event as int).toDouble());
     return _zoomEventStream!;
   }
