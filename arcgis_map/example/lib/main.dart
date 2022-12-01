@@ -351,7 +351,7 @@ class _ExampleMapState extends State<ExampleMap> {
               onPressed: () {
                 _controller?.moveCamera(
                   point: LatLng(48.1234963, 11.5910182),
-                  zoomLevel: 4,
+                  zoomLevel: 15,
                   animationOptions: AnimationOptions(
                     duration: 1500,
                     animationCurve: AnimationCurve.easeIn,

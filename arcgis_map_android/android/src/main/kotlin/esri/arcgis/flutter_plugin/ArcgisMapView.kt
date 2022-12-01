@@ -188,7 +188,7 @@ internal class ArcgisMapView(
         mapView
             .setViewpointAsync(
                 initialViewPort,
-                animationOptions?.duration?.toFloat() ?: 0F,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
                 animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
             )
             .addDoneListener { result.success(true) }
