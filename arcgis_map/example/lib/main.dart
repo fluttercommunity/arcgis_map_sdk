@@ -310,8 +310,7 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
-            apiKey:
-                "AAPKdda165b2cc204412bcb7848f35f6de4650uN61KB-0HViwn-rQl3Xq0DSij91tn_hCPmOGj-0QJxu85bIsM7vWqzz1vEPETa",
+            apiKey: "YOUR KEY HERE",
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
