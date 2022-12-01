@@ -109,7 +109,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     return _methodChannelBuilder(mapId).invokeMethod(
       "move_camera",
       {
-        "point": point.toJson(),
+        "point": point.toMap(),
         "zoomLevel": zoomLevel,
         "animationOptions": animationOptions?.toMap(),
       },
