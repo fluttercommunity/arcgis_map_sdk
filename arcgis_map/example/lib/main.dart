@@ -394,18 +394,6 @@ class _ExampleMapState extends State<ExampleMap> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _controller?.moveCamera(
-                      point: LatLng(11.5910182, 48.1234963),
-                      animationOptions: AnimationOptions(
-                        duration: 1000,
-                        animationCurve: AnimationCurve.easeInOut,
-                      ),
-                    );
-                  },
-                  child: const Text("Move camera"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
                     if (_subscribedToGraphicsInView) {
                       _unSubscribeToGraphicsInView();
                     } else {
