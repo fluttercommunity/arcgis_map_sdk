@@ -56,13 +56,10 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
         }
         
-        mapView.map = map
-        
-        //TODO handle isInteractive
-        
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
-
+        
+        mapView.map = map
         mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -88,25 +85,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         */
         
-        /*
-         TODO: check if those properties are supported natively
-            
-         let hideDefaultZoomButtons: Bool
-         let hideAttribution: Bool
-         let padding: ViewPadding
-         let rotationEnabled: Bool
-         */
-        
-        /*
-         TODO: at tapped we *might* need support for adding specific layers
-        let layer: AGSArcGISVectorTiledLayer = {
-            let url = URL(string: creationParams.tileServerUrl)!
-            let layer = AGSArcGISVectorTiledLayer(url: url)
-            return layer
-        }()
-         map.basemap = AGSBasemap.init(baseLayer: layer)
-        */
-        
+        setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
     }
     
@@ -186,14 +165,17 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
         
+        setMapInteractive(enabled)
+        result(true)
+    }
+    
+    private func setMapInteractive(_ enabled: Bool) {
         mapView.interactionOptions.isZoomEnabled = enabled
         mapView.interactionOptions.isPanEnabled = enabled
         mapView.interactionOptions.isFlickEnabled = enabled
         mapView.interactionOptions.isMagnifierEnabled = enabled
         mapView.interactionOptions.isRotateEnabled = enabled
         mapView.interactionOptions.isEnabled = enabled
-        
-        result(true)
     }
     
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
