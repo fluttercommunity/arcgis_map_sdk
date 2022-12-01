@@ -52,7 +52,7 @@ internal class ArcgisMapView(
         if (mapOptions.basemap != null) {
             map.basemap = Basemap(mapOptions.basemap)
         } else {
-            val layers = mapOptions.vectorTilesUrls.map { ArcGISVectorTiledLayer(it) }
+            val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
 
             map.basemap = Basemap(layers, null)
         }
