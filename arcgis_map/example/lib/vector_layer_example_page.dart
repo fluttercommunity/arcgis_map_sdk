@@ -15,14 +15,15 @@ class _VectorLayerExamplePageState extends State<VectorLayerExamplePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Stack(
         children: [
           ArcgisMap(
             apiKey: arcGisApiKey,
-            initialCenter: LatLng(50, 11),
-            zoom: 5,
+            initialCenter: LatLng(-8, -120),
+            zoom: 13,
             vectorTileLayerUrls: const [
-              "https://tiles.arcgis.com/tiles/zqDtqVsudQMK98uQ/arcgis/rest/services/TCB_Vektorkarte/VectorTileServer",
+              "https://vectortileservices3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Santa_Monica_Mountains_Parcels_VTL/VectorTileServer/",
             ],
           ),
         ],
