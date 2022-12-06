@@ -2,7 +2,11 @@ import ArcGIS
 import Foundation
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
-    private let channel: FlutterMethodChannel
+    private let methodChannel: FlutterMethodChannel
+    private let zoomEventChannel: FlutterEventChannel
+    private let zoomStreamHandler = ZoomStreamHandler()
+    
+    private var mapScaleObservation: NSKeyValueObservation?
     
     private var mapView: AGSMapView
     private let map = AGSMap()
@@ -28,17 +32,42 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapOptions: ArcgisMapOptions,
         binaryMessenger messenger: FlutterBinaryMessenger
     ) {
-        channel = FlutterMethodChannel(
+        methodChannel = FlutterMethodChannel(
             name: "esri.arcgis.flutter_plugin/\(viewId)",
             binaryMessenger: messenger
         )
+        zoomEventChannel = FlutterEventChannel(
+            name: "esri.arcgis.flutter_plugin/\(viewId)/zoom",
+            binaryMessenger: messenger
+        )
+        zoomEventChannel.setStreamHandler(zoomStreamHandler)
         
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
         
         super.init()
-        map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap))
+        
+        if mapOptions.basemap != nil {
+            map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
+        } else {
+            let layers = mapOptions.vectorTilesUrls!.map { url in
+                AGSArcGISVectorTiledLayer(url: URL(string: url)!)
+            }
+            map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+        }
+        
+        map.minScale = getMapScale(mapOptions.minZoom)
+        map.maxScale = getMapScale(mapOptions.maxZoom)
+        
         mapView.map = map
+        mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                let newZoom = self.getZoomLevel(self.mapView.mapScale)
+                self.zoomStreamHandler.addZoom(zoom: newZoom)
+            }
+        }
+        
         
         let viewport = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
@@ -56,51 +85,120 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         */
         
-        /*
-         TODO: check if those properties are supported natively
-            
-         let hideDefaultZoomButtons: Bool
-         let hideAttribution: Bool
-         let padding: ViewPadding
-         let rotationEnabled: Bool
-         */
-        
-        /*
-         TODO: scaling is another unit then zoom as described above
-        map.minScale = Double(mapOptions.minZoom)
-        map.maxScale = Double(mapOptions.maxZoom)
-        */
-        
-        
-    
-        
-        /*
-         TODO: at tapped we *might* need support for adding specific layers
-        let layer: AGSArcGISVectorTiledLayer = {
-            let url = URL(string: creationParams.tileServerUrl)!
-            let layer = AGSArcGISVectorTiledLayer(url: url)
-            return layer
-        }()
-         map.basemap = AGSBasemap.init(baseLayer: layer)
-        */
-        
+        setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
     }
     
-    
     private func setupMethodChannel() {
-        channel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
+        methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
             switch(call.method) {
+            case "zoom_in": onZoomIn(call, result)
+            case "zoom_out": onZoomOut(call, result)
+            case "add_view_padding": onAddViewPadding(call, result)
+            case "set_interaction": onSetInteraction(call, result)
+            case "move_camera": onMoveCamera(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
         })
     }
     
+    private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
+        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel + lodFactor
+        if(totalZoomLevel > getZoomLevel(map.maxScale)) {
+            return
+        }
+        let newScale = getMapScale(totalZoomLevel)
+        mapView.setViewpointScale(newScale) { _ in
+            result(true)
+        }
+    }
+    
+    private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
+        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel - lodFactor
+        if(totalZoomLevel < getZoomLevel(map.minScale)) {
+            return
+        }
+        let newScale = getMapScale(totalZoomLevel)
+        mapView.setViewpointScale(newScale) { success in
+            result(success)
+        }
+    }
+    
+    private func onAddViewPadding(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
+        
+        mapView.contentInset = UIEdgeInsets(
+            top: padding.top,
+            left: padding.left,
+            bottom: padding.bottom,
+            right: padding.right
+        )
+        
+        result(true)
+    }
+    
+    private func onMoveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let point: LatLng = try! JsonUtil.objectOfJson(dict["point"] as! Dictionary<String, Any>)
+        let zoomLevel = dict["zoomLevel"] as? Int
+        
+        let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
+        let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
+        
+        let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
+        
+        mapView.setViewpoint(
+            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+            duration: (animationOptions?.duration ?? 0) / 1000,
+            curve: animationOptions?.arcgisAnimationCurve() ?? .linear
+        ) { success in
+            result(success)
+        }
+    }
+    
+    private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
+        
+        setMapInteractive(enabled)
+        result(true)
+    }
+    
+    private func setMapInteractive(_ enabled: Bool) {
+        mapView.interactionOptions.isZoomEnabled = enabled
+        mapView.interactionOptions.isPanEnabled = enabled
+        mapView.interactionOptions.isFlickEnabled = enabled
+        mapView.interactionOptions.isMagnifierEnabled = enabled
+        mapView.interactionOptions.isRotateEnabled = enabled
+        mapView.interactionOptions.isEnabled = enabled
+    }
+    
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
         return AGSBasemapStyle.allCases.first { enumValue in
             enumValue.getJsonValue() == string
         }!
+    }
+    
+    /**
+     * Convert map scale to zoom level
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private func getZoomLevel(_ scale: Double) -> Int {
+        let result = -1.443 * log(scale) + 29.14
+        return Int(result.rounded())
+    }
+
+    /**
+     *  Convert zoom level to map scale
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private func getMapScale(_ zoomLevel: Int) -> Double {
+        return 591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 }
 

@@ -4,7 +4,8 @@ import com.esri.arcgisruntime.mapping.BasemapStyle
 
 data class ArcgisMapOptions(
     val apiKey: String,
-    val basemap: BasemapStyle,
+    val basemap: BasemapStyle?,
+    val vectorTilesUrls: List<String>,
     val initialCenter: LatLng,
     val isInteractive: Boolean,
     val zoom: Double,

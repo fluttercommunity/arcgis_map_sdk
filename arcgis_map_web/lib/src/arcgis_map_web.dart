@@ -49,7 +49,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
     int? zoomLevel,
@@ -90,6 +90,12 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   @override
   void toggleBaseMap(int mapId, BaseMap baseMap) {
     return _map(mapId).toggleBaseMap(baseMap: baseMap);
+  }
+
+  @override
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
+    // TODO(Matthaios): Impl
+    throw Exception("setInteraction not implemented");
   }
 
   @override

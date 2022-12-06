@@ -2,8 +2,10 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
+class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
+
+  Stream<double>? _zoomEventStream;
 
   MethodChannel _methodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
@@ -82,6 +84,12 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("set_interaction", {"enabled": isEnabled});
+  }
+
+  @override
   void dispose({required int mapId}) {}
 
   @override
@@ -92,40 +100,40 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   });
 
   @override
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
     int? zoomLevel,
     AnimationOptions? animationOptions,
-  }) {
-    throw UnimplementedError('moveCamera() has not been implemented.');
+  }) async {
+    return await _methodChannelBuilder(mapId).invokeMethod(
+      "move_camera",
+      {
+        "point": point.toMap(),
+        "zoomLevel": zoomLevel,
+        "animationOptions": animationOptions?.toMap(),
+      },
+    ) as bool;
   }
 
   @override
   Future<bool> zoomIn(int lodFactor, int mapId) async {
-    try {
-      return await _methodChannelBuilder(mapId).invokeMethod("zoom_in", {
-        "lodFactor": lodFactor,
-      }) as bool;
-    } catch (e) {
-      return false;
-    }
+    return await _methodChannelBuilder(mapId)
+        .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
   }
 
   @override
   Future<bool> zoomOut(int lodFactor, int mapId) async {
-    try {
-      return await _methodChannelBuilder(mapId).invokeMethod("zoom_out", {
-        "lodFactor": lodFactor,
-      }) as bool;
-    } catch (e) {
-      return false;
-    }
+    return await _methodChannelBuilder(mapId)
+        .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
   }
 
   @override
   Stream<double> getZoom(int mapId) {
-    throw UnimplementedError('addGraphic() has not been implemented.');
+    _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
+        .receiveBroadcastStream()
+        .map((event) => (event as int).toDouble());
+    return _zoomEventStream!;
   }
 
   @override
@@ -140,7 +148,8 @@ abstract class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    throw UnimplementedError('addViewPadding() has not been implemented.');
+    _methodChannelBuilder(mapId)
+        .invokeMethod("add_view_padding", padding.toMap());
   }
 
   @override

@@ -204,12 +204,12 @@ class ArcgisMapWebController {
     );
   }
 
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     int? zoomLevel,
     AnimationOptions? animationOptions,
-  }) async {
-    await _featureLayerController!.moveCamera(
+  }) {
+    return _featureLayerController!.moveCamera(
       point: point,
       zoomLevel: zoomLevel,
       view: _view!,

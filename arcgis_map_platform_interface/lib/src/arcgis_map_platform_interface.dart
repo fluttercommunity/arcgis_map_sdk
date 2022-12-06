@@ -96,7 +96,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('buildView() has not been implemented.');
   }
 
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
     int? zoomLevel,
@@ -111,6 +111,10 @@ class ArcgisMapPlatform extends PlatformInterface {
 
   Future<bool> zoomOut(int lodFactor, int mapId) {
     throw UnimplementedError('zoomOut() has not been implemented.');
+  }
+
+  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
+    throw UnimplementedError('addGraphic() has not been implemented.');
   }
 
   void addGraphic(int mapId, Graphic graphic) {

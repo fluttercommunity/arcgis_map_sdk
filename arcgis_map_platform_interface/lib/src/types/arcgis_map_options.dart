@@ -50,6 +50,7 @@ class ArcgisMapOptions {
     return {
       'apiKey': apiKey,
       'basemap': basemap?.name,
+      "vectorTilesUrls": vectorTilesUrls,
       'initialCenter': initialCenter.toMap(),
       'isInteractive': isInteractive,
       'zoom': zoom,

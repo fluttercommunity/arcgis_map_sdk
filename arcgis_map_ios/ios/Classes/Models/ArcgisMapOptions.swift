@@ -9,12 +9,14 @@ import Foundation
 
 struct ArcgisMapOptions: Codable {
     let apiKey: String
-    let basemap: String
+    let basemap: String?
+    let vectorTilesUrls: Array<String>?
     let initialCenter: LatLng;
     let zoom: Double
     let hideDefaultZoomButtons: Bool
     let hideAttribution: Bool
     let padding: ViewPadding
+    let isInteractive: Bool
     let rotationEnabled: Bool
     let minZoom: Int
     let maxZoom: Int

@@ -2,12 +2,18 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:arcgis/map_elements.dart';
+import 'package:arcgis/vector_layer_example_page.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const ExampleApp());
+
+const arcGisApiKey = String.fromEnvironment(
+  "ARCGIS-API-KEY",
+  defaultValue: "YOUR KEY HERE",
+);
 
 class ExampleApp extends StatelessWidget {
   const ExampleApp({Key? key}) : super(key: key);
@@ -53,6 +59,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _subscribedToZoom = false;
   bool _subscribedToGraphicsInView = false;
   final Map<String, bool> _hoveredPolygons = {};
+  var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
 
@@ -309,7 +316,7 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
-            apiKey: "YOUR KEY HERE",
+            apiKey: arcGisApiKey,
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
             initialCenter: LatLng(51.16, 10.45),
@@ -342,10 +349,11 @@ class _ExampleMapState extends State<ExampleMap> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             FloatingActionButton(
+              heroTag: "move-camera-button",
               onPressed: () {
                 _controller?.moveCamera(
-                  point: LatLng(50, 9),
-                  zoomLevel: 10,
+                  point: LatLng(48.1234963, 11.5910182),
+                  zoomLevel: 15,
                   animationOptions: AnimationOptions(
                     duration: 1500,
                     animationCurve: AnimationCurve.easeIn,
@@ -356,6 +364,7 @@ class _ExampleMapState extends State<ExampleMap> {
               child: const Icon(Icons.place_outlined),
             ),
             FloatingActionButton(
+              heroTag: "zoom-in-button",
               onPressed: () {
                 _controller?.zoomIn(lodFactor: 1);
               },
@@ -363,6 +372,7 @@ class _ExampleMapState extends State<ExampleMap> {
               child: const Icon(Icons.add),
             ),
             FloatingActionButton(
+              heroTag: "zoom-out-button",
               onPressed: () {
                 _controller?.zoomOut(lodFactor: 1);
               },
@@ -372,6 +382,26 @@ class _ExampleMapState extends State<ExampleMap> {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _routeToVectorLayerMap();
+                  },
+                  child: const Text("Show Vector layer example"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _controller?.setInteraction(
+                      isEnabled: !_isInteractionEnabled,
+                    );
+
+                    setState(() {
+                      _isInteractionEnabled = !_isInteractionEnabled;
+                    });
+                  },
+                  child: Text(
+                    "${_isInteractionEnabled ? "Disable" : "Enable"} Interaction",
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     if (_subscribedToGraphicsInView) {
@@ -580,4 +610,10 @@ class _ExampleMapState extends State<ExampleMap> {
     width: 56,
     height: 56,
   );
+
+  void _routeToVectorLayerMap() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
 }

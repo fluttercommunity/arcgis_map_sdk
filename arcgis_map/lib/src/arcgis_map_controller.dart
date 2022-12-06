@@ -107,6 +107,11 @@ class ArcgisMapController {
     return ArcgisMapPlatform.instance.zoomOut(lodFactor, mapId);
   }
 
+  Future<void> setInteraction({required bool isEnabled}) {
+    return ArcgisMapPlatform.instance
+        .setInteraction(mapId, isEnabled: isEnabled);
+  }
+
   void addGraphic(Graphic graphic) {
     ArcgisMapPlatform.instance.addGraphic(mapId, graphic);
   }
