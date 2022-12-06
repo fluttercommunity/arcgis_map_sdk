@@ -349,6 +349,7 @@ class _ExampleMapState extends State<ExampleMap> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             FloatingActionButton(
+              heroTag: "move-camera-button",
               onPressed: () {
                 _controller?.moveCamera(
                   point: LatLng(48.1234963, 11.5910182),
@@ -363,6 +364,7 @@ class _ExampleMapState extends State<ExampleMap> {
               child: const Icon(Icons.place_outlined),
             ),
             FloatingActionButton(
+              heroTag: "zoom-in-button",
               onPressed: () {
                 _controller?.zoomIn(lodFactor: 1);
               },
@@ -370,6 +372,7 @@ class _ExampleMapState extends State<ExampleMap> {
               child: const Icon(Icons.add),
             ),
             FloatingActionButton(
+              heroTag: "zoom-out-button",
               onPressed: () {
                 _controller?.zoomOut(lodFactor: 1);
               },
