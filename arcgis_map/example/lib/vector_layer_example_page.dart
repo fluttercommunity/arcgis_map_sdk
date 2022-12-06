@@ -19,10 +19,10 @@ class _VectorLayerExamplePageState extends State<VectorLayerExamplePage> {
         children: [
           ArcgisMap(
             apiKey: arcGisApiKey,
-            initialCenter: LatLng(-8, -120),
+            initialCenter: LatLng(51.16, 10.45),
             zoom: 13,
             vectorTileLayerUrls: const [
-              "https://vectortileservices3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Santa_Monica_Mountains_Parcels_VTL/VectorTileServer/",
+              "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer",
             ],
           ),
         ],
