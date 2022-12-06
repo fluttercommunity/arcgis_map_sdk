@@ -423,7 +423,7 @@ class FeatureLayerController {
   }
 
   /// Go to the given point and zoom if wanted
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required JsMapView view,
     int? zoomLevel,
@@ -455,7 +455,12 @@ class FeatureLayerController {
       });
     }
 
-    await view.goTo(jsify(target), jsify(targetOptions)).toFuture();
+    try {
+      await view.goTo(jsify(target), jsify(targetOptions)).toFuture();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Zoom in by a Level Of Detail Factor

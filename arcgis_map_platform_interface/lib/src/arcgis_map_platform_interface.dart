@@ -96,7 +96,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('buildView() has not been implemented.');
   }
 
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
     int? zoomLevel,
