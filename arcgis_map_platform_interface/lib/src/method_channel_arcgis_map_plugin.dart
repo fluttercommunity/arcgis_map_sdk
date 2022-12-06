@@ -100,40 +100,32 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   });
 
   @override
-  Future<void> moveCamera({
+  Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
     int? zoomLevel,
     AnimationOptions? animationOptions,
-  }) {
-    return _methodChannelBuilder(mapId).invokeMethod(
+  }) async {
+    return await _methodChannelBuilder(mapId).invokeMethod(
       "move_camera",
       {
         "point": point.toMap(),
         "zoomLevel": zoomLevel,
         "animationOptions": animationOptions?.toMap(),
       },
-    );
+    ) as bool;
   }
 
   @override
   Future<bool> zoomIn(int lodFactor, int mapId) async {
-    try {
-      return await _methodChannelBuilder(mapId)
-          .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
-    } catch (e) {
-      return false;
-    }
+    return await _methodChannelBuilder(mapId)
+        .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
   }
 
   @override
   Future<bool> zoomOut(int lodFactor, int mapId) async {
-    try {
-      return await _methodChannelBuilder(mapId)
-          .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
-    } catch (e) {
-      return false;
-    }
+    return await _methodChannelBuilder(mapId)
+        .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
   }
 
   @override
