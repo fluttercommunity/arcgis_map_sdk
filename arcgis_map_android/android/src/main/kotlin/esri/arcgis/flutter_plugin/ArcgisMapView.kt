@@ -133,14 +133,9 @@ internal class ArcgisMapView(
         val future = mapView.setViewpointScaleAsync(newScale)
         future.addDoneListener {
             try {
-                val isSuccessful = future.get()
-                if (isSuccessful) {
-                    result.success(true)
-                } else {
-                    result.error("Error", "Zoom animation has been interrupted", null)
-                }
+                result.success(future.get())
             } catch (e: Exception) {
-                result.error("Error", e.message, null)
+                result.error("Error", e.message, e)
             }
         }
     }
@@ -188,13 +183,19 @@ internal class ArcgisMapView(
         }
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
-        mapView
-            .setViewpointAsync(
-                initialViewPort,
-                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
-            )
-            .addDoneListener { result.success(true) }
+        val future = mapView.setViewpointAsync(
+            initialViewPort,
+            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+        )
+
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Throwable) {
+                result.error("Error", e.message, e)
+            }
+        }
     }
 
     /**

@@ -124,8 +124,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         let newScale = getMapScale(totalZoomLevel)
-        mapView.setViewpointScale(newScale) { _ in
-            result(true)
+        mapView.setViewpointScale(newScale) { success in
+            result(success)
         }
     }
     
@@ -157,8 +157,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             AGSViewpoint(center: point.toAGSPoint(), scale: scale),
             duration: (animationOptions?.duration ?? 0) / 1000,
             curve: animationOptions?.arcgisAnimationCurve() ?? .linear
-        ) { _ in
-            result(true)
+        ) { success in
+            result(success)
         }
     }
     
