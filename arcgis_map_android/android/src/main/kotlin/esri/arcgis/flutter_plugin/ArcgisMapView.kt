@@ -69,7 +69,6 @@ internal class ArcgisMapView(
 
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
-            // for now we just multiply it by 1000 to have a similar effect
             getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
