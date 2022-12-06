@@ -396,7 +396,7 @@ class _ExampleMapState extends State<ExampleMap> {
                     });
                   },
                   child: Text(
-                    "${_isInteractionEnabled ? "Disabled" : "Enable"} Interaction",
+                    "${_isInteractionEnabled ? "Disable" : "Enable"} Interaction",
                   ),
                 ),
                 ElevatedButton(
