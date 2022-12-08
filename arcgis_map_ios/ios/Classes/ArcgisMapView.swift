@@ -57,18 +57,21 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         if mapOptions.basemap != nil {
             map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
         } else {
+            var layers = mapOptions.vectorTilesUrls!.map { url in
+                AGSArcGISVectorTiledLayer(url: URL(string: url)!)
+            }
             if FileManager.default.fileExists(atPath: vectorTileCacheURL.path) {
-                let layer = AGSArcGISVectorTiledLayer(vectorTileCache: AGSVectorTileCache(fileURL: vectorTileCacheURL))
-                map.basemap = AGSBasemap(baseLayer: layer)
-            } else {
-                let layers = mapOptions.vectorTilesUrls!.map { url in
-                    AGSArcGISVectorTiledLayer(url: URL(string: url)!)
-                }
-                map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+                let cacheLayer = AGSArcGISVectorTiledLayer(vectorTileCache: AGSVectorTileCache(fileURL: vectorTileCacheURL))
+                layers.insert(cacheLayer, at: 0)
+            }
+            else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self!.downloadVectorTile(mapOptions.vectorTilesUrls!.first!)
                 }
             }
+            map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+            
+            
         }
         
         map.minScale = getMapScale(mapOptions.minZoom)
