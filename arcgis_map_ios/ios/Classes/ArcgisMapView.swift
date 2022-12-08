@@ -10,17 +10,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     
     private var mapView: AGSMapView
     private let map = AGSMap()
-    private let graphicsOverlay = AGSGraphicsOverlay()
-    private let userIndicatorGraphic = AGSGraphic()
-    private let pinGraphic = AGSGraphic()
-    private let routeLineGraphic = AGSGraphic()
     
-    private var routeLineGraphics = [AGSGraphic]()
-    
-    private var routePoints = Array<AGSPoint>()
     let vectorTileCacheURL: URL
-    
-    private static let defaultDuration = 0.8
     
     func view() -> UIView {
         return mapView
