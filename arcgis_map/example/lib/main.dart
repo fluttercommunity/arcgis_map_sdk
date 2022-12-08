@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:arcgis/map_elements.dart';
-import 'package:arcgis/vector_layer_example_page.dart';
+import 'package:arcgis/page/caching_test_page.dart';
+import 'package:arcgis/page/vector_layer_example_page.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -383,9 +384,11 @@ class _ExampleMapState extends State<ExampleMap> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    _routeToVectorLayerMap();
-                  },
+                  onPressed: _routeToCachePage,
+                  child: const Text("Show cache example"),
+                ),
+                ElevatedButton(
+                  onPressed: _routeToVectorLayerMap,
                   child: const Text("Show Vector layer example"),
                 ),
                 ElevatedButton(
@@ -614,6 +617,12 @@ class _ExampleMapState extends State<ExampleMap> {
   void _routeToVectorLayerMap() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
+
+  void _routeToCachePage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CachingTestPage()),
     );
   }
 }
