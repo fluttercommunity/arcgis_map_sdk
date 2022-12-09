@@ -122,7 +122,7 @@ extension ArcGisMapAttributesJsonExtension on ArcGisMapAttributes {
 
 // region symbols
 
-extension on Symbol {
+extension SymbolToJsonExtension on Symbol {
   Map<String, dynamic> toJson() => when(
         ifSimpleFillSymbol: (s) => s.convertToJson(),
         ifSimpleMarkerSymbol: (s) => s.convertToJson(),

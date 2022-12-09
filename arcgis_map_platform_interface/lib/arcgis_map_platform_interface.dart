@@ -2,7 +2,6 @@ library arcgis_map_platform_interface;
 
 export 'package:arcgis_map_platform_interface/src/arcgis_map_platform_interface.dart';
 export 'package:arcgis_map_platform_interface/src/events/map_event.dart';
-export 'package:arcgis_map_platform_interface/src/method_channel_arcgis_map_plugin.dart';
 export 'package:arcgis_map_platform_interface/src/models/animation_options.dart';
 export 'package:arcgis_map_platform_interface/src/models/basemap.dart';
 export 'package:arcgis_map_platform_interface/src/types/arcgis_map_options.dart';

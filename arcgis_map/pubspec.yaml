@@ -15,10 +15,7 @@ dependencies:
     path: ../arcgis_map_ios
 
   arcgis_map_platform_interface:
-    git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
-      path: arcgis_map_platform_interface
-      ref: v0.6.19
+    path: ../arcgis_map_platform_interface
 
   flutter:
     sdk: flutter

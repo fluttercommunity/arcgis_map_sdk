@@ -1,0 +1,28 @@
+name: arcgis_map_method_channel
+description: Esri ArcGIS Flutter method channel implementation.
+version: 0.6.19
+
+publish_to: none
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  # todo repalce with repo link
+  arcgis_map_platform_interface:
+    path: ../arcgis_map_platform_interface
+
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  lint: ^2.0.1
+  tapped_lints:
+    git:
+      url: https://github.com/tappeddev/tapped_lints.git
+      ref: master
+
+# Used to work locally on the package
+dependency_overrides:
+  arcgis_map_platform_interface:
+    path: ../arcgis_map_platform_interface
