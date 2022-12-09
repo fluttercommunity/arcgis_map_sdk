@@ -24,27 +24,50 @@ class GraphicsParser {
             fatalError("Unknown type: \(type)")
         }
 
+        let attributes = dictionary["attributes"] as? Dictionary<String, Any>
+        if let attributes = attributes {
+            newGraphic.attributes.addEntries(from: attributes)
+        }
+
         return newGraphic
     }
 
     private func parsePoint(_ dictionary: [String: Any]) -> AGSGraphic {
-        let graphic = AGSGraphic()
-
         let point: LatLng = try! JsonUtil.objectOfJson(dictionary["point"] as! Dictionary<String, Any>)
 
+        let graphic = AGSGraphic()
         graphic.geometry = point.toAGSPoint()
         graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
-        graphic.attributes.addEntries(from: dictionary["attributes"] as! Dictionary<String, Any>)
 
         return graphic
     }
 
     private func parsePolyline(_ dictionary: [String: Any]) -> AGSGraphic {
-        fatalError("parsePolyline(_:) has not been implemented")
+        let payload: PathPayload = try! JsonUtil.objectOfJson(dictionary)
+
+        let graphic = AGSGraphic()
+        let points = payload.paths.map {
+            $0.toAGSPoint()
+        }
+        graphic.geometry = AGSPolyline(points: points)
+        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+
+        return graphic
     }
 
     private func parsePolygon(_ dictionary: [String: Any]) -> AGSGraphic {
-        fatalError("parsePolygon(_:) has not been implemented")
+        let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
+
+        let graphic = AGSGraphic()
+
+        let points = payload.rings.map {
+            $0.toAGSPoint()
+        }
+        graphic.geometry = AGSPolygon(points: points)
+        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+
+
+        return graphic
     }
 
     // region symbol parsing
@@ -58,7 +81,7 @@ class GraphicsParser {
             return parsePictureMarkerSymbol(dictionary)
         case "simple-fill":
             return parseSimpleFillMarkerSymbol(dictionary)
-        case "simple-line'":
+        case "simple-line":
             return parseSimpleLineSymbol(dictionary)
         default:
             fatalError("Unknown type: \(type)")
@@ -101,4 +124,12 @@ class GraphicsParser {
     }
 
     // endregion
+}
+
+private struct PathPayload: Codable {
+    let paths: [LatLng]
+}
+
+private struct PolygonPayload: Codable {
+    let rings: [LatLng]
 }

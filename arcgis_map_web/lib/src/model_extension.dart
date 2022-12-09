@@ -81,9 +81,9 @@ extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polyline',
-          'paths': paths.map(
-            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
-          ),
+          'paths': [
+            paths.map((e) => [e.longitude, e.latitude]).toList(),
+          ],
         },
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),

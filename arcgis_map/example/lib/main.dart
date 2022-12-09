@@ -112,38 +112,35 @@ class _ExampleMapState extends State<ExampleMap> {
             placement: MarkerPlacement.end,
           ),
         ),
-        paths: [
-          [initialCenter, tappedHQ],
-        ],
+        paths: [initialCenter, tappedHQ],
       ),
     );
 
     // TODO: Remove when mobile implementation is complete
-    if (!kIsWeb) {
-      return;
-    }
-    _controller?.onClick(
-      onPressed: (ArcGisMapAttributes? attributes) {
-        if (attributes == null) return;
-        final snackBar = SnackBar(
-          content: Text('Attributes Name after on Click: ${attributes.name}'),
-        );
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
-      },
-    );
+    if (kIsWeb) {
+      _controller?.onClick(
+        onPressed: (ArcGisMapAttributes? attributes) {
+          if (attributes == null) return;
+          final snackBar = SnackBar(
+            content: Text('Attributes Name after on Click: ${attributes.name}'),
+          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
+        },
+      );
 
-    _attributionTextSubscription =
-        _controller?.attributionText().listen((attribution) {
-      setState(() {
-        _attributionText = attribution;
+      _attributionTextSubscription =
+          _controller?.attributionText().listen((attribution) {
+        setState(() {
+          _attributionText = attribution;
+        });
       });
-    });
+      await _createFeatureLayer();
+    }
 
-    await _createFeatureLayer();
-    _addPolygon(
-      graphic: PolygonGraphic(
+    _controller?.addGraphic(
+      PolygonGraphic(
         rings: firstPolygon,
         symbol: orangeFillSymbol,
         attributes:
@@ -164,10 +161,6 @@ class _ExampleMapState extends State<ExampleMap> {
         },
       ),
     );
-  }
-
-  void _addPolygon({required PolygonGraphic graphic}) {
-    _controller?.addGraphic(graphic);
   }
 
   void _removePolygon({required String id}) {
@@ -298,9 +291,7 @@ class _ExampleMapState extends State<ExampleMap> {
   }) {
     _controller?.addGraphic(
       PolylineGraphic(
-        paths: [
-          [start, end]
-        ],
+        paths: [start, end],
         symbol: const SimpleLineSymbol(
           color: Colors.purple,
           style: PolylineStyle.shortDashDotDot,
@@ -584,8 +575,8 @@ class _ExampleMapState extends State<ExampleMap> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _addPolygon(
-                      graphic: PolygonGraphic(
+                    _controller?.addGraphic(
+                      PolygonGraphic(
                         rings: secondPolygon,
                         symbol: redFillSymbol,
                         attributes: const ArcGisMapAttributes(
