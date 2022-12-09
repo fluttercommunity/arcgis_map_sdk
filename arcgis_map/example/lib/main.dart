@@ -108,7 +108,6 @@ class _ExampleMapState extends State<ExampleMap> {
           miterLimit: 2,
           join: JoinStyle.bevel,
           marker: LineSymbolMarker(
-            style: MarkerStyle.arrow,
             color: Colors.green,
             placement: MarkerPlacement.end,
           ),

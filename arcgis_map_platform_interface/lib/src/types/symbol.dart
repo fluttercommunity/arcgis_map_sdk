@@ -96,21 +96,6 @@ class SimpleFillSymbol extends Symbol {
   final Color fillColor;
   final Color outlineColor;
   final double outlineWidth;
-
-  //TODO drop
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'simple-fill',
-        'color': [
-          fillColor.red,
-          fillColor.green,
-          fillColor.blue,
-          fillColor.opacity
-        ],
-        'outline': {
-          'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
-          'width': outlineWidth
-        }
-      };
 }
 
 /// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
