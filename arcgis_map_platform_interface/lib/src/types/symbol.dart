@@ -20,11 +20,34 @@ extension SymbolTypeExt on SymbolType {
 }
 
 abstract class Symbol {
-  Map<String, dynamic> toJson();
+  const Symbol();
+
+ R when<R>({
+   required R Function(SimpleFillSymbol symbol) ifSimpleFillSymbol,
+   required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
+   required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
+   required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
+ }) {
+   final self = this;
+   if(self is SimpleFillSymbol) {
+     return ifSimpleFillSymbol(self);
+   }
+   if(self is SimpleMarkerSymbol) {
+     return ifSimpleMarkerSymbol(self);
+   }
+   if(self is PictureMarkerSymbol) {
+     return ifPictureMarkerSymbol(self);
+   }
+   if(self is SimpleLineSymbol) {
+     return ifSimpleLineSymbol(self);
+   }
+
+   throw Exception("Unknown Symbol: $self");
+ }
 }
 
 /// A simple marker on the map
-class SimpleMarkerSymbol implements Symbol {
+class SimpleMarkerSymbol extends Symbol {
   const SimpleMarkerSymbol({
     required this.color,
     this.colorOpacity = 1,
@@ -41,21 +64,6 @@ class SimpleMarkerSymbol implements Symbol {
   final int outlineWidth;
   final int radius;
 
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
-        'size': radius,
-        'outline': <String, dynamic>{
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
-            outlineColorOpacity
-          ],
-          'width': outlineWidth,
-        },
-      };
 }
 
 /// A picture marker on the map
@@ -66,7 +74,7 @@ class SimpleMarkerSymbol implements Symbol {
 ///
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
-class PictureMarkerSymbol implements Symbol {
+class PictureMarkerSymbol extends Symbol {
   const PictureMarkerSymbol({
     required this.uri,
     required this.width,
@@ -80,20 +88,10 @@ class PictureMarkerSymbol implements Symbol {
   final double height;
   final int xOffset;
   final int yOffset;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'picture-marker',
-        'url': uri,
-        'width': '${width}px',
-        'height': '${height}px',
-        'xoffset': '${xOffset}px',
-        'yoffset': '${yOffset}px'
-      };
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map
-class SimpleFillSymbol implements Symbol {
+class SimpleFillSymbol extends Symbol {
   const SimpleFillSymbol({
     required this.fillColor,
     required this.opacity,
@@ -125,7 +123,7 @@ class SimpleFillSymbol implements Symbol {
 /// SimpleLineSymbol is also used for rendering outlines for marker symbols and fill symbols.
 ///
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-SimpleLineSymbol.html#style
-class SimpleLineSymbol implements Symbol {
+class SimpleLineSymbol extends Symbol {
   const SimpleLineSymbol({
     this.cap = CapStyle.round,
     this.color,
@@ -163,19 +161,6 @@ class SimpleLineSymbol implements Symbol {
   /// The width of the symbol in points.
   final double width;
 
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'join': join.value,
-        'marker': marker?.toJson(),
-        'miterLimit': miterLimit,
-        'style': style.value,
-        'type': 'simple-line',
-        // autocasts as new SimpleLineSymbol()
-        'width': width,
-      };
 }
 
 /// Specifies the color, style, and placement of a symbol marker on the line.
@@ -206,14 +191,6 @@ class LineSymbolMarker {
 
   /// The marker style.
   final MarkerStyle style;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'placement': placement.value,
-        'style': style.value,
-        'type': 'line-marker',
-      };
 }
 
 enum CapStyle {

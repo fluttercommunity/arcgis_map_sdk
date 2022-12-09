@@ -1,15 +1,14 @@
 class Field {
+  final String type;
+  final String name;
+
   Field({
     required this.type,
     required this.name,
   });
 
-  final String type;
-  final String name;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'name': name,
-        'alias': name,
-        'type': type,
-      };
+  @override
+  String toString() {
+    return 'Field{type: $type, name: $name}';
+  }
 }

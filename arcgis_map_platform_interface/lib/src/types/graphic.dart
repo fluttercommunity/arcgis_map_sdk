@@ -4,8 +4,6 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 abstract class Graphic {
   String getAttributesId();
 
-  Map<String, dynamic> toJson();
-
   void Function()? get onEnter;
 
   void Function()? get onExit;
@@ -40,17 +38,6 @@ class PointGraphic implements Graphic {
   final void Function(bool isHovered)? onHover;
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'geometry': <String, dynamic>{
-          'type': 'point',
-          'longitude': longitude,
-          'latitude': latitude,
-        },
-        'attributes': attributes.toMap(),
-        'symbol': symbol.toJson(),
-      };
-
-  @override
   String toString() =>
       'PointGraphic(longitude: $longitude, latitude: $latitude, attributes: $attributes)';
 
@@ -70,7 +57,7 @@ class PolygonGraphic implements Graphic {
   });
 
   /// Each list of LatLngs creates a polygon
-  final List<List<List<double>>> rings;
+  final List<List<LatLng>> rings;
   final Symbol symbol;
   final ArcGisMapAttributes attributes;
 
@@ -82,16 +69,6 @@ class PolygonGraphic implements Graphic {
 
   @override
   final void Function(bool isHovered)? onHover;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'geometry': <String, dynamic>{
-          'type': 'polygon',
-          'rings': rings,
-        },
-        'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
-      };
 
   @override
   String toString() =>
@@ -123,7 +100,7 @@ class PolylineGraphic implements Graphic {
   /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
-  final List<List<List<double>>> paths;
+  final List<List<LatLng>> paths;
   final SimpleLineSymbol symbol;
   final ArcGisMapAttributes attributes;
 
@@ -135,16 +112,6 @@ class PolylineGraphic implements Graphic {
 
   @override
   final void Function(bool isHovered)? onHover;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'geometry': <String, dynamic>{
-          'type': 'polyline',
-          'paths': paths,
-        },
-        'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
-      };
 
   @override
   String toString() {

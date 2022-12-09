@@ -68,7 +68,7 @@ packages:
       name: lint
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.2"
+    version: "2.0.1"
   material_color_utilities:
     dependency: transitive
     description:
@@ -96,12 +96,21 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   sky_engine:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.99"
+  tapped_lints:
+    dependency: "direct dev"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "8951683e044afadcd747e14052fd9de75d7a60b6"
+      url: "https://github.com/tappeddev/tapped_lints.git"
+    source: git
+    version: "1.0.0+1"
   vector_math:
     dependency: transitive
     description:
@@ -110,4 +119,4 @@ packages:
     source: hosted
     version: "2.1.2"
 sdks:
-  dart: ">=2.17.0-0 <3.0.0"
+  dart: ">=2.18.0 <3.0.0"
