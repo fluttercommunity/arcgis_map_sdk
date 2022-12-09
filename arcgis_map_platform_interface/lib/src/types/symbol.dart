@@ -1,26 +1,18 @@
 import 'dart:ui';
 
-/// The currently supported marker symbols
-enum SymbolType {
-  simpleMarker,
-  pictureMarker,
-  simpleFill,
-  simpleLine,
-}
-
-extension SymbolTypeExt on SymbolType {
-  static const Map<SymbolType, String> values = {
-    SymbolType.simpleMarker: 'simple-marker',
-    SymbolType.pictureMarker: 'picture-marker',
-    SymbolType.simpleFill: 'simple-fill',
-    SymbolType.simpleLine: 'simple-line',
-  };
-
-  String get value => values[this]!;
-}
-
 abstract class Symbol {
   Map<String, dynamic> toJson();
+
+  Map<String, dynamic> toMethodChannelJson();
+}
+
+Map<String, dynamic> colorToJson(Color color) {
+  return {
+    'red': color.red,
+    'green': color.green,
+    'blue': color.blue,
+    'alpha': color.alpha,
+  };
 }
 
 /// A simple marker on the map
@@ -56,6 +48,17 @@ class SimpleMarkerSymbol implements Symbol {
           'width': outlineWidth,
         },
       };
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': "simple-marker",
+        'color': colorToJson(color),
+        'colorOpacity': colorOpacity,
+        'outlineColor': colorToJson(outlineColor),
+        'outlineColorOpacity': outlineColorOpacity,
+        'outlineWidth': outlineWidth,
+        'radius': radius,
+      };
 }
 
 /// A picture marker on the map
@@ -90,6 +93,16 @@ class PictureMarkerSymbol implements Symbol {
         'xoffset': '${xOffset}px',
         'yoffset': '${yOffset}px'
       };
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'picture-marker',
+        'url': uri,
+        'width': width,
+        'height': height,
+        'xOffset': xOffset,
+        'yOffset': yOffset,
+      };
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map
@@ -119,6 +132,15 @@ class SimpleFillSymbol implements Symbol {
           'width': outlineWidth
         }
       };
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'simple-fill',
+        'fillColor': colorToJson(fillColor),
+        'outlineColor': colorToJson(outlineColor),
+        'outlineWidth': outlineWidth,
+        'opacity': opacity,
+      };
 }
 
 /// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
@@ -146,10 +168,10 @@ class SimpleLineSymbol implements Symbol {
 
   final double? colorOpacity;
 
-  ///  The name of the class.
+  /// The name of the class.
   final String? declaredClass;
 
-  ///   Specifies the join style.
+  /// Specifies the join style.
   final JoinStyle join;
 
   final LineSymbolMarker? marker;
@@ -174,6 +196,20 @@ class SimpleLineSymbol implements Symbol {
         'style': style.value,
         'type': 'simple-line',
         // autocasts as new SimpleLineSymbol()
+        'width': width,
+      };
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'simple-line',
+        'cap': cap.value,
+        'color': colorToJson(color!),
+        'colorOpacity': colorOpacity,
+        'declaredClass': declaredClass,
+        'join': join.value,
+        'marker': marker?.toMethodChannelJson(),
+        'miterLimit': miterLimit,
+        'style': style.value,
         'width': width,
       };
 }
@@ -213,6 +249,15 @@ class LineSymbolMarker {
         'placement': placement.value,
         'style': style.value,
         'type': 'line-marker',
+      };
+
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'line-symbol-marker',
+        'color': colorToJson(color!),
+        'colorOpacity': colorOpacity,
+        'declaredClass': declaredClass,
+        'placement': placement.name,
+        'style': style.name,
       };
 }
 

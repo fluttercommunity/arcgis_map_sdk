@@ -6,6 +6,8 @@ abstract class Graphic {
 
   Map<String, dynamic> toJson();
 
+  Map<String, dynamic> toMethodChannelJson();
+
   void Function()? get onEnter;
 
   void Function()? get onExit;
@@ -56,6 +58,15 @@ class PointGraphic implements Graphic {
 
   @override
   String getAttributesId() => attributes.id;
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'point',
+        'longitude': longitude,
+        'latitude': latitude,
+        'attributes': attributes.toMap(),
+        'symbol': symbol.toMethodChannelJson(),
+      };
 }
 
 /// The data on the map is displayed as polygons
@@ -69,6 +80,7 @@ class PolygonGraphic implements Graphic {
     this.onHover,
   });
 
+  // TODO use an actual List of LatLng instead
   /// Each list of LatLngs creates a polygon
   final List<List<List<double>>> rings;
   final Symbol symbol;
@@ -99,6 +111,14 @@ class PolygonGraphic implements Graphic {
 
   @override
   String getAttributesId() => attributes.id;
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'polygon',
+        'rings': rings,
+        'symbol': symbol.toMethodChannelJson(),
+        'attributes': attributes.toMap(),
+      };
 }
 
 /// The data on the map is displayed as polylines
@@ -123,6 +143,7 @@ class PolylineGraphic implements Graphic {
   /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
+  //TODO make that a list of LatLng
   final List<List<List<double>>> paths;
   final SimpleLineSymbol symbol;
   final ArcGisMapAttributes attributes;
@@ -153,4 +174,12 @@ class PolylineGraphic implements Graphic {
 
   @override
   String getAttributesId() => attributes.id;
+
+  @override
+  Map<String, dynamic> toMethodChannelJson() => {
+        'type': 'polyline',
+        'paths': paths,
+        'symbol': symbol.toMethodChannelJson(),
+        'attributes': attributes.toMap(),
+      };
 }

@@ -99,6 +99,21 @@ class _ExampleMapState extends State<ExampleMap> {
       });
     });
 
+    _controller?.addGraphic(
+      const PointGraphic(
+        attributes: ArcGisMapAttributes(
+          id: 'point1',
+          name: 'Point 1',
+        ),
+        latitude: 48.1234963,
+        longitude: 11.5910182,
+        symbol: SimpleMarkerSymbol(
+          color: Colors.lightBlue,
+          outlineColor: Colors.blue,
+        ),
+      ),
+    );
+
     await _createFeatureLayer();
     _addPolygon(
       graphic: PolygonGraphic(
@@ -134,6 +149,7 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<FeatureLayer?> _createFeatureLayer() async {
     final List<Graphic> graphics = [pointGraphic];
+
     final layer = await _controller?.addFeatureLayer(
       layerId: '1010',
       data: graphics,

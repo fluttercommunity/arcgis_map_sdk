@@ -137,8 +137,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void addGraphic(int mapId, Graphic graphic) {
-    throw UnimplementedError('addGraphic() has not been implemented.');
+  Future<void> addGraphic(int mapId, Graphic graphic) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "add_graphic",
+      graphic.toMethodChannelJson(),
+    );
   }
 
   @override

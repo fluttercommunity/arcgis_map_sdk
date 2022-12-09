@@ -2,6 +2,9 @@ import ArcGIS
 import Foundation
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
+    
+    private let defaultGraphicsOverlay = AGSGraphicsOverlay()
+    
     private let methodChannel: FlutterMethodChannel
     private let zoomEventChannel: FlutterEventChannel
     private let zoomStreamHandler = ZoomStreamHandler()
@@ -60,6 +63,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         map.maxScale = getMapScale(mapOptions.maxZoom)
         
         mapView.map = map
+        mapView.graphicsOverlays.add(defaultGraphicsOverlay)
+        
         mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
             DispatchQueue.main.async {
                 guard let self = self else { return }
@@ -97,6 +102,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "add_graphic": onAddGraphic(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -160,6 +166,33 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         ) { success in
             result(success)
         }
+    }
+    
+    private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        
+        let newGraphic = AGSGraphic()
+        // if PointGraphic
+        newGraphic.geometry = AGSPoint(x: 0, y: 0, m: 0, spatialReference: .wgs84())
+        // if PolylineGraphic
+        newGraphic.geometry = AGSPolyline(points: [])
+        // if PolygonGraphic
+        newGraphic.geometry = AGSPolygon(points: [])
+        // fill from ArcGisMapAttributes attributes
+        newGraphic.attributes.addEntries(from: [:])
+        
+        // if symbole is SimpleMarkerSymbol - currently only supports circle
+        newGraphic.symbol = AGSSimpleMarkerSymbol(style: .circle, color: UIColor.black, size: 5)
+        // if symbol is PictureMarkerSymbol
+        newGraphic.symbol = AGSPictureMarkerSymbol(url: URL(string: "")!)
+        // if symbol is SimpleFillSymbol - currently only supports solid?
+        newGraphic.symbol = AGSSimpleFillSymbol(style: .solid, color: UIColor.black, outline: nil)
+        // if symbol is SimpleLineSymbol - style is from PolylineStyle
+        newGraphic.symbol = AGSSimpleLineSymbol(style: .solid, color: UIColor.black, width: 5)
+        
+        
+        //newGraphic
+        //let newGraphic
+        defaultGraphicsOverlay.graphics.add(newGraphic)
     }
     
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
