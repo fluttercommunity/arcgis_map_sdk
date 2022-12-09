@@ -34,7 +34,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String polygonId, int mapId) {
+  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
     throw UnimplementedError('updateGraphicSymbol() has not been implemented');
   }
 

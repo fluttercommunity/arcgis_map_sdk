@@ -55,10 +55,10 @@ extension GraphicToJsonExtension on Graphic {
 
 extension on PointGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'attributes': this.attributes.toMap(),
-        'latitude': this.latitude,
-        'longitude': this.longitude,
-        'symbol': this.symbol,
+        'attributes': attributes.toMap(),
+        'latitude': latitude,
+        'longitude': longitude,
+        'symbol': symbol,
       };
 }
 

@@ -104,7 +104,8 @@ class SimpleFillSymbol extends Symbol {
   final Color outlineColor;
   final int outlineWidth;
 
-  @override
+
+  //TODO drop
   Map<String, dynamic> toJson() => <String, dynamic>{
         'type': 'simple-fill',
         'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
