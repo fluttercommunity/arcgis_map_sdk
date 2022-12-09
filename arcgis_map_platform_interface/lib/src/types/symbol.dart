@@ -1,22 +1,53 @@
 import 'dart:ui';
 
-abstract class Symbol {
-  Map<String, dynamic> toJson();
-
-  Map<String, dynamic> toMethodChannelJson();
+/// The currently supported marker symbols
+enum SymbolType {
+  simpleMarker,
+  pictureMarker,
+  simpleFill,
+  simpleLine,
 }
 
-Map<String, dynamic> colorToJson(Color color) {
-  return {
-    'red': color.red,
-    'green': color.green,
-    'blue': color.blue,
-    'alpha': color.alpha,
+extension SymbolTypeExt on SymbolType {
+  static const Map<SymbolType, String> values = {
+    SymbolType.simpleMarker: 'simple-marker',
+    SymbolType.pictureMarker: 'picture-marker',
+    SymbolType.simpleFill: 'simple-fill',
+    SymbolType.simpleLine: 'simple-line',
   };
+
+  String get value => values[this]!;
+}
+
+abstract class Symbol {
+  const Symbol();
+
+ R when<R>({
+   required R Function(SimpleFillSymbol symbol) ifSimpleFillSymbol,
+   required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
+   required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
+   required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
+ }) {
+   final self = this;
+   if(self is SimpleFillSymbol) {
+     return ifSimpleFillSymbol(self);
+   }
+   if(self is SimpleMarkerSymbol) {
+     return ifSimpleMarkerSymbol(self);
+   }
+   if(self is PictureMarkerSymbol) {
+     return ifPictureMarkerSymbol(self);
+   }
+   if(self is SimpleLineSymbol) {
+     return ifSimpleLineSymbol(self);
+   }
+
+   throw Exception("Unknown Symbol: $self");
+ }
 }
 
 /// A simple marker on the map
-class SimpleMarkerSymbol implements Symbol {
+class SimpleMarkerSymbol extends Symbol {
   const SimpleMarkerSymbol({
     required this.color,
     this.colorOpacity = 1,
@@ -33,32 +64,6 @@ class SimpleMarkerSymbol implements Symbol {
   final int outlineWidth;
   final int radius;
 
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
-        'size': radius,
-        'outline': <String, dynamic>{
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
-            outlineColorOpacity
-          ],
-          'width': outlineWidth,
-        },
-      };
-
-  @override
-  Map<String, dynamic> toMethodChannelJson() => {
-        'type': "simple-marker",
-        'color': colorToJson(color),
-        'colorOpacity': colorOpacity,
-        'outlineColor': colorToJson(outlineColor),
-        'outlineColorOpacity': outlineColorOpacity,
-        'outlineWidth': outlineWidth,
-        'radius': radius,
-      };
 }
 
 /// A picture marker on the map
@@ -69,7 +74,7 @@ class SimpleMarkerSymbol implements Symbol {
 ///
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
-class PictureMarkerSymbol implements Symbol {
+class PictureMarkerSymbol extends Symbol {
   const PictureMarkerSymbol({
     required this.uri,
     required this.width,
@@ -83,30 +88,10 @@ class PictureMarkerSymbol implements Symbol {
   final double height;
   final int xOffset;
   final int yOffset;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'picture-marker',
-        'url': uri,
-        'width': '${width}px',
-        'height': '${height}px',
-        'xoffset': '${xOffset}px',
-        'yoffset': '${yOffset}px'
-      };
-
-  @override
-  Map<String, dynamic> toMethodChannelJson() => {
-        'type': 'picture-marker',
-        'url': uri,
-        'width': width,
-        'height': height,
-        'xOffset': xOffset,
-        'yOffset': yOffset,
-      };
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map
-class SimpleFillSymbol implements Symbol {
+class SimpleFillSymbol extends Symbol {
   const SimpleFillSymbol({
     required this.fillColor,
     required this.opacity,
@@ -119,7 +104,8 @@ class SimpleFillSymbol implements Symbol {
   final Color outlineColor;
   final int outlineWidth;
 
-  @override
+
+  //TODO drop
   Map<String, dynamic> toJson() => <String, dynamic>{
         'type': 'simple-fill',
         'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
@@ -132,22 +118,13 @@ class SimpleFillSymbol implements Symbol {
           'width': outlineWidth
         }
       };
-
-  @override
-  Map<String, dynamic> toMethodChannelJson() => {
-        'type': 'simple-fill',
-        'fillColor': colorToJson(fillColor),
-        'outlineColor': colorToJson(outlineColor),
-        'outlineWidth': outlineWidth,
-        'opacity': opacity,
-      };
 }
 
 /// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
 /// SimpleLineSymbol is also used for rendering outlines for marker symbols and fill symbols.
 ///
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-SimpleLineSymbol.html#style
-class SimpleLineSymbol implements Symbol {
+class SimpleLineSymbol extends Symbol {
   const SimpleLineSymbol({
     this.cap = CapStyle.round,
     this.color,
@@ -168,10 +145,10 @@ class SimpleLineSymbol implements Symbol {
 
   final double? colorOpacity;
 
-  /// The name of the class.
+  ///  The name of the class.
   final String? declaredClass;
 
-  /// Specifies the join style.
+  ///   Specifies the join style.
   final JoinStyle join;
 
   final LineSymbolMarker? marker;
@@ -185,33 +162,6 @@ class SimpleLineSymbol implements Symbol {
   /// The width of the symbol in points.
   final double width;
 
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'join': join.value,
-        'marker': marker?.toJson(),
-        'miterLimit': miterLimit,
-        'style': style.value,
-        'type': 'simple-line',
-        // autocasts as new SimpleLineSymbol()
-        'width': width,
-      };
-
-  @override
-  Map<String, dynamic> toMethodChannelJson() => {
-        'type': 'simple-line',
-        'cap': cap.value,
-        'color': colorToJson(color!),
-        'colorOpacity': colorOpacity,
-        'declaredClass': declaredClass,
-        'join': join.value,
-        'marker': marker?.toMethodChannelJson(),
-        'miterLimit': miterLimit,
-        'style': style.value,
-        'width': width,
-      };
 }
 
 /// Specifies the color, style, and placement of a symbol marker on the line.
@@ -242,23 +192,6 @@ class LineSymbolMarker {
 
   /// The marker style.
   final MarkerStyle style;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'placement': placement.value,
-        'style': style.value,
-        'type': 'line-marker',
-      };
-
-  Map<String, dynamic> toMethodChannelJson() => {
-        'type': 'line-symbol-marker',
-        'color': colorToJson(color!),
-        'colorOpacity': colorOpacity,
-        'declaredClass': declaredClass,
-        'placement': placement.name,
-        'style': style.name,
-      };
 }
 
 enum CapStyle {

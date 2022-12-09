@@ -7,6 +7,7 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:arcgis_map_web/arcgis_map_web.dart';
 import 'package:arcgis_map_web/src/arcgis_map_web_controller.dart';
 import 'package:arcgis_map_web/src/components/attribution.dart';
+import 'package:arcgis_map_web/src/model_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';

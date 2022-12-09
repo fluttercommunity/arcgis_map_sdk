@@ -46,32 +46,10 @@ class ArcgisMapOptions {
     this.vectorTilesUrls,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'apiKey': apiKey,
-      'basemap': basemap?.name,
-      "vectorTilesUrls": vectorTilesUrls,
-      'initialCenter': initialCenter.toMap(),
-      'isInteractive': isInteractive,
-      'zoom': zoom,
-      'hideDefaultZoomButtons': hideDefaultZoomButtons,
-      'hideAttribution': hideAttribution,
-      'padding': padding.toMap(),
-      'rotationEnabled': rotationEnabled,
-      'minZoom': minZoom,
-      'maxZoom': maxZoom,
-      'xMin': xMin,
-      'xMax': xMax,
-      'yMin': yMin,
-      'yMax': yMax,
-    };
+  @override
+  String toString() {
+    return 'ArcgisMapOptions{apiKey: $apiKey, initialCenter: $initialCenter, isInteractive: $isInteractive, zoom: $zoom, hideDefaultZoomButtons: $hideDefaultZoomButtons, hideAttribution: $hideAttribution, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, vectorTilesUrls: $vectorTilesUrls}';
   }
-}
-
-// TODO move somewhere else
-extension LatLngJsonExtension on LatLng {
-  Map<String, Object?> toMap() =>
-      {"longitude": longitude, "latitude": latitude};
 }
 
 /// To be added to the map to help re-centering the view.
@@ -109,9 +87,5 @@ class ViewPadding {
   @override
   String toString() {
     return 'ViewPadding{left: $left, top: $top, right: $right, bottom: $bottom}';
-  }
-
-  Map<String, dynamic> toMap() {
-    return {'left': left, 'top': top, 'right': right, 'bottom': bottom};
   }
 }

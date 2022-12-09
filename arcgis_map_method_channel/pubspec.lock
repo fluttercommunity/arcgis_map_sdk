@@ -21,7 +21,7 @@ packages:
       name: clock
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   collection:
     dependency: transitive
     description:
@@ -34,11 +34,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_web_plugins:
-    dependency: "direct main"
-    description: flutter
-    source: sdk
-    version: "0.0.0"
+  flutter_lints:
+    dependency: "direct dev"
+    description:
+      name: flutter_lints
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   intl:
     dependency: transitive
     description:
@@ -46,13 +48,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.17.0"
-  js:
-    dependency: "direct main"
-    description:
-      name: js
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.4"
   latlong2:
     dependency: transitive
     description:
@@ -60,13 +55,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.8.1"
-  lint:
-    dependency: "direct dev"
+  lints:
+    dependency: transitive
     description:
-      name: lint
+      name: lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.2"
+    version: "2.0.1"
   material_color_utilities:
     dependency: transitive
     description:
@@ -87,7 +82,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0"
+    version: "1.8.3"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -100,6 +95,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  tapped_lints:
+    dependency: "direct dev"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "8951683e044afadcd747e14052fd9de75d7a60b6"
+      url: "https://github.com/tappeddev/tapped_lints.git"
+    source: git
+    version: "1.0.0+1"
   vector_math:
     dependency: transitive
     description:
@@ -108,4 +112,4 @@ packages:
     source: hosted
     version: "2.1.2"
 sdks:
-  dart: ">=2.17.0-0 <3.0.0"
+  dart: ">=2.17.0 <3.0.0"

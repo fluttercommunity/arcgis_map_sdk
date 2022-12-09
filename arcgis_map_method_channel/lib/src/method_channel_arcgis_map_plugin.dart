@@ -1,3 +1,4 @@
+import 'package:arcgis_map_method_channel/src/model_extension.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -33,7 +34,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String polygonId, int mapId) {
+  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
     throw UnimplementedError('updateGraphicSymbol() has not been implemented');
   }
 
@@ -106,33 +107,38 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int? zoomLevel,
     AnimationOptions? animationOptions,
   }) async {
-    return await _methodChannelBuilder(mapId).invokeMethod(
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "move_camera",
       {
         "point": point.toMap(),
         "zoomLevel": zoomLevel,
         "animationOptions": animationOptions?.toMap(),
       },
-    ) as bool;
+    ).then((value) => value!);
   }
 
   @override
   Future<bool> zoomIn(int lodFactor, int mapId) async {
-    return await _methodChannelBuilder(mapId)
-        .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+      "zoom_in",
+      {"lodFactor": lodFactor},
+    ).then((value) => value!);
   }
 
   @override
   Future<bool> zoomOut(int lodFactor, int mapId) async {
-    return await _methodChannelBuilder(mapId)
-        .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+      "zoom_out",
+      {"lodFactor": lodFactor},
+    ).then((value) => value!);
   }
 
   @override
   Stream<double> getZoom(int mapId) {
     _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
         .receiveBroadcastStream()
-        .map((event) => (event as int).toDouble());
+        .cast<int>()
+        .map((event) => event.toDouble());
     return _zoomEventStream!;
   }
 
@@ -152,7 +158,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
     _methodChannelBuilder(mapId)
-        .invokeMethod("add_view_padding", padding.toMap());
+        .invokeMethod<void>("add_view_padding", padding.toMap());
   }
 
   @override

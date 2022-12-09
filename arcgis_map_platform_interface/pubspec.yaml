@@ -8,10 +8,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  latlong2: ^0.8.0
-  plugin_platform_interface: ^2.0.0
+
+  latlong2: ^0.8.1
+  plugin_platform_interface: ^2.1.3
 
 dev_dependencies:
-  lint: ^1.0.0
+  flutter_lints: ^2.0.1
+  tapped_lints:
+    git:
+      url: https://github.com/tappeddev/tapped_lints.git
+      ref: master
 
 flutter:

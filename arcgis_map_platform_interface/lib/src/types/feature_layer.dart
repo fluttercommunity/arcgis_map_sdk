@@ -15,7 +15,7 @@ class FeatureLayer {
   final void Function()? onPressed;
   final void Function(LatLng)? onChanged;
   final String? url;
-  FeatureLayerOptions? options;
+  final FeatureLayerOptions? options;
 }
 
 class FeatureLayerOptions {
