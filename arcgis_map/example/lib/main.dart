@@ -76,6 +76,21 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+    _controller?.addGraphic(
+      const PointGraphic(
+        attributes: ArcGisMapAttributes(
+          id: 'point1',
+          name: 'Point 1',
+        ),
+        latitude: 48.1234963,
+        longitude: 11.5910182,
+        symbol: SimpleMarkerSymbol(
+          color: Colors.lightBlue,
+          outlineColor: Colors.blue,
+        ),
+      ),
+    );
+
     // TODO: Remove when mobile implementation is complete
     if (!kIsWeb) {
       return;
@@ -98,21 +113,6 @@ class _ExampleMapState extends State<ExampleMap> {
         _attributionText = attribution;
       });
     });
-
-    _controller?.addGraphic(
-      const PointGraphic(
-        attributes: ArcGisMapAttributes(
-          id: 'point1',
-          name: 'Point 1',
-        ),
-        latitude: 48.1234963,
-        longitude: 11.5910182,
-        symbol: SimpleMarkerSymbol(
-          color: Colors.lightBlue,
-          outlineColor: Colors.blue,
-        ),
-      ),
-    );
 
     await _createFeatureLayer();
     _addPolygon(
