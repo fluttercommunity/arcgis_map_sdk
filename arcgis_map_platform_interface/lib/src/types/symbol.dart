@@ -50,19 +50,15 @@ abstract class Symbol {
 class SimpleMarkerSymbol extends Symbol {
   const SimpleMarkerSymbol({
     required this.color,
-    this.colorOpacity = 1,
     required this.outlineColor,
-    this.outlineColorOpacity = 1,
-    this.outlineWidth = 2,
-    this.radius = 4,
+    this.outlineWidth = 2.0,
+    this.size = 4.0,
   });
 
   final Color color;
-  final double colorOpacity;
   final Color outlineColor;
-  final double outlineColorOpacity;
   final double outlineWidth;
-  final double radius;
+  final double size;
 }
 
 /// A picture marker on the map
@@ -99,7 +95,7 @@ class SimpleFillSymbol extends Symbol {
 
   final Color fillColor;
   final Color outlineColor;
-  final int outlineWidth;
+  final double outlineWidth;
 
   //TODO drop
   Map<String, dynamic> toJson() => <String, dynamic>{

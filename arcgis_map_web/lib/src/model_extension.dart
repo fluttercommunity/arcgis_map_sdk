@@ -139,7 +139,7 @@ extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
         'color': [color.red, color.green, color.blue, colorOpacity],
-        'size': radius,
+        'size': size,
         'outline': <String, dynamic>{
           'color': [
             outlineColor.red,

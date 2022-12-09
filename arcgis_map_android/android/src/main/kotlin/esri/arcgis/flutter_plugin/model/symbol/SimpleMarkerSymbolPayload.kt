@@ -4,7 +4,7 @@ import esri.arcgis.flutter_plugin.model.MapColor
 
 data class SimpleMarkerSymbolPayload(
     val color: MapColor,
-    val size: Int,
+    val size: Double,
     val outlineColor: MapColor,
-    val outlineWidth: Int,
+    val outlineWidth: Double,
 )
