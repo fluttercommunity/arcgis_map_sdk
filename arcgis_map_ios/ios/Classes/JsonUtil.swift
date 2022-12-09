@@ -22,6 +22,3 @@ extension Encodable {
         }
     }
 }
-
-extension String: Error {
-}

@@ -69,11 +69,11 @@ class GraphicsParser {
         let payload: SimpleMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
         let symbol = AGSSimpleMarkerSymbol()
-        symbol.color = payload.color.toUiColor()
+        symbol.color = payload.color.toUIColor()
         symbol.size = payload.size
         symbol.outline = AGSSimpleLineSymbol(
                 style: .solid,
-                color: payload.outlineColor.toUiColor(),
+                color: payload.outlineColor.toUIColor(),
                 width: payload.outlineWidth
         )
         return symbol
@@ -88,7 +88,16 @@ class GraphicsParser {
     }
 
     private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
-        fatalError("parseSimpleLineSymbol(_:) has not been implemented")
+        let payload: SimpleLineSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
+        let symbol = AGSSimpleLineSymbol()
+
+        symbol.color = payload.color.toUIColor()
+        symbol.markerStyle = payload.marker.style.toAGSStyle()
+        symbol.markerPlacement = payload.marker.placement.toAGSStyle()
+        symbol.style = payload.style.toAGSStyle()
+        symbol.width = payload.width
+
+        return symbol
     }
 
     // endregion
