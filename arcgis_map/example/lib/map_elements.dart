@@ -44,37 +44,32 @@ final List<List<LatLng>> orangePolygon = [
 ];
 
 /// Display the areas wit a green, red or orange color
-const greenFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.green,
-  opacity: .25,
+final greenFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.green.withOpacity(0.25),
   outlineColor: Colors.greenAccent,
   outlineWidth: 1,
 );
 
-const redFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red,
-  opacity: .25,
+final redFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red.withOpacity(0.25),
   outlineColor: Colors.redAccent,
   outlineWidth: 1,
 );
 
-const orangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange,
-  opacity: .25,
+final orangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange.withOpacity(0.25),
   outlineColor: Colors.orangeAccent,
   outlineWidth: 1,
 );
 
-const highlightedRedFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red,
-  opacity: .5,
+final highlightedRedFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red.withOpacity(0.5),
   outlineColor: Colors.redAccent,
   outlineWidth: 3,
 );
 
-const highlightedOrangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange,
-  opacity: .5,
+final highlightedOrangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange.withOpacity(0.5),
   outlineColor: Colors.orangeAccent,
   outlineWidth: 3,
 );
