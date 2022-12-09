@@ -76,9 +76,7 @@ extension on PolygonGraphic {
 extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'polyline',
-        'paths': paths.map(
-          (list) => list.map((e) => e.toMap()).toList(),
-        ),
+        'paths': paths.map((e) => e.toMap()).toList(),
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),
       };

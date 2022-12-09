@@ -5,7 +5,7 @@ class JsonUtil {
         guard let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted),
               let object = try? JSONDecoder().decode(T.self, from: data)
         else {
-            throw "Unable to parse \(T.self) from \(dict)"
+            fatalError("Unable to parse \(T.self) from \(dict)")
         }
 
         return object
@@ -21,7 +21,4 @@ extension Encodable {
             $0 as? [String: Any]
         }
     }
-}
-
-extension String: Error {
 }

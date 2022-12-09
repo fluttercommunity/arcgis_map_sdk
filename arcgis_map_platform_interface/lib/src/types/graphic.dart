@@ -45,7 +45,7 @@ class PointGraphic extends Graphic {
   final ArcGisMapAttributes attributes;
   final double latitude;
   final double longitude;
-  final Symbol symbol;
+  final Symbol symbol; //TODO: Only allow SimpleMarkerSymbol?
 
   @override
   final void Function()? onEnter;
@@ -112,6 +112,7 @@ class PolylineGraphic extends Graphic {
     this.onHover,
   });
 
+  //TODO: update docs
   /// Each list of LatLongs creates a polyline
   ///
   /// An array of paths, or line segments, that make up the polyline.
@@ -119,7 +120,7 @@ class PolylineGraphic extends Graphic {
   /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
-  final List<List<LatLng>> paths;
+  final List<LatLng> paths;
   final SimpleLineSymbol symbol;
   final ArcGisMapAttributes attributes;
 
