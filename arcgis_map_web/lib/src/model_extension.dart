@@ -68,7 +68,9 @@ extension on PolygonGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polygon',
-          'rings': rings,
+          'rings': rings.map(
+            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
+          ),
         },
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),
@@ -79,7 +81,9 @@ extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polyline',
-          'paths': paths,
+          'paths': paths.map(
+            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
+          ),
         },
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),
