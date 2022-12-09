@@ -27,6 +27,7 @@ class FeatureLayerOptions {
 
   final Symbol symbol;
   final List<Field> fields;
-  //TODO: Change datatype
+
+  //TODO: Change datatype (https://github.com/phntmxyz/arcgis_map/issues/30)
   final Object? featureReduction;
 }
