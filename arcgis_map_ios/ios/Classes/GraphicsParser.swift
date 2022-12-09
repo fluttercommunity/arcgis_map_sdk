@@ -24,26 +24,19 @@ class GraphicsParser {
             fatalError("Unknown type: \(type)")
         }
 
-        // fill from ArcGisMapAttributes attributes
-        newGraphic.attributes.addEntries(from: [:])
-
-        // if symbole is SimpleMarkerSymbol - currently only supports circle
-        newGraphic.symbol = AGSSimpleMarkerSymbol(style: .circle, color: UIColor.black, size: 5)
-        // if symbol is PictureMarkerSymbol
-        newGraphic.symbol = AGSPictureMarkerSymbol(url: URL(string: "")!)
-        // if symbol is SimpleFillSymbol - currently only supports solid?
-        newGraphic.symbol = AGSSimpleFillSymbol(style: .solid, color: UIColor.black, outline: nil)
-        // if symbol is SimpleLineSymbol - style is from PolylineStyle
-        newGraphic.symbol = AGSSimpleLineSymbol(style: .solid, color: UIColor.black, width: 5)
-
         return newGraphic
     }
 
     private func parsePoint(_ dictionary: [String: Any]) -> AGSGraphic {
-        let attributes = dictionary["attributes"] as! Dictionary<String, Any>
-        //TODO parse other stuff
-        let symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
-        fatalError()
+        let graphic = AGSGraphic()
+
+        let point: LatLng = try! JsonUtil.objectOfJson(dictionary["point"] as! Dictionary<String, Any>)
+
+        graphic.geometry = point.toAGSPoint()
+        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+        graphic.attributes.addEntries(from: dictionary["attributes"] as! Dictionary<String, Any>)
+
+        return graphic
     }
 
     private func parsePolyline(_ dictionary: [String: Any]) -> AGSGraphic {
@@ -59,7 +52,7 @@ class GraphicsParser {
     private func parseSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
         let type = dictionary["type"] as! String;
         switch (type) {
-        case "point":
+        case "simple-marker":
             return parseSimpleMarkerSymbol(dictionary)
         case "picture-marker":
             return parsePictureMarkerSymbol(dictionary)
@@ -73,7 +66,10 @@ class GraphicsParser {
     }
 
     private func parseSimpleMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
-        fatalError("parseSimpleMarkerSymbol(_:) has not been implemented")
+        let payload: SimpleMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
+        
+        let symbol = AGSSimpleMarkerSymbol()
+        return symbol
     }
 
     private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {

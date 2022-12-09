@@ -4,6 +4,7 @@
 //
 //  Created by Julian Bissekkou on 10.10.22.
 //
+
 import ArcGIS
 import Foundation
 
@@ -15,6 +16,6 @@ struct LatLng: Codable {
 
 extension LatLng {
     func toAGSPoint() -> AGSPoint {
-        return AGSPoint(x: self.longitude, y: self.latitude, spatialReference: .wgs84())
+        AGSPoint(x: longitude, y: latitude, spatialReference: .wgs84())
     }
 }

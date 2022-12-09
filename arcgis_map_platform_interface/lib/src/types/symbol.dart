@@ -22,28 +22,28 @@ extension SymbolTypeExt on SymbolType {
 abstract class Symbol {
   const Symbol();
 
- R when<R>({
-   required R Function(SimpleFillSymbol symbol) ifSimpleFillSymbol,
-   required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
-   required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
-   required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
- }) {
-   final self = this;
-   if(self is SimpleFillSymbol) {
-     return ifSimpleFillSymbol(self);
-   }
-   if(self is SimpleMarkerSymbol) {
-     return ifSimpleMarkerSymbol(self);
-   }
-   if(self is PictureMarkerSymbol) {
-     return ifPictureMarkerSymbol(self);
-   }
-   if(self is SimpleLineSymbol) {
-     return ifSimpleLineSymbol(self);
-   }
+  R when<R>({
+    required R Function(SimpleFillSymbol symbol) ifSimpleFillSymbol,
+    required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
+    required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
+    required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
+  }) {
+    final self = this;
+    if (self is SimpleFillSymbol) {
+      return ifSimpleFillSymbol(self);
+    }
+    if (self is SimpleMarkerSymbol) {
+      return ifSimpleMarkerSymbol(self);
+    }
+    if (self is PictureMarkerSymbol) {
+      return ifPictureMarkerSymbol(self);
+    }
+    if (self is SimpleLineSymbol) {
+      return ifSimpleLineSymbol(self);
+    }
 
-   throw Exception("Unknown Symbol: $self");
- }
+    throw Exception("Unknown Symbol: $self");
+  }
 }
 
 /// A simple marker on the map
@@ -61,9 +61,8 @@ class SimpleMarkerSymbol extends Symbol {
   final double colorOpacity;
   final Color outlineColor;
   final double outlineColorOpacity;
-  final int outlineWidth;
-  final int radius;
-
+  final double outlineWidth;
+  final double radius;
 }
 
 /// A picture marker on the map
@@ -94,27 +93,25 @@ class PictureMarkerSymbol extends Symbol {
 class SimpleFillSymbol extends Symbol {
   const SimpleFillSymbol({
     required this.fillColor,
-    required this.opacity,
     required this.outlineColor,
     required this.outlineWidth,
   });
 
   final Color fillColor;
-  final double opacity;
   final Color outlineColor;
   final int outlineWidth;
-
 
   //TODO drop
   Map<String, dynamic> toJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
+        'color': [
+          fillColor.red,
+          fillColor.green,
+          fillColor.blue,
+          fillColor.opacity
+        ],
         'outline': {
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue
-          ], // White
+          'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
           'width': outlineWidth
         }
       };
@@ -128,7 +125,6 @@ class SimpleLineSymbol extends Symbol {
   const SimpleLineSymbol({
     this.cap = CapStyle.round,
     this.color,
-    this.colorOpacity = 1,
     this.declaredClass,
     this.join = JoinStyle.round,
     this.marker,
@@ -142,8 +138,6 @@ class SimpleLineSymbol extends Symbol {
 
   /// The color of the symbol.
   final Color? color;
-
-  final double? colorOpacity;
 
   ///  The name of the class.
   final String? declaredClass;
@@ -161,7 +155,6 @@ class SimpleLineSymbol extends Symbol {
 
   /// The width of the symbol in points.
   final double width;
-
 }
 
 /// Specifies the color, style, and placement of a symbol marker on the line.

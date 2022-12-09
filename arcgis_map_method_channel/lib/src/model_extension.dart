@@ -149,7 +149,6 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'type': 'line-marker',
         'color': _colorToJson(color),
         'declaredClass': declaredClass,
         'placement': placement.name,
