@@ -1,5 +1,8 @@
 package esri.arcgis.flutter_plugin.util
 
+import com.esri.arcgisruntime.geometry.PointCollection
+import com.esri.arcgisruntime.geometry.Polygon
+import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol
@@ -16,48 +19,62 @@ import esri.arcgis.flutter_plugin.parseToClass
 
 class GraphicsParser {
 
-
     companion object {
-        fun parse(map: Map<String, Any>): Graphic {
+        fun parse(map: Map<String, Any>): List<Graphic> {
 
-            val graphic = when (val type = map["type"] as String) {
+            val graphics = when (val type = map["type"] as String) {
                 "point" -> parsePoint(map)
                 "polygon" -> parsePolygon(map)
                 "polyline" -> parsePolyline(map)
                 else -> throw  Exception("No type for $type")
             }
 
-            (map["attributes"] as? Map<String, String>)?.forEach { (key, value) ->
-                graphic.attributes[key] = value
+            val attributes = map["attributes"] as? Map<String, String>
+
+            if (attributes != null) {
+                return graphics.map {
+                    attributes.forEach { (key, value) ->
+                        it.attributes[key] = value
+                    }
+                    it
+                }
             }
 
-            return graphic
+            return graphics
         }
 
-        private fun parsePoint(map: Map<String, Any>): Graphic {
+        private fun parsePoint(map: Map<String, Any>): List<Graphic> {
             val point = (map["point"] as Map<String, Any>).parseToClass<LatLng>()
 
-            return Graphic().apply {
+            val pointGraphic = Graphic().apply {
                 geometry = point.toAGSPoint()
                 symbol = parseSymbol(map)
             }
+
+            return listOf(pointGraphic)
         }
 
-        private fun parsePolyline(map: Map<String, Any>): Graphic {
+        private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
+            //TODO parse
+            val points = listOf<List<LatLng>>()
 
-            //TODO
-
-            return Graphic().apply {
-
+            return points.map { subPoints ->
+                Graphic().apply {
+                    geometry = Polyline(PointCollection(subPoints.map { it.toAGSPoint() }))
+                    symbol = parseSymbol(map)
+                }
             }
         }
 
-        private fun parsePolygon(map: Map<String, Any>): Graphic {
+        private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
+            //TODO parse
+            val points = listOf<List<LatLng>>()
 
-            //TODO
-
-            return Graphic().apply {
-
+            return points.map { subPoints ->
+                Graphic().apply {
+                    geometry = Polygon(PointCollection(subPoints.map { it.toAGSPoint() }))
+                    symbol = parseSymbol(map)
+                }
             }
         }
 

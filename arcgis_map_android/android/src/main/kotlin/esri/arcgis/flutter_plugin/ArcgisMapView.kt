@@ -172,7 +172,7 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
-        defaultGraphicsOverlay.graphics.add(newGraphic)
+        defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
         result.success(true)
     }
