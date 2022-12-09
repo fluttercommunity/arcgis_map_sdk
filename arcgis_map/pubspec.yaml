@@ -9,13 +9,22 @@ environment:
 
 dependencies:
   arcgis_map_android:
-    path: ../arcgis_map_android
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_android
+      ref: v0.6.19
 
   arcgis_map_ios:
-    path: ../arcgis_map_ios
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_ios
+      ref: v0.6.19
 
   arcgis_map_platform_interface:
-    path: ../arcgis_map_platform_interface
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_platform_interface
+      ref: v0.6.19
 
   flutter:
     sdk: flutter
