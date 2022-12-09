@@ -10,7 +10,7 @@ import ArcGIS
 
 class GraphicsParser {
     func parse(dictionary: Dictionary<String, Any>) -> AGSGraphic? {
-        return  nil;
+        return nil;
         /*
         let type = dictionary["type"] as! String
 
