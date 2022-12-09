@@ -70,7 +70,12 @@ class GraphicsParser {
 
         let symbol = AGSSimpleMarkerSymbol()
         symbol.color = payload.color.toUiColor()
-        symbol.
+        symbol.size = payload.size
+        symbol.outline = AGSSimpleLineSymbol(
+                style: .solid,
+                color: payload.outlineColor.toUiColor(),
+                width: payload.outlineWidth
+        )
         return symbol
     }
 
