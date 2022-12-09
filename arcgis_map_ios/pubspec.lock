@@ -9,7 +9,7 @@ packages:
     source: path
     version: "0.6.19"
   arcgis_map_platform_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../arcgis_map_platform_interface"
       relative: true

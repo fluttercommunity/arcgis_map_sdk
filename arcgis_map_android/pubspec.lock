@@ -9,7 +9,7 @@ packages:
     source: path
     version: "0.6.19"
   arcgis_map_platform_interface:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "../arcgis_map_platform_interface"
       relative: true
@@ -82,7 +82,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.2"
+    version: "1.8.3"
   plugin_platform_interface:
     dependency: transitive
     description:
