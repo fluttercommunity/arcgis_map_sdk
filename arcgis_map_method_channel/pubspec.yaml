@@ -8,9 +8,11 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  # todo repalce with repo link
   arcgis_map_platform_interface:
-    path: ../arcgis_map_platform_interface
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_platform_interface
+      ref: v0.6.19
 
   flutter:
     sdk: flutter

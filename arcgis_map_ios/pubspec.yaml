@@ -9,12 +9,10 @@ environment:
 
 dependencies:
   arcgis_map_method_channel:
-    path: ../arcgis_map_method_channel
-      # todo: replace with repo link
-      #git:
-      #url: git@github.com:vfdigitalincubator/arcgis_flutter.git
-      #path: arcgis_map_method_channel
-    #ref: v0.6.19
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_method_channel
+      ref: v0.6.19
 
   flutter:
     sdk: flutter
