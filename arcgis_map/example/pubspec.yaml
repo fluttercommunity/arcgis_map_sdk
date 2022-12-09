@@ -10,9 +10,15 @@ environment:
 
 dependencies:
   arcgis_map:
-    path: ../../arcgis_map
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map
+      ref: v0.6.19
   arcgis_map_web:
-    path: ../../arcgis_map_web
+    git:
+      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      path: arcgis_map_web
+      ref: v0.6.19
 
   cupertino_icons: ^1.0.0
   flutter:
@@ -34,10 +40,10 @@ dependency_overrides:
     path: ../../arcgis_map_android
   arcgis_map_ios:
     path: ../../arcgis_map_ios
-  arcgis_map_platform_interface:
-    path: ../../arcgis_map_platform_interface
   arcgis_map_method_channel:
     path: ../../arcgis_map_method_channel
+  arcgis_map_platform_interface:
+    path: ../../arcgis_map_platform_interface
   arcgis_map_web:
     path: ../../arcgis_map_web
 
