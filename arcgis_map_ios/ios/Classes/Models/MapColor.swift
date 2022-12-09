@@ -13,6 +13,11 @@ struct MapColor: Codable {
 
 extension MapColor {
     func toUiColor() -> UIColor {
-        UIColor(red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(255) * CGFloat(opacity))
+        UIColor(
+                red: CGFloat(red) / 255,
+                green: CGFloat(green) / 255,
+                blue: CGFloat(blue) / 255,
+                alpha: CGFloat(opacity)
+        )
     }
 }

@@ -79,12 +79,12 @@ class GraphicsParser {
         return symbol
     }
 
-    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
-        fatalError("parsePictureMarkerSymbol(_:) has not been implemented")
-    }
-
     private func parseSimpleFillMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
         fatalError("parseSimpleFillMarkerSymbol(_:) has not been implemented")
+    }
+
+    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+        fatalError("parsePictureMarkerSymbol(_:) has not been implemented")
     }
 
     private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {

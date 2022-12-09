@@ -62,6 +62,8 @@ class _ExampleMapState extends State<ExampleMap> {
   var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
+  final initialCenter = LatLng(51.16, 10.45);
+  final tappedHQ = LatLng(48.1234963, 11.5910182);
 
   @override
   void dispose() {
@@ -76,6 +78,47 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+    _controller?.addGraphic(
+      const PointGraphic(
+        attributes: ArcGisMapAttributes(
+          id: 'point1',
+          name: 'Point 1',
+        ),
+        latitude: 48.1234963,
+        longitude: 11.5910182,
+        symbol: SimpleMarkerSymbol(
+          color: Colors.blue,
+          outlineColor: Colors.lightBlueAccent,
+          outlineWidth: 4,
+          size: 8,
+        ),
+      ),
+    );
+
+    _controller?.addGraphic(
+      PolylineGraphic(
+        attributes: const ArcGisMapAttributes(
+          id: 'point2',
+          name: 'Point 2',
+        ),
+        symbol: const SimpleLineSymbol(
+          color: Colors.red,
+          width: 4,
+          style: PolylineStyle.dash,
+          miterLimit: 2,
+          join: JoinStyle.bevel,
+          marker: LineSymbolMarker(
+            style: MarkerStyle.arrow,
+            color: Colors.green,
+            placement: MarkerPlacement.end,
+          ),
+        ),
+        paths: [
+          [initialCenter, tappedHQ],
+        ],
+      ),
+    );
+
     // TODO: Remove when mobile implementation is complete
     if (!kIsWeb) {
       return;
@@ -98,21 +141,6 @@ class _ExampleMapState extends State<ExampleMap> {
         _attributionText = attribution;
       });
     });
-
-    _controller?.addGraphic(
-      const PointGraphic(
-        attributes: ArcGisMapAttributes(
-          id: 'point1',
-          name: 'Point 1',
-        ),
-        latitude: 48.1234963,
-        longitude: 11.5910182,
-        symbol: SimpleMarkerSymbol(
-          color: Colors.lightBlue,
-          outlineColor: Colors.blue,
-        ),
-      ),
-    );
 
     await _createFeatureLayer();
     _addPolygon(
@@ -325,7 +353,7 @@ class _ExampleMapState extends State<ExampleMap> {
             apiKey: arcGisApiKey,
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
-            initialCenter: LatLng(51.16, 10.45),
+            initialCenter: initialCenter,
             zoom: 4,
             hideDefaultZoomButtons: true,
             hideAttribution: true,
@@ -358,7 +386,7 @@ class _ExampleMapState extends State<ExampleMap> {
               heroTag: "move-camera-button",
               onPressed: () {
                 _controller?.moveCamera(
-                  point: LatLng(48.1234963, 11.5910182),
+                  point: tappedHQ,
                   zoomLevel: 15,
                   animationOptions: AnimationOptions(
                     duration: 1500,

@@ -174,12 +174,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
         let newGraphic = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
-        if (newGraphic == nil) {
-            result(false)
-        } else {
-            defaultGraphicsOverlay.graphics.add(newGraphic!)
-            result(true)
-        }
+        defaultGraphicsOverlay.graphics.add(newGraphic)
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -218,13 +213,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
     private func getMapScale(_ zoomLevel: Int) -> Double {
-        return 591657527 * (exp(-0.693 * Double(zoomLevel)))
+        591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 }
 
 extension AGSBasemapStyle: CaseIterable {
     public static var allCases: [AGSBasemapStyle] {
-        return [
+        [
             .arcGISImagery,
             .arcGISImageryStandard,
             .arcGISImageryLabels,
