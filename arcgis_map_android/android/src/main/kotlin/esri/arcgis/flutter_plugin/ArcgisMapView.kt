@@ -9,11 +9,13 @@ import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.ViewPadding
+import esri.arcgis.flutter_plugin.util.GraphicsParser
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -37,6 +39,7 @@ internal class ArcgisMapView(
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
+    private val defaultGraphicsOverlay = GraphicsOverlay()
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
 
@@ -60,6 +63,7 @@ internal class ArcgisMapView(
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
+        mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
         mapView.addMapScaleChangedListener {
             val zoomLevel = getZoomLevel(mapView)
@@ -91,6 +95,7 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
+                "add_graphic" -> onAddGraphic(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -159,6 +164,15 @@ internal class ArcgisMapView(
         val enabled = call.argument<Boolean>("enabled")!!
 
         setMapInteraction(enabled = enabled)
+
+        result.success(true)
+    }
+
+    private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
+        val graphicArguments = call.arguments as Map<String, Any>
+        val newGraphic = GraphicsParser.parse(graphicArguments)
+
+        defaultGraphicsOverlay.graphics.add(newGraphic)
 
         result.success(true)
     }
