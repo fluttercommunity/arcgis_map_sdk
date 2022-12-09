@@ -2,17 +2,27 @@ package esri.arcgis.flutter_plugin
 
 import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
+import com.esri.arcgisruntime.symbology.StrokeSymbolLayer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import esri.arcgis.flutter_plugin.model.symbol.JoinStyle
+import esri.arcgis.flutter_plugin.model.symbol.MarkerStyle
+import esri.arcgis.flutter_plugin.model.symbol.PolylineStyle
 
 val gson: Gson by lazy {
     GsonBuilder()
         .registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
         .registerTypeAdapter(AnimationCurveAdapter::class.java, AnimationCurveAdapter())
+        .registerTypeAdapter(CapStyleAdapter::class.java, CapStyleAdapter())
+        .registerTypeAdapter(MarkerPlacementAdapter::class.java, MarkerPlacementAdapter())
+        .registerTypeAdapter(JoinStyleAdapter::class.java, JoinStyleAdapter())
+        .registerTypeAdapter(MarkerStyleAdapter::class.java, MarkerStyleAdapter())
+        .registerTypeAdapter(PolylineStyleAdapter::class.java, PolylineStyleAdapter())
         .create()
 }
 
@@ -48,13 +58,121 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     }
 }
 
+class CapStyleAdapter : TypeAdapter<StrokeSymbolLayer.CapStyle>() {
+    override fun write(out: JsonWriter, value: StrokeSymbolLayer.CapStyle) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): StrokeSymbolLayer.CapStyle {
+        val jsonValue = reader.nextString()
+        return StrokeSymbolLayer.CapStyle.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun StrokeSymbolLayer.CapStyle.getJsonValue(): String {
+    return when (this) {
+        StrokeSymbolLayer.CapStyle.BUTT -> "butt"
+        StrokeSymbolLayer.CapStyle.ROUND -> "round"
+        StrokeSymbolLayer.CapStyle.SQUARE -> "square"
+    }
+}
+
+class MarkerPlacementAdapter : TypeAdapter<SimpleLineSymbol.MarkerPlacement>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.MarkerPlacement) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): SimpleLineSymbol.MarkerPlacement {
+        val jsonValue = reader.nextString()
+        return SimpleLineSymbol.MarkerPlacement.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun SimpleLineSymbol.MarkerPlacement.getJsonValue(): String {
+    return when (this) {
+        SimpleLineSymbol.MarkerPlacement.BEGIN -> "begin"
+        SimpleLineSymbol.MarkerPlacement.END -> "end"
+        SimpleLineSymbol.MarkerPlacement.BEGIN_AND_END -> "beginEnd"
+    }
+}
+
+class JoinStyleAdapter : TypeAdapter<JoinStyle>() {
+    override fun write(out: JsonWriter, value: JoinStyle) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): JoinStyle {
+        val jsonValue = reader.nextString()
+        return JoinStyle.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun JoinStyle.getJsonValue(): String {
+    return when (this) {
+        JoinStyle.miter -> "miter"
+        JoinStyle.round -> "round"
+        JoinStyle.bevel -> "bevel"
+    }
+}
+
+class MarkerStyleAdapter : TypeAdapter<MarkerStyle>() {
+    override fun write(out: JsonWriter, value: MarkerStyle) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): MarkerStyle {
+        val jsonValue = reader.nextString()
+        return MarkerStyle.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun MarkerStyle.getJsonValue(): String {
+    return when (this) {
+        MarkerStyle.arrow -> "arrow"
+        MarkerStyle.circle -> "circle"
+        MarkerStyle.square -> "square"
+        MarkerStyle.diamond -> "diamond"
+        MarkerStyle.cross -> "cross"
+        MarkerStyle.x -> "x"
+    }
+}
+
+class PolylineStyleAdapter : TypeAdapter<PolylineStyle>() {
+    override fun write(out: JsonWriter, value: PolylineStyle) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): PolylineStyle {
+        val jsonValue = reader.nextString()
+        return PolylineStyle.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun PolylineStyle.getJsonValue(): String {
+    return when (this) {
+        PolylineStyle.dash -> "dash"
+        PolylineStyle.dashDot -> "dashDot"
+        PolylineStyle.dot -> "dot"
+        PolylineStyle.longDash -> "longDash"
+        PolylineStyle.longDashDot -> "longDashDot"
+        PolylineStyle.longDashDotDot -> "longDashDotDot"
+        PolylineStyle.none -> "none"
+        PolylineStyle.shortDash -> "shortDash"
+        PolylineStyle.shortDashDot -> "shortDashDot"
+        PolylineStyle.shortDashDotDot -> "shortDashDotDot"
+        PolylineStyle.shortDot -> "shortDot"
+        PolylineStyle.solid -> "solid"
+    }
+}
+
+
 fun AnimationCurve.getJsonValue(): String {
     return when (this) {
         AnimationCurve.LINEAR -> "linear"
         AnimationCurve.EASE_IN_EXPO -> "easy"
         AnimationCurve.EASE_IN_CIRC -> "easeIn"
         AnimationCurve.EASE_OUT_CIRC -> "easeOut"
-        AnimationCurve.EASE_IN_OUT_CIRC-> "easeInOut"
+        AnimationCurve.EASE_IN_OUT_CIRC -> "easeInOut"
         else -> "linear"
     }
 }

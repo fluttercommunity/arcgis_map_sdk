@@ -135,10 +135,10 @@ class SimpleLineSymbol extends Symbol {
   /// The color of the symbol.
   final Color? color;
 
-  ///  The name of the class.
+  /// The name of the class.
   final String? declaredClass;
 
-  ///   Specifies the join style.
+  /// Specifies the join style.
   final JoinStyle join;
 
   final LineSymbolMarker? marker;
