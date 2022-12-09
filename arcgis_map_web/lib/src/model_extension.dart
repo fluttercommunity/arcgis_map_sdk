@@ -166,7 +166,12 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
+        'color': [
+          fillColor.red,
+          fillColor.green,
+          fillColor.blue,
+          fillColor.opacity
+        ],
         'outline': {
           'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
           'width': outlineWidth
@@ -177,7 +182,7 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red, color?.green, color?.blue, color?.opacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
@@ -191,7 +196,7 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red, color?.green, color?.blue, color?.opacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,

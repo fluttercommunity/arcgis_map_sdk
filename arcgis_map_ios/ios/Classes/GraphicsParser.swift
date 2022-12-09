@@ -67,8 +67,10 @@ class GraphicsParser {
 
     private func parseSimpleMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
         let payload: SimpleMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
-        
+
         let symbol = AGSSimpleMarkerSymbol()
+        symbol.color = payload.color.toUiColor()
+        symbol.
         return symbol
     }
 

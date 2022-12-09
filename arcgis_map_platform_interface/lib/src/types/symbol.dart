@@ -166,7 +166,6 @@ class SimpleLineSymbol extends Symbol {
 class LineSymbolMarker {
   const LineSymbolMarker({
     this.color,
-    this.colorOpacity,
     this.declaredClass,
     this.placement = MarkerPlacement.beginEnd,
     this.style = MarkerStyle.arrow,
@@ -174,8 +173,6 @@ class LineSymbolMarker {
 
   /// The color of the marker.
   final Color? color;
-
-  final double? colorOpacity;
 
   /// The name of the class.
   final String? declaredClass;

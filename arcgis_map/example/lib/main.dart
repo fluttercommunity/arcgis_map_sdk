@@ -280,7 +280,6 @@ class _ExampleMapState extends State<ExampleMap> {
           width: 3,
           marker: LineSymbolMarker(
             color: Colors.green,
-            colorOpacity: 1,
             style: MarkerStyle.circle,
           ),
         ),
