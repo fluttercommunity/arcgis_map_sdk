@@ -11,7 +11,6 @@ import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import esri.arcgis.flutter_plugin.model.symbol.JoinStyle
-import esri.arcgis.flutter_plugin.model.symbol.PolylineStyle
 
 val gson: Gson by lazy {
     GsonBuilder()
@@ -133,31 +132,32 @@ fun SimpleLineSymbol.MarkerStyle.getJsonValue(): String {
     }
 }
 
-class PolylineStyleAdapter : TypeAdapter<PolylineStyle>() {
-    override fun write(out: JsonWriter, value: PolylineStyle) {
+class PolylineStyleAdapter : TypeAdapter<SimpleLineSymbol.Style>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.Style) {
         out.value(value.getJsonValue())
     }
 
-    override fun read(reader: JsonReader): PolylineStyle {
+    override fun read(reader: JsonReader): SimpleLineSymbol.Style {
         val jsonValue = reader.nextString()
-        return PolylineStyle.values().first { it.getJsonValue() == jsonValue }
+        return SimpleLineSymbol.Style.values().firstOrNull { it.getJsonValue() == jsonValue }
+            ?: SimpleLineSymbol.Style.DASH
     }
 }
 
-fun PolylineStyle.getJsonValue(): String {
+fun SimpleLineSymbol.Style.getJsonValue(): String {
     return when (this) {
-        PolylineStyle.dash -> "dash"
-        PolylineStyle.dashDot -> "dashDot"
-        PolylineStyle.dot -> "dot"
-        PolylineStyle.longDash -> "longDash"
-        PolylineStyle.longDashDot -> "longDashDot"
-        PolylineStyle.longDashDotDot -> "longDashDotDot"
-        PolylineStyle.none -> "none"
-        PolylineStyle.shortDash -> "shortDash"
-        PolylineStyle.shortDashDot -> "shortDashDot"
-        PolylineStyle.shortDashDotDot -> "shortDashDotDot"
-        PolylineStyle.shortDot -> "shortDot"
-        PolylineStyle.solid -> "solid"
+        SimpleLineSymbol.Style.DASH -> "dash"
+        SimpleLineSymbol.Style.DASH_DOT -> "dashDot"
+        SimpleLineSymbol.Style.DOT -> "dot"
+        SimpleLineSymbol.Style.DASH_DOT_DOT -> "dashDotDot"
+        SimpleLineSymbol.Style.LONG_DASH -> "longDash"
+        SimpleLineSymbol.Style.LONG_DASH_DOT -> "longDashDot"
+        SimpleLineSymbol.Style.NULL -> "none"
+        SimpleLineSymbol.Style.SHORT_DASH -> "shortDash"
+        SimpleLineSymbol.Style.SHORT_DASH_DOT -> "shortDashDot"
+        SimpleLineSymbol.Style.SHORT_DASH_DOT_DOT -> "shortDashDotDot"
+        SimpleLineSymbol.Style.SHORT_DOT -> "shortDot"
+        SimpleLineSymbol.Style.SOLID -> "solid"
     }
 }
 

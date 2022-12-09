@@ -1,6 +1,10 @@
 package esri.arcgis.flutter_plugin.util
 
 import com.esri.arcgisruntime.mapping.view.Graphic
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.esri.arcgisruntime.symbology.Symbol
 import esri.arcgis.flutter_plugin.model.symbol.PictureMarkerSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleFillSymbolPayload
@@ -21,27 +25,39 @@ class GraphicsParser {
                 else -> throw  Exception("No type for $type")
             }
 
+            (map["attributes"] as? Map<String, String>)?.forEach { (key, value) ->
+                graphic.attributes[key] = value
+            }
+
             return graphic
         }
 
         private fun parsePolyline(map: Map<String, Any>): Graphic {
+
             //TODO
-            return Graphic()
+
+            return Graphic().apply {
+
+            }
         }
 
         private fun parsePolygon(map: Map<String, Any>): Graphic {
+
             //TODO
 
-            return Graphic()
+            return Graphic().apply {
+
+            }
         }
 
         private fun parsePoint(map: Map<String, Any>): Graphic {
 
             //TODO
 
-            return Graphic()
-        }
+            return Graphic().apply {
 
+            }
+        }
 
         private fun parseSymbol(map: Map<String, Any>): Symbol {
             val symbolMap = map["symbol"] as Map<String, Any>
@@ -60,27 +76,52 @@ class GraphicsParser {
         private fun parseSimpleMarkerSymbol(map: Map<String, Any>): Symbol {
             val payload = map.parseToClass<SimpleMarkerSymbolPayload>()
 
-
-
-            TODO()
+            return SimpleMarkerSymbol().apply {
+                color = payload.color.toHexInt()
+                size = payload.size.toFloat()
+                outline = SimpleLineSymbol().apply {
+                    style = SimpleLineSymbol.Style.SOLID
+                    color = payload.outlineColor.toHexInt()
+                    width = payload.outlineWidth.toFloat()
+                }
+            }
         }
 
         private fun parsePictureMarkerSymbol(map: Map<String, Any>): Symbol {
             val payload = map.parseToClass<PictureMarkerSymbolPayload>()
 
-            TODO()
+            return PictureMarkerSymbol(payload.uri).apply {
+                width = payload.width.toFloat()
+                height = payload.height.toFloat()
+                offsetX = payload.xOffset.toFloat()
+                offsetY = payload.yOffset.toFloat()
+            }
         }
 
         private fun parseSimpleFillSymbol(map: Map<String, Any>): Symbol {
             val payload = map.parseToClass<SimpleFillSymbolPayload>()
 
-            TODO()
+            return SimpleFillSymbol().apply {
+                color = payload.fillColor.toHexInt()
+                outline = SimpleLineSymbol().apply {
+                    style = SimpleLineSymbol.Style.SOLID
+                    color = payload.outlineColor.toHexInt()
+                    width = payload.outlineWidth.toFloat()
+                }
+            }
         }
 
         private fun parseSimpleLineSymbol(map: Map<String, Any>): Symbol {
             val payload = map.parseToClass<SimpleLineSymbolPayload>()
 
-            TODO()
+            return SimpleLineSymbol().apply {
+                if (payload.color != null) color = payload.color.toHexInt()
+                markerStyle = payload.marker?.style
+                markerPlacement = payload.marker?.placement
+                style = payload.style
+                width = payload.width.toFloat()
+            }
+
         }
     }
 
