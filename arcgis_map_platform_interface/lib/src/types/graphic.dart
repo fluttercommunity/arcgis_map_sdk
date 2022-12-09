@@ -2,6 +2,8 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-Graphic.html
 abstract class Graphic {
+  const Graphic();
+
   String getAttributesId();
 
   void Function()? get onEnter;
@@ -9,10 +11,27 @@ abstract class Graphic {
   void Function()? get onExit;
 
   void Function(bool isHovered)? get onHover;
+
+  R when<R>({
+    required R Function(PointGraphic feature) ifPointGraphic,
+    required R Function(PolylineGraphic feature) ifPolylineGraphic,
+    required R Function(PolygonGraphic feature) ifPolygonGraphic,
+  }) {
+    final self = this;
+    if (self is PointGraphic) {
+      return ifPointGraphic(self);
+    } else if (self is PolylineGraphic) {
+      return ifPolylineGraphic(self);
+    } else if (self is PolygonGraphic) {
+      return ifPolygonGraphic(self);
+    } else {
+      throw Exception("Unknown graphic $self");
+    }
+  }
 }
 
 /// The data on the map is displayed as points
-class PointGraphic implements Graphic {
+class PointGraphic extends Graphic {
   const PointGraphic({
     required this.attributes,
     required this.latitude,
@@ -46,7 +65,7 @@ class PointGraphic implements Graphic {
 }
 
 /// The data on the map is displayed as polygons
-class PolygonGraphic implements Graphic {
+class PolygonGraphic extends Graphic {
   const PolygonGraphic({
     required this.rings,
     required this.symbol,
@@ -83,7 +102,7 @@ class PolygonGraphic implements Graphic {
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html
 ///
 /// Currently only supports [SimpleLineSymbol]
-class PolylineGraphic implements Graphic {
+class PolylineGraphic extends Graphic {
   const PolylineGraphic({
     required this.paths,
     required this.symbol,

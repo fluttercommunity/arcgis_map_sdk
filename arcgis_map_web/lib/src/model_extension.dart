@@ -44,8 +44,16 @@ extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
 
 // region Graphics
 
-extension GraphicToJsonExtension on PointGraphic {
-  Map<String, dynamic> toJson() => <String, dynamic>{
+extension GraphicToJsonExtension on Graphic {
+  Map<String, dynamic> toJson() => when(
+        ifPointGraphic: (graphic) => graphic.convertToJson(),
+        ifPolygonGraphic: (graphic) => graphic.convertToJson(),
+        ifPolylineGraphic: (graphic) => graphic.convertToJson(),
+      );
+}
+
+extension on PointGraphic {
+  Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'point',
           'longitude': longitude,
@@ -56,8 +64,8 @@ extension GraphicToJsonExtension on PointGraphic {
       };
 }
 
-extension PolygonToJsonExtension on PolygonGraphic {
-  Map<String, dynamic> toJson() => <String, dynamic>{
+extension on PolygonGraphic {
+  Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polygon',
           'rings': rings,
@@ -67,8 +75,8 @@ extension PolygonToJsonExtension on PolygonGraphic {
       };
 }
 
-extension PolylineToJsonExtension on PolylineGraphic {
-  Map<String, dynamic> toJson() => <String, dynamic>{
+extension on PolylineGraphic {
+  Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polyline',
           'paths': paths,
@@ -77,6 +85,8 @@ extension PolylineToJsonExtension on PolylineGraphic {
         'attributes': attributes.toMap(),
       };
 }
+
+// endregion
 
 extension FieldJsonExtension on Field {
   Map<String, dynamic> toJson() => {
@@ -100,8 +110,6 @@ extension ArcGisMapAttributesJsonExtension on ArcGisMapAttributes {
         name = map['name'].toString();*/
 }
 
-// endregion
-
 /*
 *   /// Each list of LatLongs creates a polyline
   ///
@@ -115,9 +123,12 @@ extension ArcGisMapAttributesJsonExtension on ArcGisMapAttributes {
 // region symbols
 
 extension on Symbol {
-  Map<String, dynamic> toJson() {
-    return when(ifSimpleFillSymbol: (s) => s.convertToJson(), ifSimpleMarkerSymbol: (s) => s.convertToJson(), ifPictureMarkerSymbol: (s) => s.convertToJson(), ifSimpleLineSymbol: (s) => s.convertToJson(),);
-  }
+  Map<String, dynamic> toJson() => when(
+        ifSimpleFillSymbol: (s) => s.convertToJson(),
+        ifSimpleMarkerSymbol: (s) => s.convertToJson(),
+        ifPictureMarkerSymbol: (s) => s.convertToJson(),
+        ifSimpleLineSymbol: (s) => s.convertToJson(),
+      );
 }
 
 extension on SimpleMarkerSymbol {
@@ -153,11 +164,7 @@ extension on SimpleFillSymbol {
         'type': 'simple-fill',
         'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
         'outline': {
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue
-          ], // White
+          'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
           'width': outlineWidth
         }
       };
