@@ -256,16 +256,7 @@ class _ExampleMapState extends State<ExampleMap> {
     _controller?.addGraphic(
       PolylineGraphic(
         paths: [
-          [
-            [
-              start.longitude,
-              start.latitude,
-            ],
-            [
-              end.longitude,
-              end.latitude,
-            ],
-          ]
+          [start, end]
         ],
         symbol: const SimpleLineSymbol(
           color: Colors.purple,
