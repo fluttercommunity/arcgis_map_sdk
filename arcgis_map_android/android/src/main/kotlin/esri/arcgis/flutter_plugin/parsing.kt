@@ -11,7 +11,6 @@ import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import esri.arcgis.flutter_plugin.model.symbol.JoinStyle
-import esri.arcgis.flutter_plugin.model.symbol.MarkerStyle
 import esri.arcgis.flutter_plugin.model.symbol.PolylineStyle
 
 val gson: Gson by lazy {
@@ -115,25 +114,22 @@ fun JoinStyle.getJsonValue(): String {
     }
 }
 
-class MarkerStyleAdapter : TypeAdapter<MarkerStyle>() {
-    override fun write(out: JsonWriter, value: MarkerStyle) {
+class MarkerStyleAdapter : TypeAdapter<SimpleLineSymbol.MarkerStyle>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.MarkerStyle) {
         out.value(value.getJsonValue())
     }
 
-    override fun read(reader: JsonReader): MarkerStyle {
+    override fun read(reader: JsonReader): SimpleLineSymbol.MarkerStyle {
         val jsonValue = reader.nextString()
-        return MarkerStyle.values().first { it.getJsonValue() == jsonValue }
+        return SimpleLineSymbol.MarkerStyle.values().firstOrNull { it.getJsonValue() == jsonValue }
+            ?: SimpleLineSymbol.MarkerStyle.NONE
     }
 }
 
-fun MarkerStyle.getJsonValue(): String {
+fun SimpleLineSymbol.MarkerStyle.getJsonValue(): String {
     return when (this) {
-        MarkerStyle.arrow -> "arrow"
-        MarkerStyle.circle -> "circle"
-        MarkerStyle.square -> "square"
-        MarkerStyle.diamond -> "diamond"
-        MarkerStyle.cross -> "cross"
-        MarkerStyle.x -> "x"
+        SimpleLineSymbol.MarkerStyle.NONE -> "none"
+        SimpleLineSymbol.MarkerStyle.ARROW -> "arrow"
     }
 }
 

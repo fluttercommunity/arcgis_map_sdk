@@ -19,17 +19,12 @@ data class LineSymbolMarker(
     val color: MapColor,
     val declaredClass: String?,
     val placement: SimpleLineSymbol.MarkerPlacement,
-    val style: MarkerStyle,
+    val style: SimpleLineSymbol.MarkerStyle,
 )
 
 //TODO try to drop
 enum class JoinStyle {
     miter, round, bevel
-}
-
-//TODO try to drop
-enum class MarkerStyle {
-    arrow, circle, square, diamond, cross, x,
 }
 
 //TODO try to drop
