@@ -79,9 +79,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let viewport = AGSViewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
-                // TODO(tapped): we might not be able to have zoom and scale under the same api
-                // for now we just multiply it by 1000 to have a similar effect
-                scale: mapOptions.zoom * 1000
+                scale: getMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewport, duration: 0) { _ in
         }
@@ -174,7 +172,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
         let newGraphic = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
-        defaultGraphicsOverlay.graphics.addObjects(from: newGraphic)
+        // addObjects causes an internal exceptions this is why we add
+        // them in this for loop instead.
+        // ArcGis is the best <3.
+        newGraphic.forEach {
+            defaultGraphicsOverlay.graphics.add($0)
+        }
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {

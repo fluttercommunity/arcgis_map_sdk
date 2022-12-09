@@ -61,9 +61,8 @@ class GraphicsParser {
     private func parsePolygon(_ dictionary: [String: Any]) -> [AGSGraphic] {
         let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        let graphic = AGSGraphic()
-
         return payload.rings.map { coordinates in
+            let graphic = AGSGraphic()
             let points = coordinates.map {
                 $0.toAGSPoint()
             }
