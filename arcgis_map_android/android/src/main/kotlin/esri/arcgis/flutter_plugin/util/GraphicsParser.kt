@@ -6,10 +6,12 @@ import com.esri.arcgisruntime.symbology.SimpleFillSymbol
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.esri.arcgisruntime.symbology.Symbol
+import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.symbol.PictureMarkerSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleFillSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleLineSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleMarkerSymbolPayload
+import esri.arcgis.flutter_plugin.model.toAGSPoint
 import esri.arcgis.flutter_plugin.parseToClass
 
 class GraphicsParser {
@@ -32,6 +34,15 @@ class GraphicsParser {
             return graphic
         }
 
+        private fun parsePoint(map: Map<String, Any>): Graphic {
+            val point = (map["point"] as Map<String, Any>).parseToClass<LatLng>()
+
+            return Graphic().apply {
+                geometry = point.toAGSPoint()
+                symbol = parseSymbol(map)
+            }
+        }
+
         private fun parsePolyline(map: Map<String, Any>): Graphic {
 
             //TODO
@@ -42,15 +53,6 @@ class GraphicsParser {
         }
 
         private fun parsePolygon(map: Map<String, Any>): Graphic {
-
-            //TODO
-
-            return Graphic().apply {
-
-            }
-        }
-
-        private fun parsePoint(map: Map<String, Any>): Graphic {
 
             //TODO
 
