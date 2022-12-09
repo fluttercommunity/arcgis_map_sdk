@@ -9,65 +9,69 @@ import Foundation
 import ArcGIS
 
 class GraphicsParser {
-    func parse(dictionary: Dictionary<String, Any>) -> AGSGraphic {
+    func parse(dictionary: Dictionary<String, Any>) -> [AGSGraphic] {
         let type = dictionary["type"] as! String
 
-        let newGraphic: AGSGraphic
+        let newGraphics: [AGSGraphic]
         switch (type) {
         case "point":
-            newGraphic = parsePoint(dictionary)
+            newGraphics = parsePoint(dictionary)
         case "polygon":
-            newGraphic = parsePolygon(dictionary)
+            newGraphics = parsePolygon(dictionary)
         case "polyline":
-            newGraphic = parsePolyline(dictionary)
+            newGraphics = parsePolyline(dictionary)
         default:
             fatalError("Unknown type: \(type)")
         }
 
         let attributes = dictionary["attributes"] as? Dictionary<String, Any>
         if let attributes = attributes {
-            newGraphic.attributes.addEntries(from: attributes)
+            newGraphics.forEach {
+                $0.attributes.addEntries(from: attributes)
+            }
         }
-
-        return newGraphic
+        return newGraphics
     }
 
-    private func parsePoint(_ dictionary: [String: Any]) -> AGSGraphic {
+    private func parsePoint(_ dictionary: [String: Any]) -> [AGSGraphic] {
         let point: LatLng = try! JsonUtil.objectOfJson(dictionary["point"] as! Dictionary<String, Any>)
 
         let graphic = AGSGraphic()
         graphic.geometry = point.toAGSPoint()
         graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
-        return graphic
+        return [graphic]
     }
 
-    private func parsePolyline(_ dictionary: [String: Any]) -> AGSGraphic {
+    private func parsePolyline(_ dictionary: [String: Any]) -> [AGSGraphic] {
         let payload: PathPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        let graphic = AGSGraphic()
-        let points = payload.paths.map {
-            $0.toAGSPoint()
-        }
-        graphic.geometry = AGSPolyline(points: points)
-        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+        return payload.paths.map { coordinates in
+            let points = coordinates.map {
+                $0.toAGSPoint()
+            }
+            let graphic = AGSGraphic()
 
-        return graphic
+            graphic.geometry = AGSPolyline(points: points)
+            graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+            return graphic
+        }
     }
 
-    private func parsePolygon(_ dictionary: [String: Any]) -> AGSGraphic {
+    private func parsePolygon(_ dictionary: [String: Any]) -> [AGSGraphic] {
         let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
 
         let graphic = AGSGraphic()
 
-        let points = payload.rings.map {
-            $0.toAGSPoint()
+        return payload.rings.map { coordinates in
+            let points = coordinates.map {
+                $0.toAGSPoint()
+            }
+            graphic.geometry = AGSPolygon(points: points)
+            graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+
+            return graphic
         }
-        graphic.geometry = AGSPolygon(points: points)
-        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
-
-
-        return graphic
     }
 
     // region symbol parsing
@@ -103,11 +107,29 @@ class GraphicsParser {
     }
 
     private func parseSimpleFillMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
-        fatalError("parseSimpleFillMarkerSymbol(_:) has not been implemented")
+        let payload: SimpleFillSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
+
+        let symbol = AGSSimpleFillSymbol()
+        symbol.color = payload.fillColor.toUIColor()
+
+        let outline = AGSSimpleLineSymbol()
+        outline.width = payload.outlineWidth
+        outline.color = payload.outlineColor.toUIColor()
+        symbol.outline = outline
+
+        return symbol
     }
 
     private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
-        fatalError("parsePictureMarkerSymbol(_:) has not been implemented")
+        let payload: PictureMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
+
+        let symbol = AGSPictureMarkerSymbol(url: URL(string: payload.url)!)
+        symbol.width = payload.width
+        symbol.height = payload.height
+        symbol.offsetX = payload.xOffset
+        symbol.offsetY = payload.yOffset
+
+        return symbol
     }
 
     private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
@@ -127,9 +149,9 @@ class GraphicsParser {
 }
 
 private struct PathPayload: Codable {
-    let paths: [LatLng]
+    let paths: [[LatLng]]
 }
 
 private struct PolygonPayload: Codable {
-    let rings: [LatLng]
+    let rings: [[LatLng]]
 }

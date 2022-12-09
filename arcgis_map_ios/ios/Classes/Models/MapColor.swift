@@ -5,19 +5,19 @@
 import Foundation
 
 struct MapColor: Codable {
-    var red: Int
-    var green: Int
-    var blue: Int
-    var opacity: Int
+    var red: Double
+    var green: Double
+    var blue: Double
+    var opacity: Double
 }
 
 extension MapColor {
     func toUIColor() -> UIColor {
         UIColor(
-                red: CGFloat(red) / 255,
-                green: CGFloat(green) / 255,
-                blue: CGFloat(blue) / 255,
-                alpha: CGFloat(opacity)
+                red: red / 255,
+                green: green / 255,
+                blue: blue / 255,
+                alpha: opacity
         )
     }
 }

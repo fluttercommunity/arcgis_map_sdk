@@ -112,7 +112,9 @@ class _ExampleMapState extends State<ExampleMap> {
             placement: MarkerPlacement.end,
           ),
         ),
-        paths: [initialCenter, tappedHQ],
+        paths: [
+          [initialCenter, tappedHQ]
+        ],
       ),
     );
 
@@ -291,7 +293,9 @@ class _ExampleMapState extends State<ExampleMap> {
   }) {
     _controller?.addGraphic(
       PolylineGraphic(
-        paths: [start, end],
+        paths: [
+          [start, end]
+        ],
         symbol: const SimpleLineSymbol(
           color: Colors.purple,
           style: PolylineStyle.shortDashDotDot,

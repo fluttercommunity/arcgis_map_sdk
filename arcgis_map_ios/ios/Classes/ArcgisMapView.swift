@@ -174,7 +174,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
         let newGraphic = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
-        defaultGraphicsOverlay.graphics.add(newGraphic)
+        defaultGraphicsOverlay.graphics.addObjects(from: newGraphic)
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {

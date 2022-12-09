@@ -120,7 +120,7 @@ class PolylineGraphic extends Graphic {
   /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
-  final List<LatLng> paths;
+  final List<List<LatLng>> paths;
   final SimpleLineSymbol symbol;
   final ArcGisMapAttributes attributes;
 
