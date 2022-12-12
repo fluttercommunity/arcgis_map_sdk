@@ -104,6 +104,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
             case "add_graphic": onAddGraphic(call, result)
+            case "remove_graphic": onRemoveGraphic(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -178,6 +179,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         newGraphic.forEach {
             defaultGraphicsOverlay.graphics.add($0)
         }
+    }
+
+    private func onRemoveGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let graphicId = call.arguments as! String
+        let newGraphics = defaultGraphicsOverlay.graphics.filter({ element in
+            let graphic = element as! AGSGraphic
+            let id = graphic.attributes["id"] as? String
+            return id != graphicId
+        })
+
+        defaultGraphicsOverlay.graphics.removeAllObjects()
+        defaultGraphicsOverlay.graphics.addObjects(from: newGraphics)
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
