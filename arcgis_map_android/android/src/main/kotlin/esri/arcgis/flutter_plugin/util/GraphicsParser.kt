@@ -55,27 +55,11 @@ class GraphicsParser {
         }
 
         private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
-            //TODO parse
-            val points = listOf<List<LatLng>>()
-
-            return points.map { subPoints ->
-                Graphic().apply {
-                    geometry = Polyline(PointCollection(subPoints.map { it.toAGSPoint() }))
-                    symbol = parseSymbol(map)
-                }
-            }
+            return listOf()
         }
 
         private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
-            //TODO parse
-            val points = listOf<List<LatLng>>()
-
-            return points.map { subPoints ->
-                Graphic().apply {
-                    geometry = Polygon(PointCollection(subPoints.map { it.toAGSPoint() }))
-                    symbol = parseSymbol(map)
-                }
-            }
+            return listOf()
         }
 
         private fun parseSymbol(map: Map<String, Any>): Symbol {
