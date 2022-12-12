@@ -151,8 +151,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void removeGraphic(int mapId, String graphicId) {
-    throw UnimplementedError('removeGraphic() has not been implemented.');
+  Future<void> removeGraphic(int mapId, String graphicId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("remove_graphic", graphicId);
   }
 
   @override

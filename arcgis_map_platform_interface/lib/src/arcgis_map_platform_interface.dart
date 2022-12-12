@@ -121,7 +121,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('addGraphic() has not been implemented.');
   }
 
-  void removeGraphic(int mapId, String graphicId) {
+  Future<void> removeGraphic(int mapId, String graphicId) {
     throw UnimplementedError('removeGraphic() has not been implemented.');
   }
 
