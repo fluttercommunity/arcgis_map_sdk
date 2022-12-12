@@ -96,6 +96,7 @@ internal class ArcgisMapView(
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
                 "add_graphic" -> onAddGraphic(call = call, result = result)
+                "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -173,6 +174,16 @@ internal class ArcgisMapView(
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
         defaultGraphicsOverlay.graphics.addAll(newGraphic)
+
+        result.success(true)
+    }
+
+    private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
+        val graphicId = call.arguments as String
+        defaultGraphicsOverlay.graphics.removeAll { graphic ->
+            val id = graphic.attributes["id"] as? String
+            graphicId == id
+        }
 
         result.success(true)
     }

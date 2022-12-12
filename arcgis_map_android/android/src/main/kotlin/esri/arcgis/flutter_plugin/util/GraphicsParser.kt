@@ -4,11 +4,9 @@ import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.mapping.view.Graphic
-import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
-import com.esri.arcgisruntime.symbology.Symbol
+import com.esri.arcgisruntime.symbology.*
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol.MarkerStyle
+import esri.arcgis.flutter_plugin.gson
 import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.symbol.PictureMarkerSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleFillSymbolPayload
@@ -55,7 +53,7 @@ class GraphicsParser {
         }
 
         private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
-            val points = map["paths"] as List<List<LatLng>> //().map { it.parseToClass<LatLng>() }
+            val points = parseToClass<List<List<LatLng>>>(map["paths"]!!)
 
             return points.map { subPoints ->
                 Graphic().apply {
@@ -66,7 +64,7 @@ class GraphicsParser {
         }
 
         private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
-            val rings = map["rings"] as List<List<LatLng>>
+            val rings = parseToClass<List<List<LatLng>>>(map["rings"]!!)
 
             return rings.map { points ->
                 Graphic().apply {
@@ -133,8 +131,11 @@ class GraphicsParser {
 
             return SimpleLineSymbol().apply {
                 if (payload.color != null) color = payload.color.toHexInt()
-                markerStyle = payload.marker?.style
-                markerPlacement = payload.marker?.placement
+                payload.marker?.let {
+                    markerStyle = it.style
+                    markerPlacement = it.placement
+                }
+
                 style = payload.style
                 width = payload.width.toFloat()
             }
