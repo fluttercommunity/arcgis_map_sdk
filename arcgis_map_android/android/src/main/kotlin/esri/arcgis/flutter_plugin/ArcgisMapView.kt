@@ -1,6 +1,8 @@
 package esri.arcgis.flutter_plugin
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
@@ -24,6 +26,7 @@ import io.flutter.plugin.platform.PlatformView
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
+
 
 /**
  * The PlatformView that displays an ArcGis MapView.
@@ -173,23 +176,30 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
-        defaultGraphicsOverlay.graphics.addAll(newGraphic)
-
-        result.success(true)
+        Handler(Looper.getMainLooper()).post {
+            defaultGraphicsOverlay.graphics.addAll(newGraphic)
+            result.success(true)
+        }
     }
 
     private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
         val graphicId = call.arguments as String
-        defaultGraphicsOverlay.graphics.removeAll { graphic ->
+
+        val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
             val id = graphic.attributes["id"] as? String
             graphicId == id
         }
 
-        result.success(true)
+        // Execute on main thread
+        Handler(Looper.getMainLooper()).post {
+            // Don't use removeAll because this will not trigger a redraw.
+            graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
+
+            result.success(true)
+        }
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
-
         val arguments = call.arguments as Map<String, Any>
         val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
 
