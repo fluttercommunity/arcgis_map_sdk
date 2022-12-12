@@ -178,6 +178,7 @@ internal class ArcgisMapView(
 
         Handler(Looper.getMainLooper()).post {
             defaultGraphicsOverlay.graphics.addAll(newGraphic)
+            mapView.resume()
             result.success(true)
         }
     }
