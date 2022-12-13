@@ -1,8 +1,6 @@
 package esri.arcgis.flutter_plugin
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
@@ -46,8 +44,7 @@ internal class ArcgisMapView(
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
 
-    private val methodChannel =
-        MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
+    private val methodChannel = MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
 
     override fun getView(): View = view
 
@@ -176,28 +173,23 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
-        Handler(Looper.getMainLooper()).post {
-            defaultGraphicsOverlay.graphics.addAll(newGraphic)
-            mapView.resume()
-            result.success(true)
-        }
+        defaultGraphicsOverlay.graphics.addAll(newGraphic)
+        result.success(true)
     }
 
     private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
         val graphicId = call.arguments as String
+
 
         val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
             val id = graphic.attributes["id"] as? String
             graphicId == id
         }
 
-        // Execute on main thread
-        Handler(Looper.getMainLooper()).post {
-            // Don't use removeAll because this will not trigger a redraw.
-            graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
+        // Don't use removeAll because this will not trigger a redraw.
+        graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
 
-            result.success(true)
-        }
+        result.success(true)
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {

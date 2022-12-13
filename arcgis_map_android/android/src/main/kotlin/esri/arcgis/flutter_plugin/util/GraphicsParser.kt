@@ -5,8 +5,6 @@ import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.symbology.*
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol.MarkerStyle
-import esri.arcgis.flutter_plugin.gson
 import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.symbol.PictureMarkerSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleFillSymbolPayload
