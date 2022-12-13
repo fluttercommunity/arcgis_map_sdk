@@ -179,6 +179,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         newGraphic.forEach {
             defaultGraphicsOverlay.graphics.add($0)
         }
+        result(true)
     }
 
     private func onRemoveGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -191,6 +192,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         defaultGraphicsOverlay.graphics.removeAllObjects()
         defaultGraphicsOverlay.graphics.addObjects(from: newGraphics)
+        
+        result(true)
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
