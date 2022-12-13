@@ -3,22 +3,18 @@ package esri.arcgis.flutter_plugin
 import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol
-import com.esri.arcgisruntime.symbology.StrokeSymbolLayer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import esri.arcgis.flutter_plugin.model.symbol.JoinStyle
 
 val gson: Gson by lazy {
     GsonBuilder()
         .registerTypeAdapter(BasemapStyleAdapter())
         .registerTypeAdapter(AnimationCurveAdapter())
-        .registerTypeAdapter(CapStyleAdapter())
         .registerTypeAdapter(MarkerPlacementAdapter())
-        .registerTypeAdapter(JoinStyleAdapter())
         .registerTypeAdapter(MarkerStyleAdapter())
         .registerTypeAdapter(PolylineStyleAdapter())
         .create()
@@ -61,25 +57,6 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     }
 }
 
-class CapStyleAdapter : TypeAdapter<StrokeSymbolLayer.CapStyle>() {
-    override fun write(out: JsonWriter, value: StrokeSymbolLayer.CapStyle) {
-        out.value(value.getJsonValue())
-    }
-
-    override fun read(reader: JsonReader): StrokeSymbolLayer.CapStyle {
-        val jsonValue = reader.nextString()
-        return StrokeSymbolLayer.CapStyle.values().first { it.getJsonValue() == jsonValue }
-    }
-}
-
-fun StrokeSymbolLayer.CapStyle.getJsonValue(): String {
-    return when (this) {
-        StrokeSymbolLayer.CapStyle.BUTT -> "butt"
-        StrokeSymbolLayer.CapStyle.ROUND -> "round"
-        StrokeSymbolLayer.CapStyle.SQUARE -> "square"
-    }
-}
-
 class MarkerPlacementAdapter : TypeAdapter<SimpleLineSymbol.MarkerPlacement>() {
     override fun write(out: JsonWriter, value: SimpleLineSymbol.MarkerPlacement) {
         out.value(value.getJsonValue())
@@ -96,25 +73,6 @@ fun SimpleLineSymbol.MarkerPlacement.getJsonValue(): String {
         SimpleLineSymbol.MarkerPlacement.BEGIN -> "begin"
         SimpleLineSymbol.MarkerPlacement.END -> "end"
         SimpleLineSymbol.MarkerPlacement.BEGIN_AND_END -> "beginEnd"
-    }
-}
-
-class JoinStyleAdapter : TypeAdapter<JoinStyle>() {
-    override fun write(out: JsonWriter, value: JoinStyle) {
-        out.value(value.getJsonValue())
-    }
-
-    override fun read(reader: JsonReader): JoinStyle {
-        val jsonValue = reader.nextString()
-        return JoinStyle.values().first { it.getJsonValue() == jsonValue }
-    }
-}
-
-fun JoinStyle.getJsonValue(): String {
-    return when (this) {
-        JoinStyle.miter -> "miter"
-        JoinStyle.round -> "round"
-        JoinStyle.bevel -> "bevel"
     }
 }
 
