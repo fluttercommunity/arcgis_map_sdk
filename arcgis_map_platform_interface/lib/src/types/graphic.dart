@@ -112,7 +112,6 @@ class PolylineGraphic extends Graphic {
     this.onHover,
   });
 
-  //TODO: update docs
   /// Each list of LatLongs creates a polyline
   ///
   /// An array of paths, or line segments, that make up the polyline.
