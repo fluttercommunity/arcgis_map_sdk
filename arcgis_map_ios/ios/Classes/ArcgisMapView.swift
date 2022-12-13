@@ -204,9 +204,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView.interactionOptions.isZoomEnabled = enabled
         mapView.interactionOptions.isPanEnabled = enabled
         mapView.interactionOptions.isFlickEnabled = enabled
-        mapView.interactionOptions.isMagnifierEnabled = enabled
         mapView.interactionOptions.isRotateEnabled = enabled
         mapView.interactionOptions.isEnabled = enabled
+        // don't set "isMagnifierEnabled" since we don't want to use this feature
     }
 
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {

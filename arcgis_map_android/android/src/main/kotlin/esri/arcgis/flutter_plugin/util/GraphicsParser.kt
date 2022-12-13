@@ -4,11 +4,7 @@ import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.mapping.view.Graphic
-import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
-import com.esri.arcgisruntime.symbology.Symbol
+import com.esri.arcgisruntime.symbology.*
 import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.symbol.PictureMarkerSymbolPayload
 import esri.arcgis.flutter_plugin.model.symbol.SimpleFillSymbolPayload
@@ -55,11 +51,25 @@ class GraphicsParser {
         }
 
         private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
-            return listOf()
+            val points = parseToClass<List<List<LatLng>>>(map["paths"]!!)
+
+            return points.map { subPoints ->
+                Graphic().apply {
+                    geometry = Polyline(PointCollection(subPoints.map { it.toAGSPoint() }))
+                    symbol = parseSymbol(map)
+                }
+            }
         }
 
         private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
-            return listOf()
+            val rings = parseToClass<List<List<LatLng>>>(map["rings"]!!)
+
+            return rings.map { points ->
+                Graphic().apply {
+                    geometry = Polygon(PointCollection(points.map { it.toAGSPoint() }))
+                    symbol = parseSymbol(map)
+                }
+            }
         }
 
         private fun parseSymbol(map: Map<String, Any>): Symbol {
@@ -119,8 +129,11 @@ class GraphicsParser {
 
             return SimpleLineSymbol().apply {
                 if (payload.color != null) color = payload.color.toHexInt()
-                markerStyle = payload.marker?.style
-                markerPlacement = payload.marker?.placement
+                payload.marker?.let {
+                    markerStyle = it.style
+                    markerPlacement = it.placement
+                }
+
                 style = payload.style
                 width = payload.width.toFloat()
             }

@@ -25,15 +25,16 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
 
+
 /**
  * The PlatformView that displays an ArcGis MapView.
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-    context: Context,
-    private val viewId: Int,
-    private val binaryMessenger: BinaryMessenger,
-    private val mapOptions: ArcgisMapOptions,
+        context: Context,
+        private val viewId: Int,
+        private val binaryMessenger: BinaryMessenger,
+        private val mapOptions: ArcgisMapOptions,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -43,8 +44,7 @@ internal class ArcgisMapView(
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
 
-    private val methodChannel =
-        MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
+    private val methodChannel = MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
 
     override fun getView(): View = view
 
@@ -72,8 +72,8 @@ internal class ArcgisMapView(
         }
 
         val viewPoint = Viewpoint(
-            mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
-            getMapScale(mapOptions.zoom.roundToInt()),
+                mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
+                getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
 
@@ -96,6 +96,7 @@ internal class ArcgisMapView(
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
                 "add_graphic" -> onAddGraphic(call = call, result = result)
+                "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -105,7 +106,7 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
 
         EventChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId/zoom")
-            .setStreamHandler(zoomStreamHandler)
+                .setStreamHandler(zoomStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
@@ -151,10 +152,10 @@ internal class ArcgisMapView(
 
         // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
         mapView.setViewInsets(
-            viewPadding.left,
-            viewPadding.top,
-            viewPadding.right,
-            viewPadding.bottom
+                viewPadding.left,
+                viewPadding.top,
+                viewPadding.right,
+                viewPadding.bottom
         )
 
         result.success(true)
@@ -173,12 +174,25 @@ internal class ArcgisMapView(
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
         defaultGraphicsOverlay.graphics.addAll(newGraphic)
+        result.success(true)
+    }
+
+    private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
+        val graphicId = call.arguments as String
+
+
+        val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
+            val id = graphic.attributes["id"] as? String
+            graphicId == id
+        }
+
+        // Don't use removeAll because this will not trigger a redraw.
+        graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
 
         result.success(true)
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
-
         val arguments = call.arguments as Map<String, Any>
         val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
 
@@ -187,8 +201,8 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-            if (animationOptionMap == null || animationOptionMap.isEmpty()) null
-            else animationOptionMap.parseToClass<AnimationOptions>()
+                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+                else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -198,9 +212,9 @@ internal class ArcgisMapView(
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         val future = mapView.setViewpointAsync(
-            initialViewPort,
-            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+                initialViewPort,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
         )
 
         future.addDoneListener {
@@ -231,9 +245,9 @@ internal class ArcgisMapView(
 
     private fun setMapInteraction(enabled: Boolean) {
         mapView.interactionOptions.apply {
+            // don't set "isMagnifierEnabled" since we don't want to use this feature
             isPanEnabled = enabled
             isFlickEnabled = enabled
-            isMagnifierEnabled = enabled
             isRotateEnabled = enabled
             isZoomEnabled = enabled
             isEnabled = enabled

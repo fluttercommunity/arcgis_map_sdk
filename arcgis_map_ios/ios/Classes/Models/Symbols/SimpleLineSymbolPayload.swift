@@ -10,7 +10,7 @@ struct SimpleLineSymbolPayload: Codable {
     let color: MapColor
     //let declaredClass: String
     //let join: String
-    let marker: LineSymbolMarkerPayload
+    let marker: LineSymbolMarkerPayload?
     let style: PolylineStyle
     let width: Double
 }

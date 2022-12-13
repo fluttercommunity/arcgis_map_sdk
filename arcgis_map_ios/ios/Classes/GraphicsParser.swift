@@ -136,8 +136,11 @@ class GraphicsParser {
         let symbol = AGSSimpleLineSymbol()
 
         symbol.color = payload.color.toUIColor()
-        symbol.markerStyle = payload.marker.style.toAGSStyle()
-        symbol.markerPlacement = payload.marker.placement.toAGSStyle()
+        if let marker = payload.marker {
+            symbol.markerStyle = marker.style.toAGSStyle()
+            symbol.markerPlacement = marker.placement.toAGSStyle()
+        }
+
         symbol.style = payload.style.toAGSStyle()
         symbol.width = payload.width
 

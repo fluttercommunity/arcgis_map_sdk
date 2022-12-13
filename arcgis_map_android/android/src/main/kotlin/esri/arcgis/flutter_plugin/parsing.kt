@@ -14,18 +14,23 @@ import esri.arcgis.flutter_plugin.model.symbol.JoinStyle
 
 val gson: Gson by lazy {
     GsonBuilder()
-        .registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
-        .registerTypeAdapter(AnimationCurveAdapter::class.java, AnimationCurveAdapter())
-        .registerTypeAdapter(CapStyleAdapter::class.java, CapStyleAdapter())
-        .registerTypeAdapter(MarkerPlacementAdapter::class.java, MarkerPlacementAdapter())
-        .registerTypeAdapter(JoinStyleAdapter::class.java, JoinStyleAdapter())
-        .registerTypeAdapter(MarkerStyleAdapter::class.java, MarkerStyleAdapter())
-        .registerTypeAdapter(PolylineStyleAdapter::class.java, PolylineStyleAdapter())
+        .registerTypeAdapter(BasemapStyleAdapter())
+        .registerTypeAdapter(AnimationCurveAdapter())
+        .registerTypeAdapter(CapStyleAdapter())
+        .registerTypeAdapter(MarkerPlacementAdapter())
+        .registerTypeAdapter(JoinStyleAdapter())
+        .registerTypeAdapter(MarkerStyleAdapter())
+        .registerTypeAdapter(PolylineStyleAdapter())
         .create()
 }
 
-inline fun <reified O> Map<String, Any>.parseToClass(): O {
-    val json = gson.toJson(this)
+private inline fun <reified T> GsonBuilder.registerTypeAdapter(typeAdapter: TypeAdapter<T>) =
+    registerTypeAdapter(T::class.java, typeAdapter)
+
+inline fun <reified O> Map<String, Any>.parseToClass(): O = parseToClass(this)
+
+inline fun <reified O> parseToClass(payload: Any): O {
+    val json = gson.toJson(payload)
     return gson.fromJson(json, object : TypeToken<O>() {}.type)
 }
 
