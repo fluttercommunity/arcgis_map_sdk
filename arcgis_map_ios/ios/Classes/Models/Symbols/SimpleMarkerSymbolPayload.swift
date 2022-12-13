@@ -4,5 +4,9 @@
 
 import Foundation
 
-class SimpleMarkerSymbolPayload {
+struct SimpleMarkerSymbolPayload: Codable {
+    var color: MapColor
+    var size: Double
+    var outlineColor: MapColor
+    var outlineWidth: Double
 }
