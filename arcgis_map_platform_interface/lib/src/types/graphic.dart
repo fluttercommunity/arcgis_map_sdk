@@ -45,7 +45,7 @@ class PointGraphic extends Graphic {
   final ArcGisMapAttributes attributes;
   final double latitude;
   final double longitude;
-  final Symbol symbol; //TODO: Only allow SimpleMarkerSymbol?
+  final Symbol symbol;
 
   @override
   final void Function()? onEnter;
