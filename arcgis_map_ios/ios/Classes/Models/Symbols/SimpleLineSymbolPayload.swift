@@ -6,18 +6,14 @@ import Foundation
 import ArcGIS
 
 struct SimpleLineSymbolPayload: Codable {
-    //let cap: String
-    let color: MapColor
-    //let declaredClass: String
-    //let join: String
+    let color: MapColor?
     let marker: LineSymbolMarkerPayload?
     let style: PolylineStyle
     let width: Double
 }
 
 struct LineSymbolMarkerPayload: Codable {
-    //let color: MapColor
-    //let declaredClass: String
+    let color: MapColor
     let placement: MarkerPlacement
     let style: MarkerStyle
 }

@@ -134,8 +134,10 @@ class GraphicsParser {
     private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
         let payload: SimpleLineSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
         let symbol = AGSSimpleLineSymbol()
-
-        symbol.color = payload.color.toUIColor()
+        
+        if let color = payload.color {
+            symbol.color = color.toUIColor()
+        }
         if let marker = payload.marker {
             symbol.markerStyle = marker.style.toAGSStyle()
             symbol.markerPlacement = marker.placement.toAGSStyle()
