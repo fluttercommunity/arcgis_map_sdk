@@ -4,8 +4,6 @@
 
 import Foundation
 
-//TODO move to own folder
-
 struct PictureMarkerSymbolPayload: Codable {
     let url: String
     let width: Double
