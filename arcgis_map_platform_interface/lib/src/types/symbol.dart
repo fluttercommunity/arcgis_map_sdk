@@ -115,15 +115,18 @@ class SimpleLineSymbol extends Symbol {
   });
 
   /// Specifies the cap style.
+  /// Only supported on web.
   final CapStyle cap;
 
   /// The color of the symbol.
   final Color? color;
 
   /// The name of the class.
+  /// Only supported on web.
   final String? declaredClass;
 
   /// Specifies the join style.
+  /// Only supported on web.
   final JoinStyle join;
 
   final LineSymbolMarker? marker;
@@ -156,6 +159,7 @@ class LineSymbolMarker {
   final Color? color;
 
   /// The name of the class.
+  /// Only supported on web.
   final String? declaredClass;
 
   /// The placement of the marker(s) on the line.
