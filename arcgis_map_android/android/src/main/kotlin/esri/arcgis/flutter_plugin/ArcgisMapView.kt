@@ -239,8 +239,13 @@ internal class ArcgisMapView(
         return result.roundToInt()
     }
 
-    // Workaround for the following issue:
-    // TODO(Julian): Add link
+    /**
+     * Adding a new graphic to the map will not trigger a redraw.
+     * To be more specific [MapView.graphicsOverlays.add] does not refresh the map until the user moves the viewpoint.
+     * This method will trigger a redraw by setting the same viewpoint again.
+     * The corresponding issue in the esri forum can be found here:
+     * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
+     */
     private fun updateMap() {
         mapView.setViewpointScaleAsync(getMapScale(getZoomLevel(mapView)))
     }
