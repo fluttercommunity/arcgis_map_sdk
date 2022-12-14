@@ -64,7 +64,9 @@ class SimpleMarkerSymbol extends Symbol {
 /// A picture marker on the map
 ///
 /// Add a [uri] of an image to display it as a marker in the whole feature layer
-/// It can be a url or a local path, in which the image is stored locally
+/// On Web this can be a url or a local path in which the image is stored locally
+/// and on mobile it can only be a remote url.
+///
 /// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
 ///
 /// [xOffset] The offset on the x-axis in pixels
@@ -217,6 +219,8 @@ extension MarkerPlacementExt on MarkerPlacement {
   String get value => values[this]!;
 }
 
+/// Mobile only supports arrow and none and will fallback to none when
+/// unsupported styles are used.
 enum MarkerStyle {
   arrow,
   circle,

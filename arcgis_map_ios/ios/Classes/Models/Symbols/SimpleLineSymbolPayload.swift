@@ -84,6 +84,10 @@ enum MarkerStyle: String, Codable {
     case arrow
     case none
 
+    public init(from decoder: Decoder) throws {
+        self = try MarkerStyle(rawValue: decoder.singleValueContainer().decode(RawValue.self)) ?? .none
+    }
+
     func toAGSStyle() -> AGSSimpleLineSymbolMarkerStyle {
         switch (self) {
         case .arrow:
