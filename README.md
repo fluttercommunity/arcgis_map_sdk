@@ -8,19 +8,19 @@ In your app's pubspec.yaml dependencies, add:
 ```
   arcgis_map:
     git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map
-      ref: v0.6.19
+      ref: main
   arcgis_map_platform_interface:
     git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: v0.6.19
+      ref: main
   arcgis_map_web:
     git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_web
-      ref: v0.6.19
+      ref: main
 ```
 
 Import the package in your dart file

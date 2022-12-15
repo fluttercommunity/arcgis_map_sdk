@@ -1,6 +1,6 @@
 name: arcgis_map_method_channel
 description: Esri ArcGIS Flutter method channel implementation.
-version: 0.6.19
+version: 0.9.0
 
 publish_to: none
 
@@ -10,9 +10,9 @@ environment:
 dependencies:
   arcgis_map_platform_interface:
     git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: v0.6.19
+      ref: main
 
   flutter:
     sdk: flutter
