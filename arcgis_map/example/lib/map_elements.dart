@@ -101,7 +101,9 @@ const simpleMarkerSymbol = SimpleMarkerSymbol(
 );
 
 const pictureMarkerSymbol = PictureMarkerSymbol(
-  uri: 'web/icons/Icon-192.png',
+  webUri: 'web/icons/Icon-192.png',
+  mobileUri:
+      "https://github.com/google/material-design-icons/raw/6ebe181c634f9ced978b526e13db6d7d5cb1c1ba/ios/content/flag/materialiconstwotone/black/twotone_flag_black_48pt.xcassets/twotone_flag_black_48pt.imageset/twotone_flag_black_48pt_3x.png",
   width: 32,
   height: 32,
 );

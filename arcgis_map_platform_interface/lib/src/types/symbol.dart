@@ -63,24 +63,25 @@ class SimpleMarkerSymbol extends Symbol {
 
 /// A picture marker on the map
 ///
-/// Add a [uri] of an image to display it as a marker in the whole feature layer
-/// On Web this can be a url or a local path in which the image is stored locally
-/// and on mobile it can only be a remote url.
-///
-/// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
-///
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
 class PictureMarkerSymbol extends Symbol {
   const PictureMarkerSymbol({
-    required this.uri,
+    required this.webUri,
+    required this.mobileUri,
     required this.width,
     required this.height,
     this.xOffset = 0,
     this.yOffset = 0,
   });
 
-  final String uri;
+  /// Add a [webUri] of an image to display it as a marker in the whole feature layer
+  /// This can be a url or a local path in which the image is stored locally.
+  /// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
+  final String webUri;
+
+  /// This uri refers to a remote image url only.
+  final String mobileUri;
   final double width;
   final double height;
   final int xOffset;

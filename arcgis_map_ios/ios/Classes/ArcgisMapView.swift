@@ -172,11 +172,31 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
-        let newGraphic = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        let newGraphics = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        
+        let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
+            let graphic = object as! AGSGraphic
+            return graphic.attributes["id"] as? String
+        }
+        
+        let hasExistingGraphics = newGraphics.contains(where: { object in
+            let graphic = object as! AGSGraphic
+            guard let id = graphic.attributes["id"] as? String else {
+                return false
+            }
+            
+            return existingIds.contains(id)
+        })
+        
+        if(hasExistingGraphics) {
+            result(false)
+            return
+        }
+        
         // addObjects causes an internal exceptions this is why we add
         // them in this for loop instead.
         // ArcGis is the best <3.
-        newGraphic.forEach {
+        newGraphics.forEach {
             defaultGraphicsOverlay.graphics.add($0)
         }
         result(true)

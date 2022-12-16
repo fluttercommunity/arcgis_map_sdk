@@ -634,7 +634,9 @@ class _ExampleMapState extends State<ExampleMap> {
 
   /// Marker for searched address
   final _markerSymbol = const PictureMarkerSymbol(
-    uri: 'assets/pin_filled.svg',
+    webUri: 'assets/pin_filled.svg',
+    mobileUri:
+        "https://github.com/google/material-design-icons/raw/6ebe181c634f9ced978b526e13db6d7d5cb1c1ba/ios/content/flag/materialiconstwotone/black/twotone_flag_black_48pt.xcassets/twotone_flag_black_48pt.imageset/twotone_flag_black_48pt_3x.png",
     width: 56,
     height: 56,
   );

@@ -173,6 +173,15 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         val newGraphic = GraphicsParser.parse(graphicArguments)
 
+        val existingIds =
+            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+        val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
+
+        if (existingIds.any(newIds::contains)) {
+            result.success(false)
+            return
+        }
+
         defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
         updateMap()
@@ -247,7 +256,7 @@ internal class ArcgisMapView(
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
     private fun updateMap() {
-        mapView.setViewpointScaleAsync(getMapScale(getZoomLevel(mapView)))
+        mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 
     /**

@@ -114,7 +114,7 @@ extension on SimpleMarkerSymbol {
 extension on PictureMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'picture-marker',
-        'url': uri,
+        'url': mobileUri,
         'width': width,
         'height': height,
         'xOffset': xOffset,
