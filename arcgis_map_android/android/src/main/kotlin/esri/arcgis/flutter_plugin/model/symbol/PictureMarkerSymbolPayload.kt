@@ -1,7 +1,7 @@
 package esri.arcgis.flutter_plugin.model.symbol
 
 data class PictureMarkerSymbolPayload(
-    val uri: String,
+    val url: String,
     val width: Double,
     val height: Double,
     val xOffset: Int,

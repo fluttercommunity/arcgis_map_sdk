@@ -103,7 +103,7 @@ class GraphicsParser {
         private fun parsePictureMarkerSymbol(map: Map<String, Any>): Symbol {
             val payload = map.parseToClass<PictureMarkerSymbolPayload>()
 
-            return PictureMarkerSymbol(payload.uri).apply {
+            return PictureMarkerSymbol(payload.url).apply {
                 width = payload.width.toFloat()
                 height = payload.height.toFloat()
                 offsetX = payload.xOffset.toFloat()
