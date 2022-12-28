@@ -55,19 +55,18 @@ extension GraphicToJsonExtension on Graphic {
 
 extension on PointGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
+        'type': 'point',
         'attributes': attributes.toMap(),
-        'latitude': latitude,
-        'longitude': longitude,
-        'symbol': symbol,
+        'point': LatLng(latitude, longitude).toMap(),
+        'symbol': symbol.toJson(),
       };
 }
 
 extension on PolygonGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'polygon',
-        'rings': rings.map(
-          (list) => list.map((e) => e.toMap()).toList(),
-        ),
+        'rings':
+            rings.map((list) => list.map((e) => e.toMap()).toList()).toList(),
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),
       };
@@ -76,9 +75,8 @@ extension on PolygonGraphic {
 extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'polyline',
-        'paths': paths.map(
-          (list) => list.map((e) => e.toMap()).toList(),
-        ),
+        'paths':
+            paths.map((path) => path.map((e) => e.toMap()).toList()).toList(),
         'symbol': symbol.toJson(),
         'attributes': attributes.toMap(),
       };
@@ -107,7 +105,7 @@ extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
         'color': _colorToJson(color),
-        'size': radius,
+        'size': size,
         'outlineColor': _colorToJson(outlineColor),
         'outlineWidth': outlineWidth,
       };
@@ -116,7 +114,7 @@ extension on SimpleMarkerSymbol {
 extension on PictureMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'picture-marker',
-        'url': uri,
+        'url': mobileUri,
         'width': width,
         'height': height,
         'xOffset': xOffset,
@@ -149,7 +147,6 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'type': 'line-marker',
         'color': _colorToJson(color),
         'declaredClass': declaredClass,
         'placement': placement.name,

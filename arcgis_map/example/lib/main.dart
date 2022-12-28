@@ -62,6 +62,8 @@ class _ExampleMapState extends State<ExampleMap> {
   var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
+  final initialCenter = LatLng(51.16, 10.45);
+  final tappedHQ = LatLng(48.1234963, 11.5910182);
 
   @override
   void dispose() {
@@ -76,32 +78,71 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
-    // TODO: Remove when mobile implementation is complete
-    if (!kIsWeb) {
-      return;
-    }
-    _controller?.onClick(
-      onPressed: (ArcGisMapAttributes? attributes) {
-        if (attributes == null) return;
-        final snackBar = SnackBar(
-          content: Text('Attributes Name after on Click: ${attributes.name}'),
-        );
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
-      },
+    _controller?.addGraphic(
+      const PointGraphic(
+        attributes: ArcGisMapAttributes(
+          id: 'point1',
+          name: 'Point 1',
+        ),
+        latitude: 48.1234963,
+        longitude: 11.5910182,
+        symbol: SimpleMarkerSymbol(
+          color: Colors.blue,
+          outlineColor: Colors.lightBlueAccent,
+          outlineWidth: 4,
+          size: 8,
+        ),
+      ),
     );
 
-    _attributionTextSubscription =
-        _controller?.attributionText().listen((attribution) {
-      setState(() {
-        _attributionText = attribution;
-      });
-    });
+    _controller?.addGraphic(
+      PolylineGraphic(
+        attributes: const ArcGisMapAttributes(
+          id: 'point2',
+          name: 'Point 2',
+        ),
+        symbol: const SimpleLineSymbol(
+          color: Colors.red,
+          width: 4,
+          style: PolylineStyle.dash,
+          miterLimit: 2,
+          join: JoinStyle.bevel,
+          marker: LineSymbolMarker(
+            color: Colors.green,
+            placement: MarkerPlacement.end,
+          ),
+        ),
+        paths: [
+          [initialCenter, tappedHQ]
+        ],
+      ),
+    );
 
-    await _createFeatureLayer();
-    _addPolygon(
-      graphic: PolygonGraphic(
+    // TODO: Remove when mobile implementation is complete
+    if (kIsWeb) {
+      _controller?.onClick(
+        onPressed: (ArcGisMapAttributes? attributes) {
+          if (attributes == null) return;
+          final snackBar = SnackBar(
+            content: Text('Attributes Name after on Click: ${attributes.name}'),
+          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
+        },
+      );
+
+      _attributionTextSubscription =
+          _controller?.attributionText().listen((attribution) {
+        setState(() {
+          _attributionText = attribution;
+        });
+      });
+      await _createFeatureLayer();
+    }
+
+    _controller?.addGraphic(
+      PolygonGraphic(
         rings: firstPolygon,
         symbol: orangeFillSymbol,
         attributes:
@@ -124,16 +165,13 @@ class _ExampleMapState extends State<ExampleMap> {
     );
   }
 
-  void _addPolygon({required PolygonGraphic graphic}) {
-    _controller?.addGraphic(graphic);
-  }
-
   void _removePolygon({required String id}) {
     _controller?.removeGraphic(id);
   }
 
   Future<FeatureLayer?> _createFeatureLayer() async {
     final List<Graphic> graphics = [pointGraphic];
+
     final layer = await _controller?.addFeatureLayer(
       layerId: '1010',
       data: graphics,
@@ -264,7 +302,6 @@ class _ExampleMapState extends State<ExampleMap> {
           width: 3,
           marker: LineSymbolMarker(
             color: Colors.green,
-            colorOpacity: 1,
             style: MarkerStyle.circle,
           ),
         ),
@@ -310,7 +347,7 @@ class _ExampleMapState extends State<ExampleMap> {
             apiKey: arcGisApiKey,
             basemap:
                 _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
-            initialCenter: LatLng(51.16, 10.45),
+            initialCenter: initialCenter,
             zoom: 4,
             hideDefaultZoomButtons: true,
             hideAttribution: true,
@@ -343,7 +380,7 @@ class _ExampleMapState extends State<ExampleMap> {
               heroTag: "move-camera-button",
               onPressed: () {
                 _controller?.moveCamera(
-                  point: LatLng(48.1234963, 11.5910182),
+                  point: tappedHQ,
                   zoomLevel: 15,
                   animationOptions: AnimationOptions(
                     duration: 1500,
@@ -542,8 +579,8 @@ class _ExampleMapState extends State<ExampleMap> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _addPolygon(
-                      graphic: PolygonGraphic(
+                    _controller?.addGraphic(
+                      PolygonGraphic(
                         rings: secondPolygon,
                         symbol: redFillSymbol,
                         attributes: const ArcGisMapAttributes(
@@ -597,7 +634,9 @@ class _ExampleMapState extends State<ExampleMap> {
 
   /// Marker for searched address
   final _markerSymbol = const PictureMarkerSymbol(
-    uri: 'assets/pin_filled.svg',
+    webUri: 'assets/pin_filled.svg',
+    mobileUri:
+        "https://github.com/google/material-design-icons/raw/6ebe181c634f9ced978b526e13db6d7d5cb1c1ba/ios/content/flag/materialiconstwotone/black/twotone_flag_black_48pt.xcassets/twotone_flag_black_48pt.imageset/twotone_flag_black_48pt_3x.png",
     width: 56,
     height: 56,
   );

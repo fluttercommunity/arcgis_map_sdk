@@ -9,11 +9,13 @@ import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import esri.arcgis.flutter_plugin.model.LatLng
 import esri.arcgis.flutter_plugin.model.ViewPadding
+import esri.arcgis.flutter_plugin.util.GraphicsParser
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -22,6 +24,7 @@ import io.flutter.plugin.platform.PlatformView
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
+
 
 /**
  * The PlatformView that displays an ArcGis MapView.
@@ -37,11 +40,11 @@ internal class ArcgisMapView(
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
+    private val defaultGraphicsOverlay = GraphicsOverlay()
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
 
-    private val methodChannel =
-        MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
+    private val methodChannel = MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
 
     override fun getView(): View = view
 
@@ -60,6 +63,7 @@ internal class ArcgisMapView(
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
+        mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
         mapView.addMapScaleChangedListener {
             val zoomLevel = getZoomLevel(mapView)
@@ -91,6 +95,8 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
+                "add_graphic" -> onAddGraphic(call = call, result = result)
+                "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -163,8 +169,43 @@ internal class ArcgisMapView(
         result.success(true)
     }
 
-    private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
+    private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
+        val graphicArguments = call.arguments as Map<String, Any>
+        val newGraphic = GraphicsParser.parse(graphicArguments)
 
+        val existingIds =
+            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+        val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
+
+        if (existingIds.any(newIds::contains)) {
+            result.success(false)
+            return
+        }
+
+        defaultGraphicsOverlay.graphics.addAll(newGraphic)
+
+        updateMap()
+
+        result.success(true)
+    }
+
+    private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
+        val graphicId = call.arguments as String
+
+
+        val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
+            val id = graphic.attributes["id"] as? String
+            graphicId == id
+        }
+
+        // Don't use removeAll because this will not trigger a redraw.
+        graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
+
+        updateMap()
+        result.success(true)
+    }
+
+    private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
         val arguments = call.arguments as Map<String, Any>
         val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
 
@@ -208,6 +249,17 @@ internal class ArcgisMapView(
     }
 
     /**
+     * Adding a new graphic to the map will not trigger a redraw.
+     * To be more specific [MapView.graphicsOverlays.add] does not refresh the map until the user moves the viewpoint.
+     * This method will trigger a redraw by setting the same viewpoint again.
+     * The corresponding issue in the esri forum can be found here:
+     * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
+     */
+    private fun updateMap() {
+        mapView.setViewpointScaleAsync(mapView.mapScale)
+    }
+
+    /**
      *  Convert zoom level to map scale
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
@@ -217,9 +269,9 @@ internal class ArcgisMapView(
 
     private fun setMapInteraction(enabled: Boolean) {
         mapView.interactionOptions.apply {
+            // don't set "isMagnifierEnabled" since we don't want to use this feature
             isPanEnabled = enabled
             isFlickEnabled = enabled
-            isMagnifierEnabled = enabled
             isRotateEnabled = enabled
             isZoomEnabled = enabled
             isEnabled = enabled

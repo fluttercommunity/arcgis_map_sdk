@@ -82,7 +82,7 @@ extension on PolylineGraphic {
         'geometry': <String, dynamic>{
           'type': 'polyline',
           'paths': paths.map(
-            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
+            (path) => path.map((e) => [e.longitude, e.latitude]).toList(),
           ),
         },
         'symbol': symbol.toJson(),
@@ -138,14 +138,14 @@ extension SymbolToJsonExtension on Symbol {
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
-        'size': radius,
+        'color': [color.red, color.green, color.blue, color.opacity],
+        'size': size,
         'outline': <String, dynamic>{
           'color': [
             outlineColor.red,
             outlineColor.green,
             outlineColor.blue,
-            outlineColorOpacity
+            outlineColor.opacity
           ],
           'width': outlineWidth,
         },
@@ -155,7 +155,7 @@ extension on SimpleMarkerSymbol {
 extension on PictureMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'picture-marker',
-        'url': uri,
+        'url': webUri,
         'width': '${width}px',
         'height': '${height}px',
         'xoffset': '${xOffset}px',
@@ -166,7 +166,12 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
+        'color': [
+          fillColor.red,
+          fillColor.green,
+          fillColor.blue,
+          fillColor.opacity
+        ],
         'outline': {
           'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
           'width': outlineWidth
@@ -177,7 +182,7 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red, color?.green, color?.blue, color?.opacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
@@ -191,7 +196,7 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red, color?.green, color?.blue, color?.opacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,

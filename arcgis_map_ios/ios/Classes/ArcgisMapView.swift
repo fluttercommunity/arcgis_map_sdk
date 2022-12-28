@@ -2,51 +2,54 @@ import ArcGIS
 import Foundation
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
+
+    private let defaultGraphicsOverlay = AGSGraphicsOverlay()
+
     private let methodChannel: FlutterMethodChannel
     private let zoomEventChannel: FlutterEventChannel
     private let zoomStreamHandler = ZoomStreamHandler()
-    
+
     private var mapScaleObservation: NSKeyValueObservation?
-    
+
     private var mapView: AGSMapView
     private let map = AGSMap()
     private let graphicsOverlay = AGSGraphicsOverlay()
     private let userIndicatorGraphic = AGSGraphic()
     private let pinGraphic = AGSGraphic()
     private let routeLineGraphic = AGSGraphic()
-    
+
     private var routeLineGraphics = [AGSGraphic]()
-    
+
     private var routePoints = Array<AGSPoint>()
 
-    
+
     private static let defaultDuration = 0.8
-    
+
     func view() -> UIView {
         return mapView
     }
-    
+
     init(
-        frame: CGRect,
-        viewIdentifier viewId: Int64,
-        mapOptions: ArcgisMapOptions,
-        binaryMessenger messenger: FlutterBinaryMessenger
+            frame: CGRect,
+            viewIdentifier viewId: Int64,
+            mapOptions: ArcgisMapOptions,
+            binaryMessenger messenger: FlutterBinaryMessenger
     ) {
         methodChannel = FlutterMethodChannel(
-            name: "esri.arcgis.flutter_plugin/\(viewId)",
-            binaryMessenger: messenger
+                name: "esri.arcgis.flutter_plugin/\(viewId)",
+                binaryMessenger: messenger
         )
         zoomEventChannel = FlutterEventChannel(
-            name: "esri.arcgis.flutter_plugin/\(viewId)/zoom",
-            binaryMessenger: messenger
+                name: "esri.arcgis.flutter_plugin/\(viewId)/zoom",
+                binaryMessenger: messenger
         )
         zoomEventChannel.setStreamHandler(zoomStreamHandler)
-        
+
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
-        
+
         super.init()
-        
+
         if mapOptions.basemap != nil {
             map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
         } else {
@@ -55,59 +58,64 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
         }
-        
+
         map.minScale = getMapScale(mapOptions.minZoom)
         map.maxScale = getMapScale(mapOptions.maxZoom)
-        
+
         mapView.map = map
+        mapView.graphicsOverlays.add(defaultGraphicsOverlay)
+
         mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
             DispatchQueue.main.async {
-                guard let self = self else { return }
+                guard let self = self else {
+                    return
+                }
                 let newZoom = self.getZoomLevel(self.mapView.mapScale)
                 self.zoomStreamHandler.addZoom(zoom: newZoom)
             }
         }
-        
-        
+
+
         let viewport = AGSViewpoint(
-            latitude: mapOptions.initialCenter.latitude,
-            longitude: mapOptions.initialCenter.longitude,
-            // TODO(tapped): we might not be able to have zoom and scale under the same api
-            // for now we just multiply it by 1000 to have a similar effect
-            scale: mapOptions.zoom * 1000
+                latitude: mapOptions.initialCenter.latitude,
+                longitude: mapOptions.initialCenter.longitude,
+                scale: getMapScale(Int(mapOptions.zoom))
         )
-        mapView.setViewpoint(viewport, duration: 0) { _ in }
-        
+        mapView.setViewpoint(viewport, duration: 0) { _ in
+        }
+
         /*
         map.maxExtent = AGSEnvelope(
             min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
             max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
         )
         */
-        
+
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
     }
-    
+
     private func setupMethodChannel() {
-        methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in            
-            switch(call.method) {
+        methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            switch (call.method) {
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "add_graphic": onAddGraphic(call, result)
+            case "remove_graphic": onRemoveGraphic(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
         })
     }
-    
+
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
-        if(totalZoomLevel > getZoomLevel(map.maxScale)) {
+        if (totalZoomLevel > getZoomLevel(map.maxScale)) {
             return
         }
         let newScale = getMapScale(totalZoomLevel)
@@ -115,12 +123,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(true)
         }
     }
-    
+
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel - lodFactor
-        if(totalZoomLevel < getZoomLevel(map.minScale)) {
+        if (totalZoomLevel < getZoomLevel(map.minScale)) {
             return
         }
         let newScale = getMapScale(totalZoomLevel)
@@ -128,62 +136,108 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(success)
         }
     }
-    
+
     private func onAddViewPadding(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let dict = call.arguments as! Dictionary<String, Any>
         let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
-        
+
         mapView.contentInset = UIEdgeInsets(
-            top: padding.top,
-            left: padding.left,
-            bottom: padding.bottom,
-            right: padding.right
+                top: padding.top,
+                left: padding.left,
+                bottom: padding.bottom,
+                right: padding.right
         )
-        
+
         result(true)
     }
-    
+
     private func onMoveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let dict = call.arguments as! Dictionary<String, Any>
         let point: LatLng = try! JsonUtil.objectOfJson(dict["point"] as! Dictionary<String, Any>)
         let zoomLevel = dict["zoomLevel"] as? Int
-        
+
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
-        
+
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
-        
+
         mapView.setViewpoint(
-            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-            duration: (animationOptions?.duration ?? 0) / 1000,
-            curve: animationOptions?.arcgisAnimationCurve() ?? .linear
+                AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+                duration: (animationOptions?.duration ?? 0) / 1000,
+                curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { success in
             result(success)
         }
     }
-    
+
+    private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let parser = GraphicsParser()
+        let newGraphics = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        
+        let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
+            let graphic = object as! AGSGraphic
+            return graphic.attributes["id"] as? String
+        }
+        
+        let hasExistingGraphics = newGraphics.contains(where: { object in
+            let graphic = object as! AGSGraphic
+            guard let id = graphic.attributes["id"] as? String else {
+                return false
+            }
+            
+            return existingIds.contains(id)
+        })
+        
+        if(hasExistingGraphics) {
+            result(false)
+            return
+        }
+        
+        // addObjects causes an internal exceptions this is why we add
+        // them in this for loop instead.
+        // ArcGis is the best <3.
+        newGraphics.forEach {
+            defaultGraphicsOverlay.graphics.add($0)
+        }
+        result(true)
+    }
+
+    private func onRemoveGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let graphicId = call.arguments as! String
+        let newGraphics = defaultGraphicsOverlay.graphics.filter({ element in
+            let graphic = element as! AGSGraphic
+            let id = graphic.attributes["id"] as? String
+            return id != graphicId
+        })
+
+        defaultGraphicsOverlay.graphics.removeAllObjects()
+        defaultGraphicsOverlay.graphics.addObjects(from: newGraphics)
+        
+        result(true)
+    }
+
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
-        
+
         setMapInteractive(enabled)
         result(true)
     }
-    
+
     private func setMapInteractive(_ enabled: Bool) {
         mapView.interactionOptions.isZoomEnabled = enabled
         mapView.interactionOptions.isPanEnabled = enabled
         mapView.interactionOptions.isFlickEnabled = enabled
-        mapView.interactionOptions.isMagnifierEnabled = enabled
         mapView.interactionOptions.isRotateEnabled = enabled
         mapView.interactionOptions.isEnabled = enabled
+        // don't set "isMagnifierEnabled" since we don't want to use this feature
     }
-    
+
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
-        return AGSBasemapStyle.allCases.first { enumValue in
+        AGSBasemapStyle.allCases.first { enumValue in
             enumValue.getJsonValue() == string
         }!
     }
-    
+
     /**
      * Convert map scale to zoom level
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
@@ -198,13 +252,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
     private func getMapScale(_ zoomLevel: Int) -> Double {
-        return 591657527 * (exp(-0.693 * Double(zoomLevel)))
+        591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 }
 
 extension AGSBasemapStyle: CaseIterable {
     public static var allCases: [AGSBasemapStyle] {
-        return [
+        [
             .arcGISImagery,
             .arcGISImageryStandard,
             .arcGISImageryLabels,
