@@ -88,8 +88,8 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void toggleBaseMap(int mapId, BaseMap baseMap) {
-    return _map(mapId).toggleBaseMap(baseMap: baseMap);
+  Future<void> toggleBaseMap(int mapId, BaseMap baseMap) async {
+    _map(mapId).toggleBaseMap(baseMap: baseMap);
   }
 
   @override

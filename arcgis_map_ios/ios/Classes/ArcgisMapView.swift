@@ -105,6 +105,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "move_camera": onMoveCamera(call, result)
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
+            case "toggle_base_map" : onToggleBaseMap(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -216,6 +217,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         result(true)
     }
 
+    private func onToggleBaseMap(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let baseMapString = call.arguments as! String
+        map.basemap = AGSBasemap(style: parseBaseMapStyle(baseMapString))
+        
+        result(true)
+    }
+    
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
 

@@ -131,7 +131,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('addViewPadding() has not been implemented.');
   }
 
-  void toggleBaseMap(int mapId, BaseMap baseMap) {
+  Future<void> toggleBaseMap(int mapId, BaseMap baseMap) {
     throw UnimplementedError('toggleBaseMap() has not been implemented.');
   }
 

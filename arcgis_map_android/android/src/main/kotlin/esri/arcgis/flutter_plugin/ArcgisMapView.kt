@@ -7,10 +7,12 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
+import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
+import com.google.gson.reflect.TypeToken
 import esri.arcgis.flutter_plugin.model.AnimationOptions
 import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
 import esri.arcgis.flutter_plugin.model.LatLng
@@ -97,6 +99,7 @@ internal class ArcgisMapView(
                 "move_camera" -> onMoveCamera(call = call, result = result)
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
+                "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
                 else -> result.notImplemented()
             }
         }
@@ -237,6 +240,15 @@ internal class ArcgisMapView(
                 result.error("Error", e.message, e)
             }
         }
+    }
+
+    private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
+        val newStyle = gson.fromJson<BasemapStyle>(
+            call.arguments as String,
+            object : TypeToken<BasemapStyle>() {}.type
+        )
+        map.basemap = Basemap(newStyle)
+        result.success(true)
     }
 
     /**

@@ -124,8 +124,8 @@ class ArcgisMapController {
     ArcgisMapPlatform.instance.addViewPadding(mapId, padding);
   }
 
-  void toggleBaseMap({required BaseMap baseMap}) {
-    ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
+  Future<void> toggleBaseMap({required BaseMap baseMap}) {
+    return ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
   }
 
   void dispose() {

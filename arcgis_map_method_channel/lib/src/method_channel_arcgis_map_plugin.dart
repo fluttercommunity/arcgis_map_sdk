@@ -163,8 +163,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void toggleBaseMap(int mapId, BaseMap baseMap) {
-    throw UnimplementedError('toggleBaseMap() has not been implemented.');
+  Future<void> toggleBaseMap(int mapId, BaseMap baseMap) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("toggle_base_map", baseMap.name);
   }
 
   @override
