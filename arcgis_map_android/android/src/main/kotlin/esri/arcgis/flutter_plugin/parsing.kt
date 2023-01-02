@@ -2,6 +2,7 @@ package esri.arcgis.flutter_plugin
 
 import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
@@ -11,13 +12,21 @@ import com.google.gson.stream.JsonWriter
 
 val gson: Gson by lazy {
     GsonBuilder()
-        .registerTypeAdapter(BasemapStyle::class.java, BasemapStyleAdapter())
-        .registerTypeAdapter(AnimationCurveAdapter::class.java, AnimationCurveAdapter())
+        .registerTypeAdapter(BasemapStyleAdapter())
+        .registerTypeAdapter(AnimationCurveAdapter())
+        .registerTypeAdapter(MarkerPlacementAdapter())
+        .registerTypeAdapter(MarkerStyleAdapter())
+        .registerTypeAdapter(PolylineStyleAdapter())
         .create()
 }
 
-inline fun <reified O> Map<String, Any>.parseToClass(): O {
-    val json = gson.toJson(this)
+private inline fun <reified T> GsonBuilder.registerTypeAdapter(typeAdapter: TypeAdapter<T>) =
+    registerTypeAdapter(T::class.java, typeAdapter)
+
+inline fun <reified O> Map<String, Any>.parseToClass(): O = parseToClass(this)
+
+inline fun <reified O> parseToClass(payload: Any): O {
+    val json = gson.toJson(payload)
     return gson.fromJson(json, object : TypeToken<O>() {}.type)
 }
 
@@ -48,13 +57,81 @@ class BasemapStyleAdapter : TypeAdapter<BasemapStyle>() {
     }
 }
 
+class MarkerPlacementAdapter : TypeAdapter<SimpleLineSymbol.MarkerPlacement>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.MarkerPlacement) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): SimpleLineSymbol.MarkerPlacement {
+        val jsonValue = reader.nextString()
+        return SimpleLineSymbol.MarkerPlacement.values().first { it.getJsonValue() == jsonValue }
+    }
+}
+
+fun SimpleLineSymbol.MarkerPlacement.getJsonValue(): String {
+    return when (this) {
+        SimpleLineSymbol.MarkerPlacement.BEGIN -> "begin"
+        SimpleLineSymbol.MarkerPlacement.END -> "end"
+        SimpleLineSymbol.MarkerPlacement.BEGIN_AND_END -> "beginEnd"
+    }
+}
+
+class MarkerStyleAdapter : TypeAdapter<SimpleLineSymbol.MarkerStyle>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.MarkerStyle) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): SimpleLineSymbol.MarkerStyle {
+        val jsonValue = reader.nextString()
+        return SimpleLineSymbol.MarkerStyle.values().firstOrNull { it.getJsonValue() == jsonValue }
+            ?: SimpleLineSymbol.MarkerStyle.NONE
+    }
+}
+
+fun SimpleLineSymbol.MarkerStyle.getJsonValue(): String {
+    return when (this) {
+        SimpleLineSymbol.MarkerStyle.NONE -> "none"
+        SimpleLineSymbol.MarkerStyle.ARROW -> "arrow"
+    }
+}
+
+class PolylineStyleAdapter : TypeAdapter<SimpleLineSymbol.Style>() {
+    override fun write(out: JsonWriter, value: SimpleLineSymbol.Style) {
+        out.value(value.getJsonValue())
+    }
+
+    override fun read(reader: JsonReader): SimpleLineSymbol.Style {
+        val jsonValue = reader.nextString()
+        return SimpleLineSymbol.Style.values().firstOrNull { it.getJsonValue() == jsonValue }
+            ?: SimpleLineSymbol.Style.DASH
+    }
+}
+
+fun SimpleLineSymbol.Style.getJsonValue(): String {
+    return when (this) {
+        SimpleLineSymbol.Style.DASH -> "dash"
+        SimpleLineSymbol.Style.DASH_DOT -> "dashDot"
+        SimpleLineSymbol.Style.DOT -> "dot"
+        SimpleLineSymbol.Style.DASH_DOT_DOT -> "dashDotDot"
+        SimpleLineSymbol.Style.LONG_DASH -> "longDash"
+        SimpleLineSymbol.Style.LONG_DASH_DOT -> "longDashDot"
+        SimpleLineSymbol.Style.NULL -> "none"
+        SimpleLineSymbol.Style.SHORT_DASH -> "shortDash"
+        SimpleLineSymbol.Style.SHORT_DASH_DOT -> "shortDashDot"
+        SimpleLineSymbol.Style.SHORT_DASH_DOT_DOT -> "shortDashDotDot"
+        SimpleLineSymbol.Style.SHORT_DOT -> "shortDot"
+        SimpleLineSymbol.Style.SOLID -> "solid"
+    }
+}
+
+
 fun AnimationCurve.getJsonValue(): String {
     return when (this) {
         AnimationCurve.LINEAR -> "linear"
         AnimationCurve.EASE_IN_EXPO -> "easy"
         AnimationCurve.EASE_IN_CIRC -> "easeIn"
         AnimationCurve.EASE_OUT_CIRC -> "easeOut"
-        AnimationCurve.EASE_IN_OUT_CIRC-> "easeInOut"
+        AnimationCurve.EASE_IN_OUT_CIRC -> "easeInOut"
         else -> "linear"
     }
 }

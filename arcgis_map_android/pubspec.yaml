@@ -1,6 +1,6 @@
 name: arcgis_map_android
 description: Esri ArcGIS Flutter Android implementation.
-version: 0.6.19
+version: 0.9.0
 
 publish_to: none
 
@@ -10,17 +10,29 @@ environment:
 dependencies:
   arcgis_map_platform_interface:
     git:
-      url: git@github.com:vfdigitalincubator/arcgis_flutter.git
+      url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: v0.6.19
+      ref: main
+  arcgis_map_method_channel:
+    git:
+      url: git@github.com:phntmxyz/arcgis_map.git
+      path: arcgis_map_method_channel
+      ref: main
+
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  lint: ^1.0.0
+  flutter_lints: ^2.0.1
+  tapped_lints:
+    git:
+      url: https://github.com/tappeddev/tapped_lints.git
+      ref: master
 
 # Used to work locally on the package
 dependency_overrides:
+  arcgis_map_method_channel:
+    path: ../arcgis_map_method_channel
   arcgis_map_platform_interface:
     path: ../arcgis_map_platform_interface
 

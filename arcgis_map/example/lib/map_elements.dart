@@ -2,89 +2,86 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/material.dart';
 
 /// Examples of polygon areas
-const List<List<List<double>>> redPolygon = [
-  [
+final List<List<LatLng>> redPolygon = [
+  <List<double>>[
     [10, 50],
     [10.45, 50.07],
     [10.78, 50.21],
     [11.3, 50.78],
     [10, 51],
     [10, 50],
-  ],
+  ].map((e) => LatLng(e[1], e[0])).toList(),
 ];
 
-const List<List<List<double>>> greenPolygon = [
-  [
+final List<List<LatLng>> greenPolygon = [
+  <List<double>>[
     [11.0, 50.0],
     [11.45, 50.07],
     [11.78, 50.21],
     [12.3, 50.78],
     [11, 51],
     [11, 50],
-  ],
-  [
+  ].map((e) => LatLng(e[1], e[0])).toList(),
+  <List<double>>[
     [9, 53],
     [9.45, 52.07],
     [10.78, 52.21],
     [12.3, 53.78],
     [12, 54],
     [9, 53],
-  ]
+  ].map((e) => LatLng(e[1], e[0])).toList()
 ];
 
-const List<List<List<double>>> orangePolygon = [
-  [
+final List<List<LatLng>> orangePolygon = [
+  <List<double>>[
     [11.0, 52.0],
     [11.45, 52.07],
     [11.78, 52.21],
     [12.3, 52.78],
     [12, 53],
     [11, 52],
-  ]
+  ].map((e) => LatLng(e[1], e[0])).toList()
 ];
 
 /// Display the areas wit a green, red or orange color
-const greenFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.green,
-  opacity: .25,
+final greenFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.green.withOpacity(0.25),
   outlineColor: Colors.greenAccent,
   outlineWidth: 1,
 );
 
-const redFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red,
-  opacity: .25,
+final redFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red.withOpacity(0.25),
   outlineColor: Colors.redAccent,
   outlineWidth: 1,
 );
 
-const orangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange,
-  opacity: .25,
+final orangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange.withOpacity(0.25),
   outlineColor: Colors.orangeAccent,
   outlineWidth: 1,
 );
 
-const highlightedRedFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red,
-  opacity: .5,
+final highlightedRedFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red.withOpacity(0.5),
   outlineColor: Colors.redAccent,
   outlineWidth: 3,
 );
 
-const highlightedOrangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange,
-  opacity: .5,
+final highlightedOrangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange.withOpacity(0.5),
   outlineColor: Colors.orangeAccent,
   outlineWidth: 3,
 );
 
 /// Example of a marker as a polygon
-const polygonGraphic = PolygonGraphic(
+final polygonGraphic = PolygonGraphic(
   rings: redPolygon,
   symbol: redFillSymbol,
-  attributes:
-      ArcGisMapAttributes(id: 'red-polygon-Id-0', name: 'Red polygon zero'),
+  attributes: const ArcGisMapAttributes(
+    id: 'red-polygon-Id-0',
+    name: 'Red polygon zero',
+  ),
 );
 
 /// Examples of markers as points or as images
@@ -104,12 +101,14 @@ const simpleMarkerSymbol = SimpleMarkerSymbol(
 );
 
 const pictureMarkerSymbol = PictureMarkerSymbol(
-  uri: 'web/icons/Icon-192.png',
+  webUri: 'web/icons/Icon-192.png',
+  mobileUri:
+      "https://github.com/google/material-design-icons/raw/6ebe181c634f9ced978b526e13db6d7d5cb1c1ba/ios/content/flag/materialiconstwotone/black/twotone_flag_black_48pt.xcassets/twotone_flag_black_48pt.imageset/twotone_flag_black_48pt_3x.png",
   width: 32,
   height: 32,
 );
 
-const List<List<List<double>>> firstPolygon = [
+final List<List<LatLng>> firstPolygon = [
   [
     [13.1390151, 52.7605088],
     [13.1381278, 52.7625376],
@@ -834,9 +833,15 @@ const List<List<List<double>>> firstPolygon = [
     [13.039617603, 52.857164242],
     [13.0408884, 52.860875]
   ]
-];
+]
+    .map(
+      (group) => group
+          .map((coordinate) => LatLng(coordinate[1], coordinate[0]))
+          .toList(),
+    )
+    .toList();
 
-const List<List<List<double>>> secondPolygon = [
+final List<List<LatLng>> secondPolygon = [
   [
     [13.2940689, 53.0611202],
     [13.2971861, 53.0610015],
@@ -2413,4 +2418,10 @@ const List<List<List<double>>> secondPolygon = [
     [12.8538344, 53.5972705],
     [12.8524336, 53.601765]
   ]
-];
+]
+    .map(
+      (group) => group
+          .map((coordinate) => LatLng(coordinate[1], coordinate[0]))
+          .toList(),
+    )
+    .toList();

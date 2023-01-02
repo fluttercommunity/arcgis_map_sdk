@@ -1,4 +1,4 @@
 #import <Flutter/Flutter.h>
 
-@interface ArcgisMapPlugin : NSObject<FlutterPlugin>
+@interface ArcgisMapPlugin : NSObject <FlutterPlugin>
 @end

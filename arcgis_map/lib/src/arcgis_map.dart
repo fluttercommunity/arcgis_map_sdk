@@ -64,7 +64,7 @@ class ArcgisMap extends StatefulWidget {
   final void Function(ArcgisMapController controller)? onMapCreated;
 
   @override
-  _ArcgisMapState createState() => _ArcgisMapState();
+  State<ArcgisMap> createState() => _ArcgisMapState();
 }
 
 class _ArcgisMapState extends State<ArcgisMap> {

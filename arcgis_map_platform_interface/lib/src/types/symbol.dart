@@ -20,116 +20,95 @@ extension SymbolTypeExt on SymbolType {
 }
 
 abstract class Symbol {
-  Map<String, dynamic> toJson();
+  const Symbol();
+
+  R when<R>({
+    required R Function(SimpleFillSymbol symbol) ifSimpleFillSymbol,
+    required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
+    required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
+    required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
+  }) {
+    final self = this;
+    if (self is SimpleFillSymbol) {
+      return ifSimpleFillSymbol(self);
+    }
+    if (self is SimpleMarkerSymbol) {
+      return ifSimpleMarkerSymbol(self);
+    }
+    if (self is PictureMarkerSymbol) {
+      return ifPictureMarkerSymbol(self);
+    }
+    if (self is SimpleLineSymbol) {
+      return ifSimpleLineSymbol(self);
+    }
+
+    throw Exception("Unknown Symbol: $self");
+  }
 }
 
 /// A simple marker on the map
-class SimpleMarkerSymbol implements Symbol {
+class SimpleMarkerSymbol extends Symbol {
   const SimpleMarkerSymbol({
     required this.color,
-    this.colorOpacity = 1,
     required this.outlineColor,
-    this.outlineColorOpacity = 1,
-    this.outlineWidth = 2,
-    this.radius = 4,
+    this.outlineWidth = 2.0,
+    this.size = 4.0,
   });
 
   final Color color;
-  final double colorOpacity;
   final Color outlineColor;
-  final double outlineColorOpacity;
-  final int outlineWidth;
-  final int radius;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
-        'size': radius,
-        'outline': <String, dynamic>{
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
-            outlineColorOpacity
-          ],
-          'width': outlineWidth,
-        },
-      };
+  final double outlineWidth;
+  final double size;
 }
 
 /// A picture marker on the map
 ///
-/// Add a [uri] of an image to display it as a marker in the whole feature layer
-/// It can be a url or a local path, in which the image is stored locally
-/// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
-///
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
-class PictureMarkerSymbol implements Symbol {
+class PictureMarkerSymbol extends Symbol {
   const PictureMarkerSymbol({
-    required this.uri,
+    required this.webUri,
+    required this.mobileUri,
     required this.width,
     required this.height,
     this.xOffset = 0,
     this.yOffset = 0,
   });
 
-  final String uri;
+  /// Add a [webUri] of an image to display it as a marker in the whole feature layer
+  /// This can be a url or a local path in which the image is stored locally.
+  /// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
+  final String webUri;
+
+  /// This uri refers to a remote image url only.
+  final String mobileUri;
   final double width;
   final double height;
   final int xOffset;
   final int yOffset;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'picture-marker',
-        'url': uri,
-        'width': '${width}px',
-        'height': '${height}px',
-        'xoffset': '${xOffset}px',
-        'yoffset': '${yOffset}px'
-      };
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map
-class SimpleFillSymbol implements Symbol {
+class SimpleFillSymbol extends Symbol {
   const SimpleFillSymbol({
     required this.fillColor,
-    required this.opacity,
     required this.outlineColor,
     required this.outlineWidth,
   });
 
   final Color fillColor;
-  final double opacity;
   final Color outlineColor;
-  final int outlineWidth;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
-        'outline': {
-          'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue
-          ], // White
-          'width': outlineWidth
-        }
-      };
+  final double outlineWidth;
 }
 
 /// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
 /// SimpleLineSymbol is also used for rendering outlines for marker symbols and fill symbols.
 ///
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-SimpleLineSymbol.html#style
-class SimpleLineSymbol implements Symbol {
+class SimpleLineSymbol extends Symbol {
   const SimpleLineSymbol({
     this.cap = CapStyle.round,
     this.color,
-    this.colorOpacity = 1,
     this.declaredClass,
     this.join = JoinStyle.round,
     this.marker,
@@ -139,17 +118,18 @@ class SimpleLineSymbol implements Symbol {
   });
 
   /// Specifies the cap style.
+  /// Only supported on web.
   final CapStyle cap;
 
   /// The color of the symbol.
   final Color? color;
 
-  final double? colorOpacity;
-
-  ///  The name of the class.
+  /// The name of the class.
+  /// Only supported on web.
   final String? declaredClass;
 
-  ///   Specifies the join style.
+  /// Specifies the join style.
+  /// Only supported on web.
   final JoinStyle join;
 
   final LineSymbolMarker? marker;
@@ -162,20 +142,6 @@ class SimpleLineSymbol implements Symbol {
 
   /// The width of the symbol in points.
   final double width;
-
-  @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'join': join.value,
-        'marker': marker?.toJson(),
-        'miterLimit': miterLimit,
-        'style': style.value,
-        'type': 'simple-line',
-        // autocasts as new SimpleLineSymbol()
-        'width': width,
-      };
 }
 
 /// Specifies the color, style, and placement of a symbol marker on the line.
@@ -187,7 +153,6 @@ class SimpleLineSymbol implements Symbol {
 class LineSymbolMarker {
   const LineSymbolMarker({
     this.color,
-    this.colorOpacity,
     this.declaredClass,
     this.placement = MarkerPlacement.beginEnd,
     this.style = MarkerStyle.arrow,
@@ -196,9 +161,8 @@ class LineSymbolMarker {
   /// The color of the marker.
   final Color? color;
 
-  final double? colorOpacity;
-
   /// The name of the class.
+  /// Only supported on web.
   final String? declaredClass;
 
   /// The placement of the marker(s) on the line.
@@ -206,14 +170,6 @@ class LineSymbolMarker {
 
   /// The marker style.
   final MarkerStyle style;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
-        'declaredClass': declaredClass,
-        'placement': placement.value,
-        'style': style.value,
-        'type': 'line-marker',
-      };
 }
 
 enum CapStyle {
@@ -264,6 +220,8 @@ extension MarkerPlacementExt on MarkerPlacement {
   String get value => values[this]!;
 }
 
+/// Mobile only supports arrow and none and will fallback to none when
+/// unsupported styles are used.
 enum MarkerStyle {
   arrow,
   circle,

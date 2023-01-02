@@ -1,3 +1,4 @@
+// TODO(Matthaios): Finish (https://github.com/phntmxyz/arcgis_map/issues/30)
 class FeatureReductionCluster {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'type': 'cluster',

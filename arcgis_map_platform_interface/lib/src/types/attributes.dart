@@ -4,17 +4,6 @@ class ArcGisMapAttributes {
 
   const ArcGisMapAttributes({required this.id, required this.name});
 
-  Map<String, Object> toMap() {
-    return <String, Object>{
-      'id': id,
-      'name': name,
-    };
-  }
-
-  ArcGisMapAttributes.fromMap(Map<String, Object> map)
-      : id = map['id'].toString(),
-        name = map['name'].toString();
-
   @override
   String toString() {
     return 'ArcGisMapAttributes{id: $id, name: $name}';

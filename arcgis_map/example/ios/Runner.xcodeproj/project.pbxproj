@@ -88,6 +88,7 @@
 				97C146EF1CF9000F007C117D /* Products */,
 				EC58D96A64CE4D3D7740F25D /* Pods */,
 				3776939CBC3633F36418AFD9 /* Frameworks */,
+				838A69020171B4AA9B387170 /* SimpleMarkerSymbolPayload.swift */,
 			);
 			sourceTree = "<group>";
 		};

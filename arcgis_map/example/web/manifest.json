@@ -1,6 +1,6 @@
 {
-    "name": "arcgis_04",
-    "short_name": "arcgis_04",
+    "name": "arcgis_example",
+    "short_name": "arcgis_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -13,10 +13,6 @@ class AnimationOptions {
     this.duration = 200,
     this.animationCurve = AnimationCurve.ease,
   }) : assert(duration > 0.0);
-
-  Map<String, dynamic> toMap() {
-    return {'duration': duration, 'animationCurve': animationCurve.name};
-  }
 }
 
 enum AnimationCurve { linear, ease, easeIn, easeOut, easeInOut }
