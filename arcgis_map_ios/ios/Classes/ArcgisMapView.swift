@@ -176,7 +176,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let graphicsToAddOrUpdate = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
         let newId = graphicsToAddOrUpdate[0].attributes["id"] as? String
 
-         var oldGraphics = defaultGraphicsOverlay.graphics.filter({ element in
+        let oldGraphics = defaultGraphicsOverlay.graphics.filter({ element in
             let graphic = element as! AGSGraphic
             let id = graphic.attributes["id"] as? String
             return id != newId
