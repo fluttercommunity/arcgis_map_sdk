@@ -103,7 +103,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
-            case "add_graphic": onAddGraphic(call, result)
+            case "add_or_update_graphic": onAddOrUpdateGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
             default:
@@ -171,33 +171,25 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
 
-    private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    private func onAddOrUpdateGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
-        let newGraphics = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
-        
-        let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
-            let graphic = object as! AGSGraphic
-            return graphic.attributes["id"] as? String
-        }
-        
-        let hasExistingGraphics = newGraphics.contains(where: { object in
-            let graphic = object as! AGSGraphic
-            guard let id = graphic.attributes["id"] as? String else {
-                return false
-            }
-            
-            return existingIds.contains(id)
+        let graphicsToAddOrUpdate = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        let newId = graphicsToAddOrUpdate[0].attributes["id"] as? String
+
+         var oldGraphics = defaultGraphicsOverlay.graphics.filter({ element in
+            let graphic = element as! AGSGraphic
+            let id = graphic.attributes["id"] as? String
+            return id != newId
         })
-        
-        if(hasExistingGraphics) {
-            result(false)
-            return
-        }
-        
+  
+        defaultGraphicsOverlay.graphics.removeAllObjects()
         // addObjects causes an internal exceptions this is why we add
         // them in this for loop instead.
         // ArcGis is the best <3.
-        newGraphics.forEach {
+        oldGraphics.forEach {
+            defaultGraphicsOverlay.graphics.add($0)
+        }
+        graphicsToAddOrUpdate.forEach {
             defaultGraphicsOverlay.graphics.add($0)
         }
         result(true)

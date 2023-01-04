@@ -97,7 +97,7 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
-                "add_graphic" -> onAddGraphic(call = call, result = result)
+                "add_or_update_graphic" -> onAddOrUpdateGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
                 else -> result.notImplemented()
@@ -172,19 +172,17 @@ internal class ArcgisMapView(
         result.success(true)
     }
 
-    private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
+    private fun onAddOrUpdateGraphic(call: MethodCall, result: MethodChannel.Result) {
         val graphicArguments = call.arguments as Map<String, Any>
         val newGraphic = GraphicsParser.parse(graphicArguments)
+        val newId = newGraphic.first().attributes["id"];
 
-        val existingIds =
-            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
-        val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
-
-        if (existingIds.any(newIds::contains)) {
-            result.success(false)
-            return
+        val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
+            val id = graphic.attributes["id"] as? String
+            id == newId
         }
 
+        graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
         defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
         updateMap()

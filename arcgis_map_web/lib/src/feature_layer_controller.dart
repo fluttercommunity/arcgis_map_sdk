@@ -507,16 +507,20 @@ class FeatureLayerController {
   /// Add a [Graphic] to the view. It can be a polygon, a point or an image.
   ///
   /// [onEnter] and [onExit] callbacks fire when the mouse hovers over this [graphic].
-  void addGraphic(JsMapView view, Graphic graphic) {
+  void addOrUpdateGraphic(JsMapView view, Graphic graphic) {
     final String graphicId = graphic.getAttributesId();
     if (!_graphicObjectIds.contains(graphicId)) {
       view.graphics.add(jsify(graphic.toJson()));
       _graphicObjectIds.add(graphicId);
     } else {
-      throw Exception(
-        'A graphic with the id:$graphicId is already in use'
-        '\nPlease set another id to your graphic',
+      final graphicToRemoveIndex = view.graphics.findIndex(
+        allowInterop((JsGraphic graphic, _, __) {
+          final result = graphic.attributes.id as String?;
+          return result == graphicId;
+        }),
       );
+      view.graphics.removeAt(graphicToRemoveIndex);
+      view.graphics.add(jsify(graphic.toJson()));
     }
 
     if (graphic.onHover == null &&

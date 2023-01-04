@@ -112,8 +112,8 @@ class ArcgisMapController {
         .setInteraction(mapId, isEnabled: isEnabled);
   }
 
-  Future<void> addGraphic(Graphic graphic) {
-    return ArcgisMapPlatform.instance.addGraphic(mapId, graphic);
+  Future<void> addOrUpdateGraphic(Graphic graphic) {
+    return ArcgisMapPlatform.instance.addOrUpdateGraphic(mapId, graphic);
   }
 
   void removeGraphic(String graphicId) {

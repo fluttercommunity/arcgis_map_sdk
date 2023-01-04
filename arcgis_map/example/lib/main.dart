@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:math';
 
 import 'package:arcgis/map_elements.dart';
 import 'package:arcgis/vector_layer_example_page.dart';
@@ -78,7 +79,7 @@ class _ExampleMapState extends State<ExampleMap> {
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
-    _controller?.addGraphic(
+    _controller?.addOrUpdateGraphic(
       const PointGraphic(
         attributes: ArcGisMapAttributes(
           id: 'point1',
@@ -95,7 +96,7 @@ class _ExampleMapState extends State<ExampleMap> {
       ),
     );
 
-    _controller?.addGraphic(
+    _controller?.addOrUpdateGraphic(
       PolylineGraphic(
         attributes: const ArcGisMapAttributes(
           id: 'point2',
@@ -141,7 +142,7 @@ class _ExampleMapState extends State<ExampleMap> {
       await _createFeatureLayer();
     }
 
-    _controller?.addGraphic(
+    _controller?.addOrUpdateGraphic(
       PolygonGraphic(
         rings: firstPolygon,
         symbol: orangeFillSymbol,
@@ -270,8 +271,8 @@ class _ExampleMapState extends State<ExampleMap> {
     });
   }
 
-  void _addPin(String id, LatLng location) {
-    _controller?.addGraphic(
+  void _addOrUpdatePin(String id, LatLng location) {
+    _controller?.addOrUpdateGraphic(
       PointGraphic(
         longitude: location.longitude,
         latitude: location.latitude,
@@ -291,7 +292,7 @@ class _ExampleMapState extends State<ExampleMap> {
     required LatLng start,
     required LatLng end,
   }) {
-    _controller?.addGraphic(
+    _controller?.addOrUpdateGraphic(
       PolylineGraphic(
         paths: [
           [start, end]
@@ -533,7 +534,10 @@ class _ExampleMapState extends State<ExampleMap> {
                         _isFirstPinInView = false;
                       });
                     } else {
-                      _addPin('_isFirstPinInView', _firstPinCoordinates);
+                      _addOrUpdatePin(
+                        '_isFirstPinInView',
+                        _firstPinCoordinates,
+                      );
                       setState(() {
                         _isFirstPinInView = true;
                       });
@@ -551,7 +555,10 @@ class _ExampleMapState extends State<ExampleMap> {
                         _isSecondPinInView = false;
                       });
                     } else {
-                      _addPin('_isSecondPinInView', _secondPinCoordinates);
+                      _addOrUpdatePin(
+                        '_isSecondPinInView',
+                        _secondPinCoordinates,
+                      );
                       setState(() {
                         _isSecondPinInView = true;
                       });
@@ -561,6 +568,20 @@ class _ExampleMapState extends State<ExampleMap> {
                       ? const Text('Remove second Pin')
                       : const Text('Add second Pin'),
                 ),
+                if (_isSecondPinInView)
+                  ElevatedButton(
+                    onPressed: () {
+                      _secondPinCoordinates.latitude =
+                          51 + Random().nextDouble();
+                      _secondPinCoordinates.longitude =
+                          11 + Random().nextDouble();
+                      _addOrUpdatePin(
+                        '_isSecondPinInView',
+                        _secondPinCoordinates,
+                      );
+                    },
+                    child: const Text('Move second Pin'),
+                  ),
                 ElevatedButton(
                   onPressed: () {
                     _connectTwoPinsWithPolyline(
@@ -579,7 +600,7 @@ class _ExampleMapState extends State<ExampleMap> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _controller?.addGraphic(
+                    _controller?.addOrUpdateGraphic(
                       PolygonGraphic(
                         rings: secondPolygon,
                         symbol: redFillSymbol,

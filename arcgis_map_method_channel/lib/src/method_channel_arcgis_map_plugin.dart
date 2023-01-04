@@ -143,9 +143,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> addGraphic(int mapId, Graphic graphic) {
+  Future<void> addOrUpdateGraphic(int mapId, Graphic graphic) {
     return _methodChannelBuilder(mapId).invokeMethod(
-      "add_graphic",
+      "add_or_update_graphic",
       graphic.toJson(),
     );
   }

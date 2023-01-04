@@ -73,8 +73,8 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> addGraphic(int mapId, Graphic graphic) async {
-    _map(mapId).addGraphic(graphic);
+  Future<void> addOrUpdateGraphic(int mapId, Graphic graphic) async {
+    _map(mapId).addOrUpdateGraphic(graphic);
   }
 
   @override

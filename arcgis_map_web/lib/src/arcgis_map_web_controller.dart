@@ -225,8 +225,8 @@ class ArcgisMapWebController {
     return _featureLayerController!.zoomOut(lodFactor, _view!);
   }
 
-  void addGraphic(Graphic graphic) {
-    _featureLayerController!.addGraphic(_view!, graphic);
+  void addOrUpdateGraphic(Graphic graphic) {
+    _featureLayerController!.addOrUpdateGraphic(_view!, graphic);
   }
 
   void removeGraphic(String graphicId) {
