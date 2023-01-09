@@ -333,12 +333,16 @@ class FeatureLayerController {
     document.getElementById(mapId)?.style.cursor = _cursor;
   }
 
-  /// Updates the graphic representation of an existing [Graphic] with a the [Symbol].
-  void updateGraphicSymbol({
+  /// Updates the [Symbol] and/or the position of an existing [Graphic].
+  void updateGraphic({
     required JsMapView view,
-    required Symbol symbol,
     required String graphicId,
+    Symbol? symbol,
+    LatLng? position,
+    List<List<LatLng>>? paths,
+    List<List<LatLng>>? rings,
   }) {
+    // Finds the existing Graphic, using its id.
     final JsGraphic? graphic = view.graphics.find(
       allowInterop((JsGraphic graphic, _, __) {
         final result = graphic.attributes.id as String?;
@@ -346,7 +350,45 @@ class FeatureLayerController {
       }),
     );
 
-    if (graphic != null) graphic.set('symbol', jsify(symbol.toJson()));
+    if (graphic == null) return;
+
+    // Updates the symbol with a new one.
+    if (symbol != null) graphic.set('symbol', jsify(symbol.toJson()));
+
+    // Updates the geometry.
+    if (graphic.geometry.type == 'point') {
+      graphic.geometry.set(
+        'geometry',
+        jsify(<String, dynamic>{
+          'type': 'point',
+          'longitude': position?.longitude,
+          'latitude': position?.latitude,
+        }),
+      );
+    }
+    if (graphic.geometry.type == 'polygon') {
+      graphic.geometry.set(
+        'geometry',
+        jsify(<String, dynamic>{
+          'type': 'polygon',
+          'rings': rings?.map(
+            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
+          ),
+        }),
+      );
+    }
+    if (graphic.geometry.type == 'polyline') {
+      graphic.geometry.set(
+        'geometry',
+        jsify(<String, dynamic>{
+          'type': 'polyline',
+          'paths': paths?.map(
+            (path) =>
+                path.map((LatLng e) => [e.longitude, e.latitude]).toList(),
+          ),
+        }),
+      );
+    }
   }
 
   /// Set onClick Listener to the Map View
@@ -513,14 +555,26 @@ class FeatureLayerController {
       view.graphics.add(jsify(graphic.toJson()));
       _graphicObjectIds.add(graphicId);
     } else {
-      final graphicToRemoveIndex = view.graphics.findIndex(
-        allowInterop((JsGraphic graphic, _, __) {
-          final result = graphic.attributes.id as String?;
-          return result == graphicId;
-        }),
+      graphic.when(
+        ifPointGraphic: (graphic) => updateGraphic(
+          view: view,
+          graphicId: graphic.getAttributesId(),
+          symbol: graphic.symbol,
+          position: LatLng(graphic.latitude, graphic.longitude),
+        ),
+        ifPolygonGraphic: (graphic) => updateGraphic(
+          view: view,
+          graphicId: graphic.getAttributesId(),
+          symbol: graphic.symbol,
+          rings: graphic.rings,
+        ),
+        ifPolylineGraphic: (graphic) => updateGraphic(
+          view: view,
+          graphicId: graphic.getAttributesId(),
+          symbol: graphic.symbol,
+          paths: graphic.paths,
+        ),
       );
-      view.graphics.removeAt(graphicToRemoveIndex);
-      view.graphics.add(jsify(graphic.toJson()));
     }
 
     if (graphic.onHover == null &&

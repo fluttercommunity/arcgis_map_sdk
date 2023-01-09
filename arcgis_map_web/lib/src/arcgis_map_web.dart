@@ -121,8 +121,21 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
-    _map(mapId).updateGraphicSymbol(symbol, graphicId);
+  void updateGraphic({
+    required int mapId,
+    required String graphicId,
+    Symbol? symbol,
+    LatLng? position,
+    List<List<LatLng>>? paths,
+    List<List<LatLng>>? rings,
+  }) {
+    _map(mapId).updateGraphic(
+      graphicId,
+      symbol,
+      position,
+      paths,
+      rings,
+    );
   }
 
   @override

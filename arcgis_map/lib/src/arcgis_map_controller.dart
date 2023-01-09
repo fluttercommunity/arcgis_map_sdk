@@ -62,8 +62,21 @@ class ArcgisMapController {
     ArcgisMapPlatform.instance.setMouseCursor(cursor, mapId);
   }
 
-  void updateGraphicSymbol(Symbol symbol, String graphicId) {
-    ArcgisMapPlatform.instance.updateGraphicSymbol(symbol, graphicId, mapId);
+  void updateGraphic({
+    required String graphicId,
+    Symbol? symbol,
+    LatLng? position,
+    List<List<LatLng>>? paths,
+    List<List<LatLng>>? rings,
+  }) {
+    ArcgisMapPlatform.instance.updateGraphic(
+      mapId: mapId,
+      graphicId: graphicId,
+      symbol: symbol,
+      position: position,
+      paths: paths,
+      rings: rings,
+    );
   }
 
   Future<void> updateFeatureLayer({required List<Graphic> data}) {

@@ -59,7 +59,6 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _isSecondPinInView = false;
   bool _subscribedToZoom = false;
   bool _subscribedToGraphicsInView = false;
-  final Map<String, bool> _hoveredPolygons = {};
   var _isInteractionEnabled = true;
 
   bool _baseMapToggled = false;
@@ -148,19 +147,23 @@ class _ExampleMapState extends State<ExampleMap> {
         symbol: orangeFillSymbol,
         attributes:
             const ArcGisMapAttributes(id: _polygonId1, name: 'First Polygon'),
-        onHover: (isHovered) {
-          isHovered
-              ? _updateGraphicSymbol(
-                  polygonId: _polygonId1,
-                  symbol: highlightedOrangeFillSymbol,
-                )
-              : _updateGraphicSymbol(
-                  polygonId: _polygonId1,
-                  symbol: orangeFillSymbol,
-                );
-          if (_hoveredPolygons[_polygonId1] == isHovered) return;
-          _hoveredPolygons[_polygonId1] = isHovered;
-          _setMouseCursor();
+        onEnter: () {
+          _controller?.setMouseCursor(
+            SystemMouseCursors.click,
+          );
+          _controller?.updateGraphic(
+            graphicId: _polygonId1,
+            symbol: highlightedOrangeFillSymbol,
+          );
+        },
+        onExit: () {
+          _controller?.setMouseCursor(
+            SystemMouseCursors.basic,
+          );
+          _controller?.updateGraphic(
+            graphicId: _polygonId1,
+            symbol: orangeFillSymbol,
+          );
         },
       ),
     );
@@ -312,21 +315,6 @@ class _ExampleMapState extends State<ExampleMap> {
         ),
       ),
     );
-  }
-
-  void _setMouseCursor() {
-    _controller?.setMouseCursor(
-      _hoveredPolygons.containsValue(true)
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
-    );
-  }
-
-  void _updateGraphicSymbol({
-    required String polygonId,
-    required Symbol symbol,
-  }) {
-    _controller?.updateGraphicSymbol(symbol, polygonId);
   }
 
   bool? _isPointInPolygon({
@@ -608,21 +596,23 @@ class _ExampleMapState extends State<ExampleMap> {
                           id: _polygonId2,
                           name: 'Second Polygon',
                         ),
-                        onHover: (isHovered) {
-                          isHovered
-                              ? _updateGraphicSymbol(
-                                  polygonId: _polygonId2,
-                                  symbol: highlightedRedFillSymbol,
-                                )
-                              : _updateGraphicSymbol(
-                                  polygonId: _polygonId2,
-                                  symbol: redFillSymbol,
-                                );
-                          if (_hoveredPolygons[_polygonId2] == isHovered) {
-                            return;
-                          }
-                          _hoveredPolygons[_polygonId2] = isHovered;
-                          _setMouseCursor();
+                        onEnter: () {
+                          _controller?.setMouseCursor(
+                            SystemMouseCursors.click,
+                          );
+                          _controller?.updateGraphic(
+                            graphicId: _polygonId2,
+                            symbol: highlightedRedFillSymbol,
+                          );
+                        },
+                        onExit: () {
+                          _controller?.setMouseCursor(
+                            SystemMouseCursors.basic,
+                          );
+                          _controller?.updateGraphic(
+                            graphicId: _polygonId2,
+                            symbol: redFillSymbol,
+                          );
                         },
                       ),
                     );

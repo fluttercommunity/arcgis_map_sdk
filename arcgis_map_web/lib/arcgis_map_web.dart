@@ -102,9 +102,11 @@ abstract class JsGraphic extends Accessor {
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Geometry.html
 @JS("esri.geometry.Geometry")
-abstract class JsGeometry {
+abstract class JsGeometry extends Accessor {
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Geometry.html#extent
   external JsExtent get extent;
+
+  external String get type;
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html
