@@ -2,20 +2,18 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/services.dart';
 
 class ExportVectorTilesTask {
-  // ignore: prefer_typing_uninitialized_variables
-  late final _methodChannel;
+  static const _methodChannel =
+      MethodChannel("esri.arcgis.flutter_plugin/export_vector_tiles_task");
   final String url;
 
-  factory ExportVectorTilesTask({
+  static Future<ExportVectorTilesTask> create({
     required String url,
-  }) {
+  }) async {
     final instance = ExportVectorTilesTask._(url: url);
-    instance._methodChannel = MethodChannel(
-      "esri.arcgis.flutter_plugin/export_vector_tiles_task/${instance.hashCode}",
-    );
-    instance._methodChannel.invokeMethod(
+
+    await _methodChannel.invokeMethod(
       'create',
-      {'url': url},
+      {'hashCode': instance.hashCode, 'url': url},
     );
     return instance;
   }
@@ -23,7 +21,7 @@ class ExportVectorTilesTask {
   ExportVectorTilesTask._({required this.url});
 
   Future<void> load() async {
-    return _methodChannel.invokeMethod('load');
+    return _methodChannel.invokeMethod('load', {'hashCode': hashCode});
   }
 
   Future<ExportVectorTilesParameters> createDefaultExportVectorTilesParameters({
@@ -33,6 +31,7 @@ class ExportVectorTilesTask {
     final result = await _methodChannel.invokeMethod(
       'create_default_export_vector_tiles_parameters',
       {
+        'hashCode': hashCode,
         'areaOfInterest': areaOfInterest.toMap(),
         'maxScale': maxScale,
       },

@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
 
 class ExportVectorTilesJob {
-  late final _methodChannel = MethodChannel(
-    "esri.arcgis.flutter_plugin/export_vector_tiles_job/$hashCode",
-  );
+  static late final _methodCallStream =
+      StreamController<MethodCall>.broadcast();
+  static late final _methodChannel = const MethodChannel(
+    "esri.arcgis.flutter_plugin/export_vector_tiles_job",
+  )..setMethodCallHandler((call) async {
+      _methodCallStream.add(call);
+    });
 
   final int _hashCode;
 
@@ -33,19 +39,21 @@ class ExportVectorTilesJob {
     required String vectorTileCachePath,
     required Function(int progress)? onProgressChange,
   }) async {
-    _methodChannel.setMethodCallHandler((call) async {
-      if (call.method == 'progress') {
-        final progress = call.arguments['progress'] as int;
+    final _subscription = _methodCallStream.stream.listen((event) {
+      if (event.method == "progress" &&
+          event.arguments["hashCode"] == hashCode) {
+        final progress = event.arguments["progress"] as int;
         onProgressChange?.call(progress);
       }
     });
     await _methodChannel.invokeMethod(
       'start',
       {
+        'hashCode': hashCode,
         'exportVectorTilesParameters': exportVectorTilesParameters.toMap(),
         'vectorTileCachePath': vectorTileCachePath,
       },
     );
-    _methodChannel.setMethodCallHandler(null);
+    _subscription.cancel();
   }
 }
