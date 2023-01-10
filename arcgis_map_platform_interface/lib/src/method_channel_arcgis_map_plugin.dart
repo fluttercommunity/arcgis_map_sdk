@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -6,13 +8,24 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
 
   Stream<double>? _zoomEventStream;
+  final _methodCallStreamController = StreamController<MethodCall>();
 
-  MethodChannel _methodChannelBuilder(int viewId) =>
+  static const _methodChannel = MethodChannel("esri.arcgis.flutter_plugin");
+  MethodChannel _viewMethodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
 
   /// This method is called when the plugin is first initialized.
   @override
-  Future<void> init(int mapId) async {}
+  Future<void> init(int mapId) async {
+    _methodChannel.setMethodCallHandler(
+      (call) async => _methodCallStreamController.add(call),
+    );
+  }
+
+  @override
+  void dispose({required int mapId}) {
+    _methodCallStreamController.close();
+  }
 
   @override
   Future<FeatureLayer> addFeatureLayer(
@@ -85,12 +98,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setInteraction(int mapId, {required bool isEnabled}) {
-    return _methodChannelBuilder(mapId)
+    return _viewMethodChannelBuilder(mapId)
         .invokeMethod("set_interaction", {"enabled": isEnabled});
   }
-
-  @override
-  void dispose({required int mapId}) {}
 
   @override
   Widget buildView({
@@ -106,7 +116,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int? zoomLevel,
     AnimationOptions? animationOptions,
   }) async {
-    return await _methodChannelBuilder(mapId).invokeMethod(
+    return await _viewMethodChannelBuilder(mapId).invokeMethod(
       "move_camera",
       {
         "point": point.toMap(),
@@ -118,13 +128,13 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<bool> zoomIn(int lodFactor, int mapId) async {
-    return await _methodChannelBuilder(mapId)
+    return await _viewMethodChannelBuilder(mapId)
         .invokeMethod("zoom_in", {"lodFactor": lodFactor}) as bool;
   }
 
   @override
   Future<bool> zoomOut(int lodFactor, int mapId) async {
-    return await _methodChannelBuilder(mapId)
+    return await _viewMethodChannelBuilder(mapId)
         .invokeMethod("zoom_out", {"lodFactor": lodFactor}) as bool;
   }
 
@@ -148,7 +158,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    _methodChannelBuilder(mapId)
+    _viewMethodChannelBuilder(mapId)
         .invokeMethod("add_view_padding", padding.toMap());
   }
 
@@ -167,5 +177,79 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     throw UnimplementedError(
       'getVisibleGraphicIds() has not been implemented.',
     );
+  }
+
+  @override
+  Future<void> createExportVectorTilesTask({
+    required ExportVectorTilesTask task,
+    required String url,
+  }) {
+    return _methodChannel.invokeMethod('createExportVectorTilesTask', {
+      'referenceHashCode': task.hashCode,
+      'url': url,
+    });
+  }
+
+  @override
+  Future<void> loadExportVectorTilesTask({
+    required ExportVectorTilesTask task,
+  }) {
+    return _methodChannel.invokeMethod(
+      'loadExportVectorTilesTask',
+      {'referenceHashCode': task.hashCode},
+    );
+  }
+
+  @override
+  Future<ExportVectorTilesParameters> createDefaultExportVectorTilesParameters({
+    required ExportVectorTilesTask task,
+    required Envelope areaOfInterest,
+    required double maxScale,
+  }) async {
+    final result = await _methodChannel.invokeMethod(
+      'create_default_export_vector_tiles_parameters',
+      {
+        'referenceHashCode': task.hashCode,
+        'areaOfInterest': areaOfInterest.toMap(),
+        'maxScale': maxScale,
+      },
+    ) as Map<String, dynamic>;
+    return ExportVectorTilesParameters.fromMap(result);
+  }
+
+  @override
+  Future<ExportVectorTilesJob> exportVectorTiles({
+    required ExportVectorTilesTask task,
+    required ExportVectorTilesParameters parameters,
+    required String vectorTileCachePath,
+  }) async {
+    final result = await _methodChannel.invokeMethod(
+      'export_vector_tiles',
+      {
+        'referenceHashCode': task.hashCode,
+        'exportVectorTilesParameters': parameters.toMap(),
+        'vectorTileCachePath': vectorTileCachePath,
+      },
+    ) as Map<String, dynamic>;
+    return ExportVectorTilesJob.fromMap(result);
+  }
+
+  @override
+  Future<void> startExportVectorTilesJob({
+    required ExportVectorTilesJob job,
+    required Function(int progress)? onProgressChange,
+  }) async {
+    final listener = _methodCallStreamController.stream.listen((event) {
+      if (event.method == "progress" &&
+          event.arguments["referenceHashCode"] == job.hashCode) {
+        final progress = event.arguments["progress"] as int;
+        onProgressChange?.call(progress);
+      }
+    });
+    await _methodChannel.invokeMethod(
+      'start',
+      {'referenceHashCode': job.hashCode},
+    );
+    listener.cancel();
   }
 }
