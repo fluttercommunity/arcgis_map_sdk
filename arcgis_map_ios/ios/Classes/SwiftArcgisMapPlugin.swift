@@ -12,7 +12,7 @@ public class SwiftArcgisMapPlugin: NSObject, FlutterPlugin {
             name: "esri.arcgis.flutter_plugin",
             binaryMessenger: registrar.messenger()
         )
+        
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-    
 }

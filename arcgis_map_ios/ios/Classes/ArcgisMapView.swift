@@ -249,6 +249,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }) { [weak self] (result, error) in
           print("Job done: \(result), \(error)")
           
+            
         guard let self = self else { return }
         self.job = nil
         if let result = result,
