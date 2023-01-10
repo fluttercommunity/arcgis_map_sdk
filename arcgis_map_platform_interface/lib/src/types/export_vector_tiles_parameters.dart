@@ -1,23 +1,23 @@
 class ExportVectorTilesParameters {
-  final int _hashCode;
+  final int _referenceHashCode;
 
   ExportVectorTilesParameters._({
-    required int hashCode,
-  }) : _hashCode = hashCode;
+    required int referenceHashCode,
+  }) : _referenceHashCode = referenceHashCode;
 
   @override
   // ignore: hash_and_equals
-  int get hashCode => _hashCode;
+  int get hashCode => _referenceHashCode;
 
   Map<String, dynamic> toMap() {
     return {
-      'hashCode': hashCode,
+      'referenceHashCode': _referenceHashCode,
     };
   }
 
   factory ExportVectorTilesParameters.fromMap(Map<String, dynamic> map) {
     return ExportVectorTilesParameters._(
-      hashCode: map['hashCode'] as int,
+      referenceHashCode: map['_referenceHashCode'] as int,
     );
   }
 }

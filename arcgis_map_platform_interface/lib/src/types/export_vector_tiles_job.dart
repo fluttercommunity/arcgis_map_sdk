@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 
 class ExportVectorTilesJob {
-  final int _hashCode;
+  final int _referenceHashCode;
 
   ExportVectorTilesJob._({
-    required int hashCode,
-  }) : _hashCode = hashCode;
+    required int referenceHashCode,
+  }) : _referenceHashCode = referenceHashCode;
 
   @override
   // ignore: hash_and_equals
-  int get hashCode => _hashCode;
+  int get hashCode => _referenceHashCode;
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,7 +21,7 @@ class ExportVectorTilesJob {
 
   factory ExportVectorTilesJob.fromMap(Map<String, dynamic> map) {
     return ExportVectorTilesJob._(
-      hashCode: map['hashCode'] as int,
+      referenceHashCode: map['referenceHashCode'] as int,
     );
   }
 
