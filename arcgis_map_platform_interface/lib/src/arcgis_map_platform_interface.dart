@@ -142,4 +142,50 @@ class ArcgisMapPlatform extends PlatformInterface {
       'getVisibleGraphicIds() has not been implemented.',
     );
   }
+
+  Future<void> createExportVectorTilesTask({
+    required ExportVectorTilesTask task,
+    required String url,
+  }) {
+    throw UnimplementedError(
+      'createExportVectorTilesTask() has not been implemented.',
+    );
+  }
+
+  Future<void> loadExportVectorTilesTask({
+    required ExportVectorTilesTask task,
+  }) {
+    throw UnimplementedError(
+      'loadExportVectorTilesTask() has not been implemented.',
+    );
+  }
+
+  Future<ExportVectorTilesParameters> createDefaultExportVectorTilesParameters({
+    required ExportVectorTilesTask task,
+    required Envelope areaOfInterest,
+    required double maxScale,
+  }) {
+    throw UnimplementedError(
+      'createDefaultExportVectorTilesParameters() has not been implemented.',
+    );
+  }
+
+  Future<ExportVectorTilesJob> exportVectorTiles({
+    required ExportVectorTilesTask task,
+    required ExportVectorTilesParameters parameters,
+    required String vectorTileCachePath,
+  }) {
+    throw UnimplementedError(
+      'exportVectorTiles() has not been implemented.',
+    );
+  }
+
+  Future<void> startExportVectorTilesJob({
+    required ExportVectorTilesJob job,
+    required Function(int progress)? onProgressChange,
+  }) {
+    throw UnimplementedError(
+      'startExportVectorTilesJob() has not been implemented.',
+    );
+  }
 }
