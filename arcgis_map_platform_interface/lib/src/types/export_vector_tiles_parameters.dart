@@ -1,23 +1,18 @@
+import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+
 class ExportVectorTilesParameters {
-  final int _referenceHashCode;
+  final Envelope areaOfInterest;
+  final int maxLevel;
 
-  ExportVectorTilesParameters._({
-    required int referenceHashCode,
-  }) : _referenceHashCode = referenceHashCode;
-
-  @override
-  // ignore: hash_and_equals
-  int get hashCode => _referenceHashCode;
+  const ExportVectorTilesParameters({
+    required this.areaOfInterest,
+    required this.maxLevel,
+  });
 
   Map<String, dynamic> toMap() {
     return {
-      'referenceHashCode': _referenceHashCode,
+      'areaOfInterest': areaOfInterest.toMap(),
+      'maxLevel': maxLevel,
     };
-  }
-
-  factory ExportVectorTilesParameters.fromMap(Map<String, dynamic> map) {
-    return ExportVectorTilesParameters._(
-      referenceHashCode: map['_referenceHashCode'] as int,
-    );
   }
 }

@@ -11,6 +11,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   final _methodCallStreamController = StreamController<MethodCall>();
 
   static const _methodChannel = MethodChannel("esri.arcgis.flutter_plugin");
+
   MethodChannel _viewMethodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
 
@@ -180,76 +181,36 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> createExportVectorTilesTask({
-    required ExportVectorTilesTask task,
+  Future<int> createExportVectorTilesTask({
     required String url,
-  }) {
-    return _methodChannel.invokeMethod('createExportVectorTilesTask', {
-      'referenceHashCode': task.hashCode,
-      'url': url,
-    });
-  }
-
-  @override
-  Future<void> loadExportVectorTilesTask({
-    required ExportVectorTilesTask task,
-  }) {
-    return _methodChannel.invokeMethod(
-      'loadExportVectorTilesTask',
-      {'referenceHashCode': task.hashCode},
-    );
-  }
-
-  @override
-  Future<ExportVectorTilesParameters> createDefaultExportVectorTilesParameters({
-    required ExportVectorTilesTask task,
-    required Envelope areaOfInterest,
-    required double maxScale,
   }) async {
-    final result = await _methodChannel.invokeMethod(
-      'create_default_export_vector_tiles_parameters',
-      {
-        'referenceHashCode': task.hashCode,
-        'areaOfInterest': areaOfInterest.toMap(),
-        'maxScale': maxScale,
-      },
-    ) as Map<String, dynamic>;
-    return ExportVectorTilesParameters.fromMap(result);
+    final referenceHashCode = await _methodChannel
+        .invokeMethod('create_export_vector_tiles_task', {'url': url});
+    return referenceHashCode as int;
   }
 
   @override
-  Future<ExportVectorTilesJob> exportVectorTiles({
+  Future<void> startExportVectorTilesTaskJob({
     required ExportVectorTilesTask task,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
+    required Function(int progress)? onProgressChange,
   }) async {
-    final result = await _methodChannel.invokeMethod(
-      'export_vector_tiles',
+    final listener = _methodCallStreamController.stream.listen((event) {
+      if (event.method == "export_vector_tiles_job_progress" &&
+          event.arguments["referenceHashCode"] == task.hashCode) {
+        final progress = event.arguments["progress"] as int;
+        onProgressChange?.call(progress);
+      }
+    });
+    await _methodChannel.invokeMethod(
+      'start_export_vector_tiles_task_job',
       {
         'referenceHashCode': task.hashCode,
         'exportVectorTilesParameters': parameters.toMap(),
         'vectorTileCachePath': vectorTileCachePath,
       },
     ) as Map<String, dynamic>;
-    return ExportVectorTilesJob.fromMap(result);
-  }
-
-  @override
-  Future<void> startExportVectorTilesJob({
-    required ExportVectorTilesJob job,
-    required Function(int progress)? onProgressChange,
-  }) async {
-    final listener = _methodCallStreamController.stream.listen((event) {
-      if (event.method == "progress" &&
-          event.arguments["referenceHashCode"] == job.hashCode) {
-        final progress = event.arguments["progress"] as int;
-        onProgressChange?.call(progress);
-      }
-    });
-    await _methodChannel.invokeMethod(
-      'start',
-      {'referenceHashCode': job.hashCode},
-    );
     listener.cancel();
   }
 }

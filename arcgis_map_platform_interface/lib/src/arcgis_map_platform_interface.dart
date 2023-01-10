@@ -143,8 +143,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> createExportVectorTilesTask({
-    required ExportVectorTilesTask task,
+  Future<int> createExportVectorTilesTask({
     required String url,
   }) {
     throw UnimplementedError(
@@ -152,40 +151,20 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> loadExportVectorTilesTask({
-    required ExportVectorTilesTask task,
-  }) {
-    throw UnimplementedError(
-      'loadExportVectorTilesTask() has not been implemented.',
-    );
-  }
-
-  Future<ExportVectorTilesParameters> createDefaultExportVectorTilesParameters({
-    required ExportVectorTilesTask task,
-    required Envelope areaOfInterest,
-    required double maxScale,
-  }) {
-    throw UnimplementedError(
-      'createDefaultExportVectorTilesParameters() has not been implemented.',
-    );
-  }
-
-  Future<ExportVectorTilesJob> exportVectorTiles({
+  Future<void> startExportVectorTilesTaskJob({
     required ExportVectorTilesTask task,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
-  }) {
-    throw UnimplementedError(
-      'exportVectorTiles() has not been implemented.',
-    );
-  }
-
-  Future<void> startExportVectorTilesJob({
-    required ExportVectorTilesJob job,
     required Function(int progress)? onProgressChange,
   }) {
     throw UnimplementedError(
-      'startExportVectorTilesJob() has not been implemented.',
+      'startExportVectorTilesTaskJob() has not been implemented.',
+    );
+  }
+
+  Future<void> disposeExportVectorTileJobs() {
+    throw UnimplementedError(
+      'disposeExportVectorTileJobs() has not been implemented.',
     );
   }
 }
