@@ -15,5 +15,6 @@ export 'package:arcgis_map_platform_interface/src/types/feature_layer.dart';
 export 'package:arcgis_map_platform_interface/src/types/feature_reduction_cluster.dart';
 export 'package:arcgis_map_platform_interface/src/types/field.dart';
 export 'package:arcgis_map_platform_interface/src/types/graphic.dart';
+export 'package:arcgis_map_platform_interface/src/types/point.dart';
 export 'package:arcgis_map_platform_interface/src/types/symbol.dart';
 export 'package:latlong2/latlong.dart';

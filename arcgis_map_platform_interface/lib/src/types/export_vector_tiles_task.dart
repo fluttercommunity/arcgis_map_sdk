@@ -1,20 +1,25 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 
 class ExportVectorTilesTask {
+  final String id;
   final String url;
-  final int referenceHashCode;
 
   ExportVectorTilesTask._({
+    required this.id,
     required this.url,
-    required this.referenceHashCode,
   });
 
   static Future<ExportVectorTilesTask> create({
     required String url,
   }) async {
-    final refHashCode =
-        await ArcgisMapPlatform.instance.createExportVectorTilesTask(url: url);
-    return ExportVectorTilesTask._(url: url, referenceHashCode: refHashCode);
+    final instance = ExportVectorTilesTask._(
+      url: url,
+      id: UniqueKey().toString(),
+    );
+    await ArcgisMapPlatform.instance
+        .createExportVectorTilesTask(task: instance);
+    return instance;
   }
 
   Future<void> startExportVectorTilesTaskJob({
@@ -23,14 +28,17 @@ class ExportVectorTilesTask {
     required Function(int) onProgressChange,
   }) async {
     await ArcgisMapPlatform.instance.startExportVectorTilesTaskJob(
-      task: this,
+      taskId: id,
       parameters: parameters,
       vectorTileCachePath: vectorTileCachePath,
       onProgressChange: onProgressChange,
     );
   }
 
-  @override
-  // ignore: hash_and_equals
-  int get hashCode => referenceHashCode;
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'url': url,
+    };
+  }
 }

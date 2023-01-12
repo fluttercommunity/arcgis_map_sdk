@@ -143,8 +143,12 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<int> createExportVectorTilesTask({
-    required String url,
+  Future<Envelope> getVisibleAreaExtent(int mapId) {
+    throw UnimplementedError('getVisibleAreaExtent() has not been implemented');
+  }
+
+  Future<void> createExportVectorTilesTask({
+    required ExportVectorTilesTask task,
   }) {
     throw UnimplementedError(
       'createExportVectorTilesTask() has not been implemented.',
@@ -152,7 +156,7 @@ class ArcgisMapPlatform extends PlatformInterface {
   }
 
   Future<void> startExportVectorTilesTaskJob({
-    required ExportVectorTilesTask task,
+    required String taskId,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
     required Function(int progress)? onProgressChange,

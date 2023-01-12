@@ -10,10 +10,9 @@ import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.MapView
-import esri.arcgis.flutter_plugin.model.AnimationOptions
-import esri.arcgis.flutter_plugin.model.ArcgisMapOptions
-import esri.arcgis.flutter_plugin.model.LatLng
-import esri.arcgis.flutter_plugin.model.ViewPadding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import esri.arcgis.flutter_plugin.model.*
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -91,6 +90,7 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
+                "get_visible_area_extent" -> onGetVisibleAreaExtent(result = result)
                 else -> result.notImplemented()
             }
         }
@@ -196,6 +196,11 @@ internal class ArcgisMapView(
                 result.error("Error", e.message, e)
             }
         }
+    }
+
+    private fun onGetVisibleAreaExtent(result: MethodChannel.Result) {
+        val json = gson.toJson(mapView.visibleArea.extent.toEnvelopePayload())
+        result.success(json)
     }
 
     /**

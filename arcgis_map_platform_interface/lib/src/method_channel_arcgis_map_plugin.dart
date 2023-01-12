@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -181,24 +182,32 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<int> createExportVectorTilesTask({
-    required String url,
+  Future<Envelope> getVisibleAreaExtent(int mapId) async {
+    final result = await _viewMethodChannelBuilder(mapId)
+        .invokeMethod("get_visible_area_extent") as String;
+    return Envelope.fromMap(json.decode(result) as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> createExportVectorTilesTask({
+    required ExportVectorTilesTask task,
   }) async {
-    final referenceHashCode = await _methodChannel
-        .invokeMethod('create_export_vector_tiles_task', {'url': url});
-    return referenceHashCode as int;
+    await _methodChannel.invokeMethod(
+      'create_export_vector_tiles_task',
+      task.toMap(),
+    );
   }
 
   @override
   Future<void> startExportVectorTilesTaskJob({
-    required ExportVectorTilesTask task,
+    required String taskId,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
     required Function(int progress)? onProgressChange,
   }) async {
     final listener = _methodCallStreamController.stream.listen((event) {
       if (event.method == "export_vector_tiles_job_progress" &&
-          event.arguments["referenceHashCode"] == task.hashCode) {
+          event.arguments["taskId"] == taskId) {
         final progress = event.arguments["progress"] as int;
         onProgressChange?.call(progress);
       }
@@ -206,11 +215,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     await _methodChannel.invokeMethod(
       'start_export_vector_tiles_task_job',
       {
-        'referenceHashCode': task.hashCode,
+        'taskId': taskId,
         'exportVectorTilesParameters': parameters.toMap(),
         'vectorTileCachePath': vectorTileCachePath,
       },
-    ) as Map<String, dynamic>;
+    );
     listener.cancel();
   }
 }

@@ -139,4 +139,8 @@ class ArcgisMapController {
   List<String> getVisibleGraphicIds() {
     return ArcgisMapPlatform.instance.getVisibleGraphicIds(mapId);
   }
+
+  Future<Envelope> getVisibleAreaExtent() {
+    return ArcgisMapPlatform.instance.getVisibleAreaExtent(mapId);
+  }
 }
