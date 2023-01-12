@@ -1,25 +1,31 @@
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
-
 class Envelope {
-  final Point min;
-  final Point max;
+  final double xMin;
+  final double yMin;
+  final double xMax;
+  final double yMax;
 
   const Envelope({
-    required this.min,
-    required this.max,
+    required this.xMin,
+    required this.yMin,
+    required this.xMax,
+    required this.yMax,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'min': min.toMap(),
-      'max': max.toMap(),
+      'xMin': xMin,
+      'yMin': yMin,
+      'xMax': xMax,
+      'yMax': yMax,
     };
   }
 
   factory Envelope.fromMap(Map<String, dynamic> map) {
     return Envelope(
-      min: Point.fromMap(map['min'] as Map<String, dynamic>),
-      max: Point.fromMap(map['max'] as Map<String, dynamic>),
+      xMin: map['xMin'] as double,
+      yMin: map['yMin'] as double,
+      xMax: map['xMax'] as double,
+      yMax: map['yMax'] as double,
     );
   }
 }

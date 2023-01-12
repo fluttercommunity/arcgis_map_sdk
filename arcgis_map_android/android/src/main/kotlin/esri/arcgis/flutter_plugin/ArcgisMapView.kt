@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.data.VectorTileCache
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
@@ -51,8 +52,12 @@ internal class ArcgisMapView(
         if (mapOptions.basemap != null) {
             map.basemap = Basemap(mapOptions.basemap)
         } else {
-            val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
-
+            val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }.toMutableList()
+            val vectorTileCacheFiles= mapOptions.vectorTileCacheFiles
+            if (!vectorTileCacheFiles.isNullOrEmpty()) {
+                val cacheLayers = vectorTileCacheFiles.map { ArcGISVectorTiledLayer(VectorTileCache(it)) }
+                layers.addAll(0, cacheLayers)
+            }
             map.basemap = Basemap(layers, null)
         }
 

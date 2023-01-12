@@ -33,6 +33,7 @@ class ArcgisMap extends StatefulWidget {
     this.yMax = 66,
     this.onMapCreated,
     this.vectorTileLayerUrls,
+    this.vectorTileCacheFiles,
     Key? key,
   })  : assert(
           basemap != null ||
@@ -60,6 +61,7 @@ class ArcgisMap extends StatefulWidget {
   /// When the [vectorTileLayerUrls] is not empty, the [basemap] field
   /// is ignored.
   final List<String>? vectorTileLayerUrls;
+  final List<String>? vectorTileCacheFiles;
 
   final void Function(ArcgisMapController controller)? onMapCreated;
 
@@ -88,6 +90,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     yMin: widget.yMin,
     yMax: widget.yMax,
     vectorTilesUrls: widget.vectorTileLayerUrls,
+    vectorTileCacheFiles: widget.vectorTileCacheFiles,
   );
 
   Future<void> onPlatformViewCreated(int id) async {
@@ -133,6 +136,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       yMin: widget.yMin,
       yMax: widget.yMax,
       vectorTilesUrls: widget.vectorTileLayerUrls,
+      vectorTileCacheFiles: widget.vectorTileCacheFiles,
     );
   }
 

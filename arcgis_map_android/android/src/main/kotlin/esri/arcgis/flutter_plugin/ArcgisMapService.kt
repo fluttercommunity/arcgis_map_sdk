@@ -64,7 +64,7 @@ class ArcgisMapService(binaryMessenger: BinaryMessenger) :
             )
         }
 
-        lateinit var jobChangedListener: Runnable;
+        lateinit var jobChangedListener: Runnable
         jobChangedListener = Runnable {
             when (job.status) {
                 Job.Status.FAILED -> {

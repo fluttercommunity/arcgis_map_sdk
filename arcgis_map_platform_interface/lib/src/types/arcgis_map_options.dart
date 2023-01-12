@@ -26,6 +26,7 @@ class ArcgisMapOptions {
   final double yMax;
   final BaseMap? basemap;
   final List<String>? vectorTilesUrls;
+  final List<String>? vectorTileCacheFiles;
 
   const ArcgisMapOptions({
     required this.apiKey,
@@ -44,6 +45,7 @@ class ArcgisMapOptions {
     required this.yMax,
     this.basemap,
     this.vectorTilesUrls,
+    this.vectorTileCacheFiles,
   });
 
   Map<String, dynamic> toMap() {
@@ -51,6 +53,7 @@ class ArcgisMapOptions {
       'apiKey': apiKey,
       'basemap': basemap?.name,
       "vectorTilesUrls": vectorTilesUrls,
+      "vectorTileCacheFiles": vectorTileCacheFiles,
       'initialCenter': initialCenter.toMap(),
       'isInteractive': isInteractive,
       'zoom': zoom,
