@@ -9,7 +9,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
 
   Stream<double>? _zoomEventStream;
-  final _methodCallStreamController = StreamController<MethodCall>();
+  final _methodCallStreamController = StreamController<MethodCall>.broadcast();
 
   static const _methodChannel = MethodChannel("esri.arcgis.flutter_plugin");
 
