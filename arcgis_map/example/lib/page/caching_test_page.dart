@@ -135,7 +135,6 @@ class _MapBottomSheetState extends State<_MapBottomSheet> {
         )
       ],
     );
-    ;
   }
 
   static Future<String> _getVectorTileCachePath() async {
