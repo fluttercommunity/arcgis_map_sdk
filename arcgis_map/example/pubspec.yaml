@@ -24,13 +24,13 @@ dependencies:
       url: git@github.com:vfdigitalincubator/arcgis_flutter.git
       path: arcgis_map_web
       ref: v0.6.19
-  path_provider: ^2.0.11
   cupertino_icons: ^1.0.0
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
   js: ^0.6.2
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:
