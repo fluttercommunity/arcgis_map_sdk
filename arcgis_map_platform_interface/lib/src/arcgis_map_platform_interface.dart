@@ -121,7 +121,7 @@ class ArcgisMapPlatform extends PlatformInterface {
   }
 
   Future<void> setInteraction(int mapId, {required bool isEnabled}) {
-    throw UnimplementedError('addOrUpdateGraphic() has not been implemented.');
+    throw UnimplementedError('setInteraction() has not been implemented.');
   }
 
   /// Adds the provided graphic to the map.
