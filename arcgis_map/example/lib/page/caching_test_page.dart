@@ -14,27 +14,86 @@ class CachingTestPage extends StatefulWidget {
 }
 
 class _CachingTestPageState extends State<CachingTestPage> {
+  static const vectorTileLayerUrl =
+      "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer";
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  File? _cacheFile;
+  int? _fileSize;
+  var _mapKey = const Key("map");
+  ArcgisMapController? controller;
+
+  double? _progress;
+  Object? _exception;
+  var _isDownloading = false;
+
+  ExportVectorTilesTask? _task;
+
+  @override
+  void initState() {
+    _refreshCacheStatus();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _task?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text("Cache example")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
-              child: Text(
-                "If caching is working you should see the content of the map instantly after opening it more then once.",
-                textAlign: TextAlign.center,
-              ),
+            Row(
+              children: [
+                if (_cacheFile != null && _fileSize != null) ...[
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: Text(
+                      "File size: ${(_fileSize! / 1024 / 1024).toStringAsFixed(2)} mb",
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _deleteCache,
+                    icon: const Icon(Icons.delete),
+                  ),
+                ] else
+                  const Text("No cache to read."),
+              ],
+            ),
+            Text(_generateJobStatus()),
+            TextButton(
+              onPressed: _download,
+              child: const Text("Start download"),
             ),
             TextButton(
-              onPressed: _openBottomSheet,
-              child: const Text("Open bottom sheet"),
+              onPressed: () {
+                setState(() {
+                  _mapKey = Key("${DateTime.now().millisecondsSinceEpoch}");
+                });
+              },
+              child: const Text("Recreate map"),
+            ),
+            Expanded(
+              child: ArcgisMap(
+                key: _mapKey,
+                onMapCreated: (c) => controller = c,
+                apiKey: arcGisApiKey,
+                initialCenter: LatLng(51.16, 10.45),
+                zoom: 28,
+                vectorTileLayerUrls: const [vectorTileLayerUrl],
+                vectorTileCacheFiles: [
+                  if (_cacheFile != null) _cacheFile!.path,
+                ],
+              ),
             ),
           ],
         ),
@@ -42,124 +101,84 @@ class _CachingTestPageState extends State<CachingTestPage> {
     );
   }
 
-  void _openBottomSheet() {
-    _scaffoldKey.currentState!.showBottomSheet(
-      (context) => _MapBottomSheet(),
-      constraints: const BoxConstraints(maxHeight: 400),
-      enableDrag: false,
-    );
+  Future<void> _refreshCacheStatus() async {
+    final cacheFile = File(await _getVectorTileCachePath());
+
+    if (!cacheFile.existsSync() && mounted) {
+      setState(() {
+        _fileSize = null;
+        _cacheFile = null;
+      });
+      return;
+    }
+
+    final fileSize = await cacheFile.length();
+    if (!mounted) return;
+
+    setState(() {
+      _fileSize = fileSize;
+      _cacheFile = cacheFile;
+    });
   }
-}
 
-class _MapBottomSheet extends StatefulWidget {
-  @override
-  State<_MapBottomSheet> createState() => _MapBottomSheetState();
-}
+  Future<void> _deleteCache() async {
+    final cacheFile = File(await _getVectorTileCachePath());
+    await cacheFile.delete();
+    await _refreshCacheStatus();
+  }
 
-class _MapBottomSheetState extends State<_MapBottomSheet> {
-  static const vectorTileLayerUrl =
-      "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer";
-  List<String>? _cachedVectorTiles;
-  String shownText = "";
+  Future<void> _download() async {
+    if (_isDownloading) return;
 
-  Future<void> onMapCreated(ArcgisMapController controller) async {
-    final isAlreadyCached = _cachedVectorTiles!.isNotEmpty;
-    if (isAlreadyCached) return;
-    await Future.delayed(const Duration(seconds: 2));
-    final task = await ExportVectorTilesTask.create(url: vectorTileLayerUrl);
+    final controller = this.controller;
+    if (controller == null) return;
+    await _task?.cancel();
+
+    _task = await ExportVectorTilesTask.create(url: vectorTileLayerUrl);
     final areaOfInterest = await controller.getVisibleAreaExtent();
     final vectorTileCachePath = await _getVectorTileCachePath();
+
+    if (!mounted) return;
+    setState(() {
+      _exception = null;
+      _progress = null;
+      _isDownloading = true;
+    });
+
     try {
-      await task.startExportVectorTilesTaskJob(
+      await _task!.start(
         parameters: ExportVectorTilesParameters(
           areaOfInterest: areaOfInterest,
-          maxLevel: 16,
+          maxLevel: 1,
         ),
         vectorTileCachePath: vectorTileCachePath,
         onProgressChange: (progress) {
-          if (mounted) {
-            _updateShownText("Download Progress: $progress%");
-          }
-          debugPrint('ExportVectorTilesJob $progress');
+          setState(() => _progress = progress);
         },
       );
-      if (mounted) {
-        _updateShownText("Download Completed");
-      }
-      debugPrint('ExportVectorTilesJob Completed');
+      await _refreshCacheStatus();
     } catch (e) {
-      if (mounted) {
-        _updateShownText("Download Failed");
-      }
-      debugPrint('ExportVectorTilesJob Failed: $e');
+      if (!mounted) return;
+      setState(() => _exception = e);
     }
+
+    if (!mounted) return;
+    setState(() => _isDownloading = false);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _checkCachedVectorTiles();
+  String _generateJobStatus() {
+    if (_exception != null) {
+      return "Download failed.: $_exception";
+    }
+    if (_progress != null && _progress! < 100) {
+      return "Downloading... $_progress%";
+    }
+
+    return "";
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final cachedVectorTiles = _cachedVectorTiles;
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        if (cachedVectorTiles != null)
-          ArcgisMap(
-            onMapCreated: onMapCreated,
-            apiKey: arcGisApiKey,
-            initialCenter: LatLng(51.16, 10.45),
-            zoom: 13,
-            vectorTileLayerUrls: const [vectorTileLayerUrl],
-            vectorTileCacheFiles:
-                cachedVectorTiles.isEmpty ? null : cachedVectorTiles,
-          ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FloatingActionButton.small(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Icon(Icons.close),
-          ),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            color: Colors.red.withOpacity(.5),
-            child: Text(shownText),
-          ),
-        )
-      ],
-    );
-  }
-
-  static Future<String> _getVectorTileCachePath() async {
+  Future<String> _getVectorTileCachePath() async {
     final tempDir = await getTemporaryDirectory();
     return '${tempDir.path}/tileCache.vtpk';
-  }
-
-  void _updateShownText(String text) {
-    setState(() {
-      shownText = text;
-    });
-  }
-
-  Future<void> _checkCachedVectorTiles() async {
-    final vectorTileCachePath = await _getVectorTileCachePath();
-    final vectorTileCacheFile = File(vectorTileCachePath);
-    final isCached = await vectorTileCacheFile.exists();
-    setState(() {
-      if (isCached) {
-        shownText = "Vector tile is cached";
-        _cachedVectorTiles = [vectorTileCacheFile.path];
-      } else {
-        shownText = "Vector tile is not cached, download starting soon";
-        _cachedVectorTiles = [];
-      }
-    });
   }
 }

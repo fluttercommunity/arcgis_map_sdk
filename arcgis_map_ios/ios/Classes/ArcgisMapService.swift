@@ -104,6 +104,11 @@ extension AGSExportVectorTilesTask {
         withAreaOfInterest areaOfInterest: AGSEnvelope,
         maxScale: Double
     ) async throws  -> AGSExportVectorTilesParameters {
+        let params = AGSExportVectorTilesParameters()
+        params.areaOfInterest
+        params.esriVectorTilesDownloadOption = .useReducedFontsService
+        params.maxLevel = 2
+        
         try await withCheckedThrowingContinuation { continuation in
             self.defaultExportVectorTilesParameters(withAreaOfInterest: areaOfInterest, maxScale: maxScale) { result, error in
                 if let error = error {
