@@ -30,6 +30,8 @@ class _CachingTestPageState extends State<CachingTestPage> {
 
   ExportVectorTilesTask? _task;
 
+  var _cacheDataOnly = false;
+
   @override
   void initState() {
     _refreshCacheStatus();
@@ -70,6 +72,22 @@ class _CachingTestPageState extends State<CachingTestPage> {
               ],
             ),
             Text(_generateJobStatus()),
+            if (_cacheFile != null)
+              Row(
+                children: [
+                  const Text("Only show cache tiles"),
+                  Switch.adaptive(
+                    value: _cacheDataOnly,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _cacheDataOnly = newValue;
+                        _mapKey =
+                            Key("${DateTime.now().millisecondsSinceEpoch}");
+                      });
+                    },
+                  ),
+                ],
+              ),
             TextButton(
               onPressed: _download,
               child: const Text("Start download"),
@@ -89,7 +107,9 @@ class _CachingTestPageState extends State<CachingTestPage> {
                 apiKey: arcGisApiKey,
                 initialCenter: LatLng(51.16, 10.45),
                 zoom: 28,
-                vectorTileLayerUrls: const [vectorTileLayerUrl],
+                vectorTileLayerUrls: [
+                  if (!_cacheDataOnly) vectorTileLayerUrl,
+                ],
                 vectorTileCacheFiles: [
                   if (_cacheFile != null) _cacheFile!.path,
                 ],
@@ -149,15 +169,18 @@ class _CachingTestPageState extends State<CachingTestPage> {
       await _task!.start(
         parameters: ExportVectorTilesParameters(
           areaOfInterest: areaOfInterest,
-          maxLevel: 1,
+          maxLevel: 23,
         ),
         vectorTileCachePath: vectorTileCachePath,
         onProgressChange: (progress) {
+          if (!mounted) return;
           setState(() => _progress = progress);
         },
       );
+      debugPrint("Download done.");
       await _refreshCacheStatus();
     } catch (e) {
+      debugPrint("failed: $e");
       if (!mounted) return;
       setState(() => _exception = e);
     }

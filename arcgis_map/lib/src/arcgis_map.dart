@@ -37,7 +37,9 @@ class ArcgisMap extends StatefulWidget {
     Key? key,
   })  : assert(
           basemap != null ||
-              (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
+              (vectorTileLayerUrls != null &&
+                  (vectorTileLayerUrls.length > 0)) ||
+              (vectorTileCacheFiles != null && vectorTileCacheFiles.length > 0),
         ),
         super(key: key);
 
