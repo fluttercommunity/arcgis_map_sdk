@@ -203,12 +203,12 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required String taskId,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
-    required Function(int progress)? onProgressChange,
+    required Function(double progress)? onProgressChange,
   }) async {
     final listener = _methodCallStreamController.stream.listen((event) {
       if (event.method == "export_vector_tiles_job_progress" &&
           event.arguments["taskId"] == taskId) {
-        final progress = event.arguments["progress"] as int;
+        final progress = event.arguments["progress"] as double;
         onProgressChange?.call(progress);
       }
     });
@@ -221,5 +221,12 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       },
     );
     listener.cancel();
+  }
+
+  @override
+  Future<void> cancelExportVectorTileTaskJob({required String taskId}) {
+    return _methodChannel.invokeMethod("cancel_export_vector_tiles_task_job", {
+      'taskId': taskId,
+    });
   }
 }

@@ -9,13 +9,21 @@ import Foundation
 import ArcGIS
 
 struct EnvelopePayload: Codable {
-    let min: LatLng
-    let max: LatLng
+    let xMin: Double
+    let yMin: Double
+    let xMax: Double
+    let yMax: Double
 }
 
 extension EnvelopePayload {
-    func toAGSEnvelope() -> AGSEnvelope {
-        return AGSEnvelope(min: min.toAGSPoint(), max: max.toAGSPoint())
+    func toAGSEnvelope(spatialReference: AGSSpatialReference? = nil) -> AGSEnvelope {
+        return AGSEnvelope(xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax, spatialReference: spatialReference)
+    }
+}
+
+extension AGSEnvelope {
+    func toEnvelopePayload() -> EnvelopePayload {
+        return EnvelopePayload(xMin: xMin, yMin: yMin, xMax: xMax, yMax: yMax)
     }
 }
 

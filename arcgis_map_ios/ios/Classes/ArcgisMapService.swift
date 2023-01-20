@@ -8,115 +8,119 @@
 import Foundation
 import ArcGIS
 
-class ExportVectorTilesJobManager {
+class ArcgisMapService {
+    
+    // Key is the id of the task, the value is the actual task
+    private var exportVectorTilesTasks = [String: AGSExportVectorTilesTask]()
+    
+    // Key is the id of the task that created the job, the value is the actual job.
+    private var exportVectorTilesJobs = [String: AGSExportVectorTilesJob]()
     
     private let methodChannel: FlutterMethodChannel
-    private var instances = [String: AGSExportVectorTilesJob]()
     
-    init(messenger: FlutterBinaryMessenger) {
-        self.methodChannel = FlutterMethodChannel(
-            name: "esri.arcgis.flutter_plugin/export_vector_tiles_job",
-            binaryMessenger: messenger
-        )
-        self.methodChannel.setMethodCallHandler { call, result in
-            if(call.method == "create_job") {
-                self.createJob(call, result)
-            }
-            if(call.method == "start_job") {
-                self.startJob(call, result)
-            }
-            if(call.method == "dispose_job") {
-                self.disposeJob(call, result)
-            }
-        }
+    init(methodChannel: FlutterMethodChannel) {
+        self.methodChannel = methodChannel
     }
     
-    private func createJob(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    public func onCreateExportVectorTilesTask(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let dict = call.arguments! as! Dictionary<String, Any>
-        let jobId = dict["id"] as! String
         let url = dict["url"] as! String
-        let maxScale = dict["maxScale"]! as! Double
-        let areaOfInterst: EnvelopePayload = try! JsonUtil.objectOfJson(dict["areaOfInterest"]! as! Dictionary<String, Any>)
-        let vectorTileCachePath = dict["vectorTileCachePath"] as! String
+        let taskId = dict["id"] as! String
         
-        Task {
-            let task = AGSExportVectorTilesTask(url: URL(string: url)!)
-            try! await task.loadAsync()
-            
-            let parameters = try! await task.defaultExportVectorTilesParametersAsync(
-                withAreaOfInterest: areaOfInterst.toAGSEnvelope(),
-                maxScale: maxScale
-            )
-            instances[jobId] = task.exportVectorTilesJob(with: parameters, downloadFileURL: URL(string: vectorTileCachePath)!)
-            
-            result(nil)
-        }
+        let exportTask = AGSExportVectorTilesTask(url: URL(string: url)!)
+        exportVectorTilesTasks[taskId] = exportTask
+        result(nil)
     }
     
-    private func startJob(_ call: FlutterMethodCall, _ result:@escaping FlutterResult) {
+    public func onStartExportVectorTileTaskJob(_ call: FlutterMethodCall, _ result:@escaping FlutterResult) {
         let dict = call.arguments! as! Dictionary<String, Any>
-        let jobId = dict["id"] as! String
-        let job = instances[jobId]!
+        let taskId = dict["taskId"] as! String
+        let exportParamsDict = dict["exportVectorTilesParameters"] as! Dictionary<String, Any>
+        let exportParams: ExportVectorTilesParametersPayload = try! JsonUtil.objectOfJson(exportParamsDict)
+        let vectorTileCachePath = dict["vectorTileCachePath"] as! String
+        let task = exportVectorTilesTasks[taskId]!
+        
+        let job = task.exportVectorTilesJob(
+            with: exportParams.toAgsExportVectorTileParameters(),
+            downloadFileURL: URL(string: vectorTileCachePath)!
+        )
+        // Cancel the existing job before we overwrite it.
+        if let existingJob = exportVectorTilesJobs[taskId] {
+            existingJob.cancel {_ in }
+        }
+        exportVectorTilesJobs[taskId] = job
         
         job.start(
             statusHandler: { status in
+                let progress = Double(job.progress.completedUnitCount) / Double(job.progress.totalUnitCount)
                 
+                self.methodChannel.invokeMethod(
+                    "export_vector_tiles_job_progress",
+                    arguments: ["taskId" : taskId, "progress" : progress]
+                )
+                
+                // TODO how to notify when job is cancled?
+                switch(status) {
+                case .succeeded:
+                    result(nil)
+                case .failed:
+                    result(FlutterError(code: "download_failed", message: "Download failed \(job.error?.localizedDescription)", details: nil))
+                @unknown default:
+                    print("\(status)")
+                }
             },
             completion: { data, error in
-                if let data = data {
-                    result(data)
-                }
                 if let error = error {
-                    result(error)
+                    result(FlutterError(code: "export_task_error", message: error.localizedDescription, details: nil))
+                } else {
+                    result(nil)
                 }
             }
         )
     }
     
-    private func disposeJob(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dict = call.arguments! as! Dictionary<String, Any>
-        let jobId = dict["id"] as! String
-        let job = instances[jobId]!
+    public func cancelJob(_ call: FlutterMethodCall, _ result:@escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let taskId = dict["taskId"] as! String
+        
+        guard let job = exportVectorTilesJobs[taskId] else {
+            result(FlutterError(code: "task_not_found", message: "Task with id\(taskId) not found", details: nil))
+            return
+        }
+        
         
         job.cancel { error in
-            self.instances.removeValue(forKey: jobId)
-            result(error?.localizedDescription)
+            guard let error = error else {
+                result(nil)
+                return
+            }
+            result(FlutterError(code: "job_cancel_failed", message: "Canceling job failed: \(error.localizedDescription)", details: nil))
         }
+    }
+    
+    public func cancelJobs(_ result:@escaping FlutterResult) {
+        exportVectorTilesJobs.forEach { taskId, job in
+            job.cancel { _ in
+                self.exportVectorTilesJobs[taskId] = nil
+            }
+        }
+        
+        result(nil)
     }
 }
 
 
-extension AGSExportVectorTilesTask {
-    func loadAsync() async throws {
-        return try await withCheckedThrowingContinuation { continuation in
-            self.load { error in
-                if let error = error {
-                    continuation.resume(with: .failure(error))
-                }
-                else {
-                    continuation.resume(returning: Void())
-                }
-            }
-        }
-    }
-    
-    func defaultExportVectorTilesParametersAsync(
-        withAreaOfInterest areaOfInterest: AGSEnvelope,
-        maxScale: Double
-    ) async throws  -> AGSExportVectorTilesParameters {
+struct ExportVectorTilesParametersPayload: Codable {
+    let areaOfInterest: EnvelopePayload
+    let maxLevel: Int
+}
+
+extension ExportVectorTilesParametersPayload {
+    func toAgsExportVectorTileParameters() -> AGSExportVectorTilesParameters {
         let params = AGSExportVectorTilesParameters()
-        params.areaOfInterest
-        params.esriVectorTilesDownloadOption = .useReducedFontsService
-        params.maxLevel = 2
+        params.maxLevel = self.maxLevel
+        params.areaOfInterest = self.areaOfInterest.toAGSEnvelope(spatialReference: .webMercator())
         
-        try await withCheckedThrowingContinuation { continuation in
-            self.defaultExportVectorTilesParameters(withAreaOfInterest: areaOfInterest, maxScale: maxScale) { result, error in
-                if let error = error {
-                    continuation.resume(with: .failure(error))
-                } else {
-                    continuation.resume(returning: result!)
-                }
-            }
-        }
+        return params
     }
 }

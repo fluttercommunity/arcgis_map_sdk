@@ -22,17 +22,21 @@ class ExportVectorTilesTask {
     return instance;
   }
 
-  Future<void> startExportVectorTilesTaskJob({
+  Future<void> start({
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
-    required Function(int) onProgressChange,
-  }) async {
-    await ArcgisMapPlatform.instance.startExportVectorTilesTaskJob(
+    required Function(double progress) onProgressChange,
+  }) {
+    return ArcgisMapPlatform.instance.startExportVectorTilesTaskJob(
       taskId: id,
       parameters: parameters,
       vectorTileCachePath: vectorTileCachePath,
       onProgressChange: onProgressChange,
     );
+  }
+
+  Future<void> cancel() {
+    return ArcgisMapPlatform.instance.cancelExportVectorTileTaskJob(taskId: id);
   }
 
   Map<String, dynamic> toMap() {

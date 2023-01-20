@@ -159,10 +159,16 @@ class ArcgisMapPlatform extends PlatformInterface {
     required String taskId,
     required ExportVectorTilesParameters parameters,
     required String vectorTileCachePath,
-    required Function(int progress)? onProgressChange,
+    required Function(double progress)? onProgressChange,
   }) {
     throw UnimplementedError(
       'startExportVectorTilesTaskJob() has not been implemented.',
+    );
+  }
+
+  Future<void> cancelExportVectorTileTaskJob({required String taskId}) {
+    throw UnimplementedError(
+      'cancelExportVectorTileTaskJob() has not been implemented.',
     );
   }
 

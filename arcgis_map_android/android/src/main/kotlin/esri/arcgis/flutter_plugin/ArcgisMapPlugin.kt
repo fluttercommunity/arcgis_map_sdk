@@ -12,8 +12,7 @@ class ArcgisMapPlugin : FlutterPlugin {
                 "<native_map_view>",
                 ArcgisMapViewFactory(flutterPluginBinding.binaryMessenger)
             )
-        arcgisMapService =
-            esri.arcgis.flutter_plugin.ArcgisMapService(flutterPluginBinding.binaryMessenger)
+        arcgisMapService = ArcgisMapService(flutterPluginBinding.binaryMessenger)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {

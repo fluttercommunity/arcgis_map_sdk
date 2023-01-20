@@ -11,8 +11,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private var mapView: AGSMapView
     private let map = AGSMap()
     
-    let vectorTileCacheURL: URL
-    
     func view() -> UIView {
         return mapView
     }
@@ -33,13 +31,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         zoomEventChannel.setStreamHandler(zoomStreamHandler)
         
-        let temporaryDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("tile-cache")
-        try? FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: false)
-        
-        vectorTileCacheURL = temporaryDirectory
-            .appendingPathComponent("myTileCache", isDirectory: false)
-            .appendingPathExtension("vtpk")
-        
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
         
@@ -51,18 +42,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             var layers = mapOptions.vectorTilesUrls!.map { url in
                 AGSArcGISVectorTiledLayer(url: URL(string: url)!)
             }
-            if FileManager.default.fileExists(atPath: vectorTileCacheURL.path) {
-                let cacheLayer = AGSArcGISVectorTiledLayer(vectorTileCache: AGSVectorTileCache(fileURL: vectorTileCacheURL))
-                layers.insert(cacheLayer, at: 0)
-            }
-            else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                    self!.downloadVectorTile(mapOptions.vectorTilesUrls!.first!)
+            if let cacheFiles = mapOptions.vectorTileCacheFiles {
+                let cacheLayers = cacheFiles.map { string in
+                    let url = URL(string: string)!
+                    return AGSArcGISVectorTiledLayer(vectorTileCache: AGSVectorTileCache(fileURL: url))
                 }
+                layers.insert(contentsOf: cacheLayers, at: 0)
             }
+
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
-            
-            
         }
         
         map.minScale = getMapScale(mapOptions.minZoom)
@@ -87,13 +75,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         mapView.setViewpoint(viewport, duration: 0) { _ in }
         
-        /*
-        map.maxExtent = AGSEnvelope(
-            min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
-            max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
-        )
-        */
-        
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
     }
@@ -106,6 +87,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "get_visible_area_extent" : onGetVisibleAreaExtent(result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -171,6 +153,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
     
+    private func onGetVisibleAreaExtent(_ result: @escaping FlutterResult) {
+        let extent = mapView.visibleArea!.extent.toEnvelopePayload()
+        try! result(JsonUtil.objectToJson(extent))
+    }
+    
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
         
@@ -185,100 +172,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView.interactionOptions.isMagnifierEnabled = enabled
         mapView.interactionOptions.isRotateEnabled = enabled
         mapView.interactionOptions.isEnabled = enabled
-    }
-    
-    var exportTask: AGSExportVectorTilesTask?
-    var job: AGSExportVectorTilesJob?
-    
-    private func downloadVectorTile(_ url: String) {
-        /*
-         From the tutorial:
-         Create an AGSArcGISVectorTiledLayer, from the map's base layers.
-         Create an AGSExportVectorTilesTask using the vector tiled layer's URL.
-         Create default AGSExportVectorTilesParameters from the task, specifying extent and maximum scale.
-         Create an AGSExportVectorTilesJob from the task using the parameters, specifying a vector tile cache path, and an item resource path. The resource path is required if you want to export the tiles with the style.
-         Start the job, and once it completes successfully, get the resulting AGSExportVectorTilesResult.
-         Get the AGSVectorTileCache and AGSItemResourceCache from the result to create an AGSArcGISVectorTiledLayer that can be displayed to the map view.
-         */
-        
-        // Set the max scale parameter to 7% of the map's scale to limit
-        // number of tiles exported to within the vector tiled layer's max tile export limit.
-        let maxScale = mapView.mapScale * 0.07
-        // Get current area of interest marked by the extent view.
-        let areaOfInterest = envelope(for: mapView)
-        // Get the parameters by specifying the selected area and vector tiled layer's max scale as maxScale.
-        exportTask = AGSExportVectorTilesTask(url: URL(string: url)!)
-        exportTask!.load { [weak self] error in
-            guard let self = self else { return }
-            if let error = error {
-                print("Error while loading initial export task: \(error)")
-            } else {
-                let vectorTileInfo = self.exportTask!.vectorTileSourceInfo
-                
-                print("Exporing with \(areaOfInterest.center) and maxScale: \(maxScale)")
-                print("Vector tile source: \(vectorTileInfo)")
-                print("Allows export: \(vectorTileInfo?.exportTilesAllowed)")
-                
-                self.exportTask?.defaultExportVectorTilesParameters(withAreaOfInterest: areaOfInterest, maxScale: maxScale, completion: { [weak self] parameters, error in
-                    guard let self = self, let exportTask = self.exportTask else { return }
-                    if let params = parameters {
-                        self.exportVectorTiles(exportTask: exportTask, parameters: params)
-                    }
-                    else {
-                        print("error: \(String(describing: error))")
-                        //self.presentAlert(error: error)
-                    }
-                })
-            }
-        }
-    }
-    
-    func exportVectorTiles(
-      exportTask: AGSExportVectorTilesTask,
-      parameters: AGSExportVectorTilesParameters
-    ) {
-        print("Creating job...")
-        let job = exportTask.exportVectorTilesJob(with: parameters, downloadFileURL: vectorTileCacheURL)
-        
-      self.job = job
-      // Start the job.
-        job.start(
-            statusHandler: { status in
-                let progress = job.progress
-                print("Job update: \(progress.fractionCompleted) -> \(progress.completedUnitCount)/\(progress.totalUnitCount)")
-        }) { [weak self] (result, error) in
-          print("Job done: \(result), \(error)")
-          
-            
-        guard let self = self else { return }
-        self.job = nil
-        if let result = result,
-          let tileCache = result.vectorTileCache
-        {
-            print("Download done: \(tileCache.fileURL)")
-            print("URL: \(self.vectorTileCacheURL.path)")
-            
-          // Create the vector tiled layer with the tile cache and item resource cache.
-            let vectorTiledLayer = AGSArcGISVectorTiledLayer(
-                vectorTileCache: tileCache
-            )
-            
-        } else if let error = error {
-          let nsError = error as NSError
-          if !(nsError.domain == NSCocoaErrorDomain && nsError.code == NSUserCancelledError) {
-            print("Fuck: \(error)")
-          }
-        }
-      }
-    }
-
-    
-    func envelope(for view: UIView) -> AGSEnvelope {
-        let frame = view.frame
-        let minPoint = mapView.screen(toLocation: CGPoint(x: frame.minX, y: frame.minY))
-        let maxPoint = mapView.screen(toLocation: CGPoint(x: frame.maxX, y: frame.maxY))
-        let extent = AGSEnvelope(min: minPoint, max: maxPoint)
-        return extent
     }
     
     private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {

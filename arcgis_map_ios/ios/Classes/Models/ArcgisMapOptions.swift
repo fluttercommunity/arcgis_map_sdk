@@ -11,6 +11,7 @@ struct ArcgisMapOptions: Codable {
     let apiKey: String
     let basemap: String?
     let vectorTilesUrls: Array<String>?
+    let vectorTileCacheFiles: Array<String>?
     let initialCenter: LatLng;
     let zoom: Double
     let hideDefaultZoomButtons: Bool

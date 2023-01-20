@@ -8,6 +8,11 @@ class JsonUtil {
 
         return object
     }
+    
+    static func objectToJson<T: Encodable>(_ item: T) throws -> String {
+        let data = try! JSONEncoder().encode(item)
+        return String(decoding: data, as: UTF8.self)
+    }
 }
 
 extension Encodable {
