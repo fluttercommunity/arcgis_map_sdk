@@ -69,9 +69,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let viewport = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
             longitude: mapOptions.initialCenter.longitude,
-            // TODO(tapped): we might not be able to have zoom and scale under the same api
-            // for now we just multiply it by 1000 to have a similar effect
-            scale: mapOptions.zoom * 1000
+            scale: getMapScale(Int(mapOptions.zoom.rounded()))
         )
         mapView.setViewpoint(viewport, duration: 0) { _ in }
         

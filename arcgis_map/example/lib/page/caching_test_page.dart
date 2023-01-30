@@ -106,7 +106,7 @@ class _CachingTestPageState extends State<CachingTestPage> {
                 onMapCreated: (c) => controller = c,
                 apiKey: arcGisApiKey,
                 initialCenter: LatLng(51.16, 10.45),
-                zoom: 28,
+                zoom: 15,
                 vectorTileLayerUrls: [
                   if (!_cacheDataOnly) vectorTileLayerUrl,
                 ],
