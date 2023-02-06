@@ -7,6 +7,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   static const viewType = '<native_map_view>';
 
   Stream<double>? _zoomEventStream;
+  Stream<LatLng>? _centerPositionEventStream;
 
   MethodChannel _methodChannelBuilder(int viewId) =>
       MethodChannel("esri.arcgis.flutter_plugin/$viewId");
@@ -40,7 +41,17 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<LatLng> centerPosition(int mapId) {
-    throw UnimplementedError('centerPosition() has not been implemented');
+    _centerPositionEventStream ??=
+        EventChannel("esri.arcgis.flutter_plugin/$mapId/centerPosition")
+            .receiveBroadcastStream()
+            .cast<Map<dynamic, dynamic>>()
+            .map(
+              (data) => LatLng(
+                (data['latitude'] as num).toDouble(),
+                (data['longitude'] as num).toDouble(),
+              ),
+            );
+    return _centerPositionEventStream!;
   }
 
   @override

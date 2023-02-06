@@ -5,6 +5,7 @@ A package for using arcgis maps with Flutter web.
 ## Add the package to your app
 
 In your app's pubspec.yaml dependencies, add:
+
 ```
   arcgis_map:
     git:
@@ -23,7 +24,14 @@ In your app's pubspec.yaml dependencies, add:
       ref: main
 ```
 
+(Android) In `<app>/android/app/proguard-rules.pro` add:
+
+```
+-keep class esri.arcgis.flutter_plugin.** { *; }
+```
+
 Import the package in your dart file
+
 ```
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';

@@ -8,8 +8,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let methodChannel: FlutterMethodChannel
     private let zoomEventChannel: FlutterEventChannel
     private let zoomStreamHandler = ZoomStreamHandler()
+    private let centerPositionEventChannel: FlutterEventChannel
+    private let centerPositionStreamHandler = CenterPositionStreamHandler()
 
     private var mapScaleObservation: NSKeyValueObservation?
+    private var mapVisibleAreaObservation: NSKeyValueObservation?
 
     private var mapView: AGSMapView
     private let map = AGSMap()
@@ -44,6 +47,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 binaryMessenger: messenger
         )
         zoomEventChannel.setStreamHandler(zoomStreamHandler)
+        centerPositionEventChannel = FlutterEventChannel(
+                name: "esri.arcgis.flutter_plugin/\(viewId)/centerPosition",
+                binaryMessenger: messenger
+        )
+        centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
         AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
         mapView = AGSMapView.init(frame: frame)
@@ -72,6 +80,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 }
                 let newZoom = self.getZoomLevel(self.mapView.mapScale)
                 self.zoomStreamHandler.addZoom(zoom: newZoom)
+            }
+        }
+        mapVisibleAreaObservation = mapView.observe(\.visibleArea) { [weak self] (map, notifier) in
+            DispatchQueue.main.async {
+                guard let self = self else {
+                    return
+                }
+                guard let center = self.mapView.visibleArea?.extent.center else {
+                    return
+                }
+                guard let wgs84Center = AGSGeometryEngine.projectGeometry(center, to: .wgs84()) as? AGSPoint else {return}
+                self.centerPositionStreamHandler.add(center: LatLng(latitude: wgs84Center.y, longitude: wgs84Center.x))
             }
         }
 
