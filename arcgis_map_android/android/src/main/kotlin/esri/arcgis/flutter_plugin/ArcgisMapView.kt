@@ -4,6 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
@@ -45,6 +48,7 @@ internal class ArcgisMapView(
     private val defaultGraphicsOverlay = GraphicsOverlay()
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
+    private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
     private val methodChannel = MethodChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId")
 
@@ -71,6 +75,17 @@ internal class ArcgisMapView(
             val zoomLevel = getZoomLevel(mapView)
 
             zoomStreamHandler.addZoom(zoomLevel)
+        }
+        mapView.addViewpointChangedListener {
+            val center = mapView.visibleArea.extent.center
+            val wgs84Center =
+                GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
+            centerPositionStreamHandler.add(
+                LatLng(
+                    longitude = wgs84Center.x,
+                    latitude = wgs84Center.y
+                )
+            )
         }
 
         val viewPoint = Viewpoint(
@@ -107,9 +122,13 @@ internal class ArcgisMapView(
 
     private fun setupEventChannel() {
         zoomStreamHandler = ZoomStreamHandler()
+        centerPositionStreamHandler = CenterPositionStreamHandler()
 
         EventChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
+
+        EventChannel(binaryMessenger, "esri.arcgis.flutter_plugin/$viewId/centerPosition")
+            .setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {

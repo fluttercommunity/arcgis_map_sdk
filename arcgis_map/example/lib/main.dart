@@ -32,7 +32,7 @@ class ExampleMap extends StatefulWidget {
   const ExampleMap({Key? key}) : super(key: key);
 
   @override
-  _ExampleMapState createState() => _ExampleMapState();
+  State<ExampleMap> createState() => _ExampleMapState();
 }
 
 class _ExampleMapState extends State<ExampleMap> {
