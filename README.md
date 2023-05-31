@@ -2,6 +2,17 @@
 
 A package for using arcgis maps with Flutter web.
 
+
+## Setup
+
+1. Clone the repository.
+2. `cd` into the project directory.
+3. Run `./am init` and ensure it completes without errors.
+
+The project has its own collection of scripts wrapped into one convenient command called `am`.
+Run `./am -h` to explore what the command can do.
+
+
 ## Add the package to your app
 
 In your app's pubspec.yaml dependencies, add:
