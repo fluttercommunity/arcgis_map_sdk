@@ -1,0 +1,22 @@
+name: am_sidekick
+description: Sidekick CLI for am
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+executables:
+  main:
+
+dependencies:
+  dcli: ^1.15.0
+  sidekick_core: ^1.3.1
+  yaml_edit: ^2.0.3
+
+dev_dependencies:
+  lint: ^2.0.1
+
+# generated code, do not edit this manually
+sidekick:
+  cli_version: 1.3.1
