@@ -11,7 +11,7 @@ A package for using arcgis maps with Flutter web.
 
 The project has its own collection of scripts wrapped into one convenient command called `am`.
 Run `./am -h` to explore what the command can do.
-
+This uses the cli tool https://github.com/phntmxyz/sidekick.
 
 ## Add the package to your app
 
