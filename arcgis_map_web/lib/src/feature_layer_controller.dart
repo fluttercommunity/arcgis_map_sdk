@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html' hide VoidCallback;
-import 'dart:js';
 import 'dart:js_util';
 
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
