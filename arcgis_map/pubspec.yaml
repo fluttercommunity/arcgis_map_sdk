@@ -5,7 +5,7 @@ version: 0.9.0
 publish_to: none
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
   arcgis_map_android:
@@ -44,7 +44,3 @@ dependency_overrides:
 
 dev_dependencies:
   flutter_lints: ^2.0.1
-  tapped_lints:
-    git:
-      url: https://github.com/tappeddev/tapped_lints.git
-      ref: master

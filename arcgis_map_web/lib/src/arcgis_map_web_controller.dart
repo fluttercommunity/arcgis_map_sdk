@@ -96,13 +96,13 @@ class ArcgisMapWebController {
 
     // If "hideDefaultZoomButtons" is true, do not show the default zoom buttons.
     // If "hideAttribution" is true, the attribution is not shown.
-    final _hideDefaultZoomButtons = _mapOptions.hideDefaultZoomButtons;
-    final _hideAttribution = _mapOptions.hideAttribution;
-    if (_hideDefaultZoomButtons == true && _hideAttribution == true) {
+    final hideDefaultZoomButtons = _mapOptions.hideDefaultZoomButtons;
+    final hideAttribution = _mapOptions.hideAttribution;
+    if (hideDefaultZoomButtons == true && hideAttribution == true) {
       _view!.ui.components = [];
-    } else if (_hideDefaultZoomButtons == true && _hideAttribution == false) {
+    } else if (hideDefaultZoomButtons == true && hideAttribution == false) {
       _view!.ui.components = ["attribution"];
-    } else if (_hideDefaultZoomButtons == false && _hideAttribution == true) {
+    } else if (hideDefaultZoomButtons == false && hideAttribution == true) {
       _view!.ui.components = ["zoom"];
     }
 

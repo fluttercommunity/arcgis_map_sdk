@@ -70,10 +70,10 @@ packages:
     dependency: "direct dev"
     description:
       name: lint
-      sha256: "29e4570fcef31050c9ca1873f27dd881f462717a1d786d0767ccc19296efd51f"
+      sha256: f4bd4dbaa39f4ae8836f2d1275f2f32bc68b3a8cce0a0735dd1f7a601f06682a
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.2"
+    version: "2.1.2"
   material_color_utilities:
     dependency: transitive
     description:
@@ -120,4 +120,4 @@ packages:
     source: hosted
     version: "2.1.4"
 sdks:
-  dart: ">=3.0.0-0 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"
