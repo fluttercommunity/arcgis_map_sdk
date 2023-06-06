@@ -24,6 +24,7 @@ class ArcgisFlutterProject {
   File get flutterw => root.file('flutterw');
 
   List<DartPackage>? _packages;
+
   List<DartPackage> get allPackages {
     return _packages ??= root
         .directory('')
