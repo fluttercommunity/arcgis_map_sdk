@@ -1,5 +1,8 @@
 .fvm/flutter_sdk
 .fvm/**
+pubspec.yaml.bak
+arcgis_webpack/node_modules
+arcgis_map_web/assets_generator_arguments
 
 # Miscellaneous
 *.class
