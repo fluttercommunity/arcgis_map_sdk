@@ -1,1 +1,1 @@
--t d -s -r lwu
+-t d -s -r lwu --no-watch
