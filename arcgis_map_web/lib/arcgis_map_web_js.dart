@@ -152,6 +152,48 @@ class JsMapView extends Accessor {
   external Object get center;
 }
 
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-SceneView.html
+@JS("esri.core.views.SceneView")
+class JsSceneView extends Accessor {
+  external factory JsSceneView(dynamic map);
+
+  external dynamic get padding;
+
+  /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-SceneView.html#viewingMode
+  /// Possible Values:"global"|"local"
+  external String viewingMode;
+
+  external DefaultUI get ui;
+
+  external set padding(dynamic padding);
+
+  external Promise<JsHitTestResult> hitTest(dynamic event);
+
+  external Promise<Object?> goTo(dynamic target, [dynamic targetOptions]);
+
+  external Collection<JsGraphic> get graphics;
+
+  external String get id;
+
+  external double get zoom;
+
+  external JsViewpoint viewpoint;
+
+  external dynamic container;
+}
+
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-Viewpoint.html
+@JS("esri.core.Viewpoint")
+class JsViewpoint {
+  external factory JsViewpoint(dynamic map);
+
+  external double rotation;
+
+  external double scale;
+
+  external JsGeometry targetGeometry;
+}
+
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-BasemapToggle.html
 @JS("esri.core.widgets.BasemapToggle")
 class BasemapToggle {
