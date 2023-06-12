@@ -19,29 +19,6 @@ extension LatLngJsonExtension on LatLng {
       };
 }
 
-extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
-  Map<String, dynamic> toMap() {
-    return <String, Object?>{
-      'apiKey': apiKey,
-      'basemap': basemap?.name,
-      "vectorTilesUrls": vectorTilesUrls,
-      'initialCenter': initialCenter.toMap(),
-      'isInteractive': isInteractive,
-      'zoom': zoom,
-      'hideDefaultZoomButtons': hideDefaultZoomButtons,
-      'hideAttribution': hideAttribution,
-      'padding': padding.toMap(),
-      'rotationEnabled': rotationEnabled,
-      'minZoom': minZoom,
-      'maxZoom': maxZoom,
-      'xMin': xMin,
-      'xMax': xMax,
-      'yMin': yMin,
-      'yMax': yMax,
-    };
-  }
-}
-
 // region Graphics
 
 extension GraphicToJsonExtension on Graphic {
@@ -58,8 +35,9 @@ extension on PointGraphic {
           'type': 'point',
           'longitude': longitude,
           'latitude': latitude,
+          'z': height,
         },
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
         'symbol': symbol.toJson(),
       };
 }
@@ -68,12 +46,10 @@ extension on PolygonGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polygon',
-          'rings': rings.map(
-            (list) => list.map((e) => [e.longitude, e.latitude]).toList(),
-          ),
+          'rings': rings,
         },
         'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
       };
 }
 
@@ -81,12 +57,10 @@ extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'geometry': <String, dynamic>{
           'type': 'polyline',
-          'paths': paths.map(
-            (path) => path.map((e) => [e.longitude, e.latitude]).toList(),
-          ),
+          'paths': paths,
         },
         'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
       };
 }
 
@@ -98,20 +72,6 @@ extension FieldJsonExtension on Field {
         'alias': name,
         'type': type,
       };
-}
-
-extension ArcGisMapAttributesJsonExtension on ArcGisMapAttributes {
-  Map<String, Object> toMap() {
-    return {
-      'id': id,
-      'name': name,
-    };
-  }
-
-//TODO define static
-/*ArcGisMapAttributes.fromMap(Map<String, Object> map)
-      : id = map['id'].toString(),
-        name = map['name'].toString();*/
 }
 
 /*
@@ -132,20 +92,35 @@ extension SymbolToJsonExtension on Symbol {
         ifSimpleMarkerSymbol: (s) => s.convertToJson(),
         ifPictureMarkerSymbol: (s) => s.convertToJson(),
         ifSimpleLineSymbol: (s) => s.convertToJson(),
+        ifMeshSymbol3D: (s) => s.convertToJson(),
       );
+}
+
+extension on MeshSymbol3D {
+  Map<String, dynamic> convertToJson() => <String, dynamic>{
+        'type': 'mesh-3d',
+        'symbolLayers': [
+          {
+            'type': 'fill',
+            'material': {
+              'color': [color.red, color.green, color.blue, colorOpacity],
+            },
+          },
+        ],
+      };
 }
 
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, color.opacity],
-        'size': size,
+        'color': [color.red, color.green, color.blue, colorOpacity],
+        'size': radius,
         'outline': <String, dynamic>{
           'color': [
             outlineColor.red,
             outlineColor.green,
             outlineColor.blue,
-            outlineColor.opacity
+            outlineColorOpacity
           ],
           'width': outlineWidth,
         },
@@ -166,14 +141,13 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [
-          fillColor.red,
-          fillColor.green,
-          fillColor.blue,
-          fillColor.opacity
-        ],
+        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
         'outline': {
-          'color': [outlineColor.red, outlineColor.green, outlineColor.blue],
+          'color': [
+            outlineColor.red,
+            outlineColor.green,
+            outlineColor.blue
+          ], // White
           'width': outlineWidth
         }
       };
@@ -182,21 +156,20 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, color?.opacity],
+        'color': [color?.red, color?.green, color?.blue, colorOpacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
         'miterLimit': miterLimit,
         'style': style.value,
-        'type': 'simple-line',
-        // autocasts as new SimpleLineSymbol()
+        'type': 'simple-line', // autocasts as new SimpleLineSymbol()
         'width': width,
       };
 }
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, color?.opacity],
+        'color': [color?.red, color?.green, color?.blue, colorOpacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,

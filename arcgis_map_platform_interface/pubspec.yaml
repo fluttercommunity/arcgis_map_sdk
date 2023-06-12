@@ -3,7 +3,7 @@ description: Esri ArcGIS Flutter platform interface.
 version: 0.9.0
 
 environment:
-  sdk: ">=2.15.0 <4.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
   flutter:

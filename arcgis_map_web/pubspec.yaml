@@ -13,6 +13,7 @@ dependencies:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
       ref: main
+  async: ^2.9.0
 
   flutter:
     sdk: flutter

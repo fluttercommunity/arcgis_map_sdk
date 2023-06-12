@@ -11,11 +11,14 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 /// https://developers.arcgis.com/documentation/mapping-apis-and-services/deployment/basemap-attribution/#layout-and-design-guidelines
 class ArcgisMapOptions {
   final String apiKey;
+  final MapStyle mapStyle;
   final LatLng initialCenter;
+  final bool showLabelsBeneathGraphics;
   final bool isInteractive;
   final double zoom;
-  final bool hideDefaultZoomButtons;
-  final bool hideAttribution;
+  final double tilt;
+  final double initialHeight;
+  final double heading;
   final ViewPadding padding;
   final bool rotationEnabled;
   final int minZoom;
@@ -25,15 +28,21 @@ class ArcgisMapOptions {
   final double yMin;
   final double yMax;
   final BaseMap? basemap;
+  final Ground? ground;
   final List<String>? vectorTilesUrls;
+  final List<DefaultWidget> defaultUiList;
+  final bool isPopupEnabled;
 
   const ArcgisMapOptions({
     required this.apiKey,
+    required this.mapStyle,
     required this.initialCenter,
     required this.isInteractive,
+    required this.showLabelsBeneathGraphics,
     required this.zoom,
-    required this.hideDefaultZoomButtons,
-    required this.hideAttribution,
+    required this.tilt,
+    required this.initialHeight,
+    required this.heading,
     required this.padding,
     required this.rotationEnabled,
     required this.minZoom,
@@ -42,14 +51,23 @@ class ArcgisMapOptions {
     required this.xMax,
     required this.yMin,
     required this.yMax,
+    required this.defaultUiList,
     this.basemap,
+    this.ground,
     this.vectorTilesUrls,
+    this.isPopupEnabled = false,
   });
 
   @override
   String toString() {
-    return 'ArcgisMapOptions{apiKey: $apiKey, initialCenter: $initialCenter, isInteractive: $isInteractive, zoom: $zoom, hideDefaultZoomButtons: $hideDefaultZoomButtons, hideAttribution: $hideAttribution, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, vectorTilesUrls: $vectorTilesUrls}';
+    return 'ArcgisMapOptions{apiKey: $apiKey, mapStyle: $mapStyle, initialCenter: $initialCenter, showLabelsBeneathGraphics: $showLabelsBeneathGraphics, isInteractive: $isInteractive, zoom: $zoom, tilt: $tilt, initialHeight: $initialHeight, heading: $heading, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, ground: $ground, vectorTilesUrls: $vectorTilesUrls, defaultUiList: $defaultUiList, isPopupEnabled: $isPopupEnabled}';
   }
+}
+
+// Define MapStyle -- 3D => SceneLayer ; 2D => MapLayer
+enum MapStyle {
+  threeD,
+  twoD,
 }
 
 /// To be added to the map to help re-centering the view.
@@ -87,5 +105,19 @@ class ViewPadding {
   @override
   String toString() {
     return 'ViewPadding{left: $left, top: $top, right: $right, bottom: $bottom}';
+  }
+
+  ViewPadding copyWith({
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+  }) {
+    return ViewPadding(
+      left: left ?? this.left,
+      top: top ?? this.top,
+      right: right ?? this.right,
+      bottom: bottom ?? this.bottom,
+    );
   }
 }
