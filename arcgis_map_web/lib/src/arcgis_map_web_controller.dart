@@ -8,7 +8,10 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:arcgis_map_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_web/src/components/esri_map.dart';
 import 'package:arcgis_map_web/src/components/map_view.dart';
-import 'package:arcgis_map_web/src/feature_layer_controller.dart';
+import 'package:arcgis_map_web/src/components/scene_view.dart';
+import 'package:arcgis_map_web/src/layer_controller.dart';
+import 'package:arcgis_map_web/src/model_extension.dart';
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -16,13 +19,18 @@ import 'package:flutter/widgets.dart';
 class ArcgisMapWebController {
   final int _mapId;
   final ArcgisMapOptions _mapOptions;
+  final Completer<bool> _baseMapLoaded = Completer();
+  ViewPadding? _activePadding;
 
   late JsEsriMap? _map = const EsriMap().init(
     basemap: _mapOptions.basemap?.value,
+    ground: _mapOptions.mapStyle == MapStyle.threeD
+        ? _mapOptions.ground?.value
+        : null,
     vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
   );
 
-  late FeatureLayerController? _featureLayerController = FeatureLayerController(
+  late LayerController? _layerController = LayerController(
     minZoom: _mapOptions.minZoom,
     maxZoom: _mapOptions.maxZoom,
   );
@@ -32,10 +40,17 @@ class ArcgisMapWebController {
     ..style.width = '100%'
     ..style.height = '100%';
 
-  JsMapView? _view;
+  /// Can be either a SceneView (3D) or a MapView (2D)
+  JsView? _activeView;
+
+  // ignore: use_late_for_private_fields_and_variables
+  JsSceneView? _sceneView;
+
+  // ignore: use_late_for_private_fields_and_variables
+  JsMapView? _mapView;
   HtmlElementView? _widget;
-  Handle? _preventInteractionHandle;
-  Handle? _pointerMoveHandle;
+  JsHandle? _preventInteractionHandle;
+  JsHandle? _pointerMoveHandle;
 
   String _getViewType(int mapId) => 'plugins.flutter.io/arcgis_$mapId';
 
@@ -63,6 +78,7 @@ class ArcgisMapWebController {
   })  : _mapId = mapId,
         _streamController = streamController,
         _mapOptions = mapOptions {
+    // ignore: avoid_dynamic_calls
     ui.platformViewRegistry.registerViewFactory(
       _getViewType(_mapId),
       (int viewId) => _div,
@@ -74,44 +90,67 @@ class ArcgisMapWebController {
   }
 
   Future<void> _createMap() async {
+    // ignore: avoid_dynamic_calls
     context["esri"]["core"]["config"]["apiKey"] = _mapOptions.apiKey;
 
-    _view = MapView().init(
-      container: _div,
-      map: _map,
-      center: <double>[
-        _mapOptions.initialCenter.longitude,
-        _mapOptions.initialCenter.latitude
-      ],
-      zoom: _mapOptions.zoom,
-      padding: _mapOptions.padding,
-      rotationEnabled: _mapOptions.rotationEnabled,
-      minZoom: _mapOptions.minZoom,
-      maxZoom: _mapOptions.maxZoom,
-      xMin: _mapOptions.xMin,
-      xMax: _mapOptions.xMax,
-      yMin: _mapOptions.yMin,
-      yMax: _mapOptions.yMax,
+    if (_mapOptions.mapStyle == MapStyle.threeD) {
+      _sceneView = _createJsSceneView();
+      _sceneView!.container = _div;
+      _activeView = _sceneView! as JsView;
+    } else {
+      _mapView = _createJsMapView();
+      _mapView!.container = _div;
+      _activeView = _mapView! as JsView;
+    }
+
+    // Notifies the controller that the map is ready to be used and [moveBaseMapLabelsToBackground]
+    // can be called.
+    _map!.basemap.watch(
+      'loaded',
+      allowInterop((loaded, _, __, ___) {
+        _baseMapLoaded.complete(loaded as bool);
+      }),
     );
 
-    // If "hideDefaultZoomButtons" is true, do not show the default zoom buttons.
-    // If "hideAttribution" is true, the attribution is not shown.
-    final hideDefaultZoomButtons = _mapOptions.hideDefaultZoomButtons;
-    final hideAttribution = _mapOptions.hideAttribution;
-    if (hideDefaultZoomButtons == true && hideAttribution == true) {
-      _view!.ui.components = [];
-    } else if (hideDefaultZoomButtons == true && hideAttribution == false) {
-      _view!.ui.components = ["attribution"];
-    } else if (hideDefaultZoomButtons == false && hideAttribution == true) {
-      _view!.ui.components = ["zoom"];
+    _createDefaultViews(_activeView!);
+
+    if (_mapOptions.showLabelsBeneathGraphics) {
+      await _baseMapLoaded.future;
+      _layerController!.moveBaseMapLabelsToBackground(
+        map: _map!,
+        baseMap: _map!.basemap,
+        apiKey: _mapOptions.apiKey,
+      );
     }
 
     if (!_mapOptions.isInteractive) {
       _preventInteractionHandle =
-          _featureLayerController!.preventInteraction(_view!);
+          _layerController!.preventInteraction(_activeView!);
     }
-    _pointerMoveHandle =
-        _featureLayerController!.registerGlobalPointerMoveEventHandler(_view!);
+
+    _pointerMoveHandle = _layerController!
+        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+
+    _layerController!.initializeStreams();
+  }
+
+  /// Creates the default views e.g. zoom, compass, etc.
+  void _createDefaultViews(JsView view) {
+    if (!_mapOptions.isPopupEnabled) {
+      view.popup = null;
+    }
+
+    // remove all default views
+    final oldUi = view.ui.components;
+    for (final ui in oldUi) {
+      view.ui.remove(ui);
+    }
+
+    // Add specific views
+    final newUiList = _mapOptions.defaultUiList;
+    for (final ui in newUiList) {
+      view.ui.add(ui.viewType.value, ui.position.value);
+    }
   }
 
   void dispose() {
@@ -119,8 +158,8 @@ class ArcgisMapWebController {
     _pointerMoveHandle?.remove();
     _widget = null;
     _map = null;
-    _view = null;
-    _featureLayerController = null;
+    _activeView = null;
+    _layerController = null;
     _streamController.close();
   }
 
@@ -135,163 +174,333 @@ class ArcgisMapWebController {
     if (context["FeatureLayer"] == null) {
       await promiseToFuture(loadFeatureLayer());
     }
-    return _featureLayerController!.createLayer(
+    return _layerController!.createFeatureLayer(
       options,
       data,
       onPressed,
       url,
-      getZoom,
       layerId,
       _map!,
-      _view!,
+      _activeView!,
     );
   }
 
-  void onClick(void Function(ArcGisMapAttributes?) onPressed) {
-    _featureLayerController!.onClick(_view!, onPressed);
+  Future<SceneLayer> addSceneLayer({
+    required SceneLayerOptions options,
+    required String layerId,
+    required String url,
+  }) async {
+    final scene = _layerController!.createSceneLayer(
+      options: options,
+      layerId: layerId,
+      url: url,
+      map: _map!,
+    );
+
+    /// Remove 3D layers temporarily if 2D Map is selected
+    if (_mapOptions.mapStyle == MapStyle.twoD) {
+      _layerController!.remove3dLayers(map: _map!);
+    }
+
+    return scene;
+  }
+
+  Future<GraphicsLayer> addGraphicsLayer(
+    GraphicsLayerOptions options,
+    String layerId,
+    void Function(dynamic)? onPressed,
+  ) async {
+    return _layerController!.createGraphicsLayer(
+      options,
+      layerId,
+      _map!,
+      _activeView!,
+      onPressed,
+    );
+  }
+
+  Stream<Attributes?> onClickListener() {
+    return _layerController!.getOnClickListener(_activeView!);
   }
 
   void setMouseCursor(SystemMouseCursor cursor) {
-    return _featureLayerController!
-        .setMouseCursor(_getViewType(_mapId), cursor);
+    return _layerController!.setMouseCursor(_getViewType(_mapId), cursor);
   }
 
-  void updateGraphicSymbol(Symbol symbol, String graphicId) {
-    return _featureLayerController!.updateGraphicSymbol(
-      view: _view!,
+  void updateGraphicSymbol({
+    required String layerId,
+    required String graphicId,
+    required Symbol symbol,
+  }) {
+    return _layerController!.updateGraphicSymbol(
+      map: _map!,
+      layerId: layerId,
       symbol: symbol,
       graphicId: graphicId,
     );
   }
 
   Stream<double> getZoom() {
-    return _featureLayerController!.getZoom(_view!);
+    return _layerController!.getZoom(_activeView!);
+  }
+
+  /// TODO Also call this method on hot restart
+
+  /// This method is called when the view switches between 2d and 3d. It will destroy the webgl context and
+  /// reinitialize the map. This way, the persistent error of too many webgl contexts is avoided.
+  void _destroyWebglContext() {
+    final canvasElement = window.document.querySelector(
+      '#plugins\\.flutter\\.io\\/arcgis_$_mapId > div > div > canvas',
+    );
+    // "webgl" (or "experimental-webgl") which will create a WebGLRenderingContext object representing a
+    // three-dimensional rendering context. This context is only available on browsers that implement WebGL version 1 (OpenGL ES 2.0).
+    final webgl = (canvasElement as CanvasElement?)?.getContext('webgl');
+    // "webgl2" which will create a WebGL2RenderingContext object representing a three-dimensional rendering context.
+    // This context is only available on browsers that implement WebGL version 2 (OpenGL ES 3.0)
+    final webgl2 = canvasElement?.getContext('webgl2');
+
+    if (webgl != null) {
+      (webgl as WebGLRenderingContext)
+          .getExtension('WEBGL_lose_context')
+          ?.loseContext();
+      webgl.getExtension('WEBGL_lose_context')?.restoreContext();
+    }
+
+    if (webgl2 != null) {
+      (webgl2 as WebGLRenderingContext)
+          .getExtension('WEBGL_lose_context')
+          ?.loseContext();
+      webgl2.getExtension('WEBGL_lose_context')?.restoreContext();
+    }
+  }
+
+  JsSceneView _createJsSceneView() {
+    return SceneView().init(
+      map: _map,
+      position: <double>[
+        _mapOptions.initialCenter.longitude,
+        _mapOptions.initialCenter.latitude,
+      ],
+      zoom: _mapOptions.zoom,
+      tilt: _mapOptions.tilt,
+      padding: _activePadding ?? _mapOptions.padding,
+      rotationEnabled: _mapOptions.rotationEnabled,
+      minZoom: _mapOptions.minZoom,
+      maxZoom: _mapOptions.maxZoom,
+      xMin: _mapOptions.xMin,
+      xMax: _mapOptions.xMax,
+      yMin: _mapOptions.yMin,
+      yMax: _mapOptions.yMax,
+      heading: _mapOptions.heading,
+    );
+  }
+
+  JsMapView _createJsMapView() {
+    return MapView().init(
+      map: _map,
+      center: [
+        _mapOptions.initialCenter.longitude,
+        _mapOptions.initialCenter.latitude
+      ],
+      zoom: _mapOptions.zoom,
+      padding: _activePadding ?? _mapOptions.padding,
+      rotationEnabled: _mapOptions.rotationEnabled,
+      minZoom: _mapOptions.minZoom,
+      maxZoom: _mapOptions.maxZoom,
+      xMin: _mapOptions.xMin,
+      xMax: _mapOptions.xMax,
+      yMin: _mapOptions.yMin,
+      yMax: _mapOptions.yMax,
+    );
+  }
+
+  /// Switches the map style between 2D and 3D and removes not supported layers if necessary.
+  void switchMapStyle(MapStyle mapStyle) {
+    if (mapStyle == MapStyle.threeD) {
+      _layerController!.setGroundElevation(map: _map!, enable: true);
+      _destroyWebglContext();
+      _sceneView = _createJsSceneView();
+      _sceneView!.viewpoint = _mapView!.viewpoint;
+      _sceneView!.container = _div;
+      _activeView = _sceneView! as JsView;
+      _createDefaultViews(_activeView!);
+      _connectStreamsToNewActiveView();
+      _layerController!.add3dLayers(map: _map!);
+    } else {
+      _destroyWebglContext();
+      _mapView = _createJsMapView();
+      _layerController!.remove3dLayers(map: _map!);
+      _mapView!.viewpoint = _sceneView!.viewpoint;
+
+      _mapView!.container = _div;
+      _activeView = _mapView! as JsView;
+      _createDefaultViews(_activeView!);
+      _connectStreamsToNewActiveView();
+    }
+
+    _pointerMoveHandle = _layerController!
+        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+  }
+
+  void _connectStreamsToNewActiveView() {
+    _layerController!.streamsRefreshed.clear();
+    for (final StreamGroup streamGroup in _layerController!.allStreamGroups) {
+      if (!streamGroup.isIdle) {
+        if (streamGroup is StreamGroup<BoundingBox>) {
+          _layerController!.refreshBoundsStreams(_activeView!);
+        } else if (streamGroup is StreamGroup<String>) {
+          _layerController!.refreshAttributionStreams(_activeView!);
+        } else if (streamGroup is StreamGroup<Attributes?>) {
+          _layerController!.refreshOnClickStreams(_activeView!);
+        } else if (streamGroup is StreamGroup<List<String>>) {
+          _layerController!.refreshVisibleGraphicsStreams(_activeView!, _map!);
+        } else if (streamGroup is StreamGroup<LatLng>) {
+          _layerController!.refreshCenterPositionStreams(_activeView!);
+        } else if (streamGroup is StreamGroup<double>) {
+          _layerController!.refreshZoomStreams(_activeView!);
+        }
+      }
+    }
   }
 
   Stream<LatLng> centerPosition() {
-    return _featureLayerController!.centerPosition(_view!);
+    return _layerController!.getCenterPosition(_activeView!);
   }
 
   Stream<BoundingBox> getBounds() {
-    return _featureLayerController!.getBounds(_view!);
+    return _layerController!.getBoundsStream(_activeView!);
   }
 
   Stream<List<String>> visibleGraphics() {
-    return _featureLayerController!.visibleGraphics(_view!);
+    return _layerController!.getVisibleGraphicsStream(_activeView!, _map!);
   }
 
   List<String> getVisibleGraphicIds() {
-    return _featureLayerController!.getVisibleGraphicIds(_view!);
+    return _layerController!.getVisibleGraphicIds(_activeView!, _map!);
   }
 
   Stream<String> attributionText() {
-    return _featureLayerController!.attributionText(_view!);
+    return _layerController!.getAttributionStream(_activeView!);
   }
 
-  Future<void> updateFeatureLayer(List<Graphic> data) async {
-    await _featureLayerController!.updateLayer(data);
+  Future<void> updateFeatureLayer({
+    required String featureLayerId,
+    required List<Graphic> data,
+  }) async {
+    await _layerController!.updateFeatureLayer(
+      map: _map!,
+      featureLayerId: featureLayerId,
+      data: data,
+    );
   }
 
   bool destroyLayer(String layerId) {
-    return _featureLayerController!.destroyLayer(layerId);
+    return _layerController!.destroyLayer(
+      map: _map!,
+      layerId: layerId,
+    );
   }
 
-  bool graphicContainsPoint(String polygonId, LatLng pointCoordinates) {
-    return _featureLayerController!.graphicContainsPoint(
-      view: _view!,
+  bool polygonContainsPoint(String polygonId, LatLng pointCoordinates) {
+    return _layerController!.polygonContainsPoint(
+      view: _activeView!,
+      map: _map!,
       polygonId: polygonId,
       pointCoordinates: pointCoordinates,
     );
   }
 
-  Future<bool> moveCamera({
+  Future<void> moveCamera({
     required LatLng point,
-    int? zoomLevel,
+    double? zoomLevel,
+    int? threeDHeading,
+    int? threeDTilt,
     AnimationOptions? animationOptions,
-  }) {
-    return _featureLayerController!.moveCamera(
+  }) async {
+    await _layerController!.moveCamera(
       point: point,
       zoomLevel: zoomLevel,
-      view: _view!,
+      view: _activeView!,
+      animationOptions: animationOptions,
+    );
+    return;
+  }
+
+  Future<void> zoomIn({
+    required int lodFactor,
+    AnimationOptions? animationOptions,
+  }) async {
+    await _layerController!.zoomIn(
+      lodFactor: lodFactor,
+      view: _activeView!,
       animationOptions: animationOptions,
     );
   }
 
-  Future<bool> zoomIn(int lodFactor) {
-    return _featureLayerController!.zoomIn(lodFactor, _view!);
+  Future<void> zoomOut({
+    required int lodFactor,
+    AnimationOptions? animationOptions,
+  }) async {
+    await _layerController!.zoomOut(
+      lodFactor: lodFactor,
+      view: _activeView!,
+      animationOptions: animationOptions,
+    );
   }
 
-  Future<bool> zoomOut(int lodFactor) {
-    return _featureLayerController!.zoomOut(lodFactor, _view!);
+  void addGraphic(String featureLayerId, Graphic graphic) {
+    _layerController!.addGraphic(_map!, featureLayerId, graphic);
   }
 
-  void addGraphic(Graphic graphic) {
-    _featureLayerController!.addGraphic(_view!, graphic);
+  void removeGraphic(String layerId, String graphicId) {
+    _layerController!.removeGraphic(_map!, layerId, graphicId);
   }
 
-  void removeGraphic(String graphicId) {
-    _featureLayerController!.removeGraphic(_view!, graphicId);
+  void removeGraphics({
+    String? layerId,
+    String? removeByAttributeKey,
+    String? removeByAttributeValue,
+    String? excludeAttributeKey,
+    List<String>? excludeAttributeValues,
+  }) {
+    _layerController!.removeGraphics(
+      map: _map!,
+      layerId: layerId,
+      removeByAttributeKey: removeByAttributeKey,
+      removeByAttributeValue: removeByAttributeValue,
+      excludeAttributeKey: excludeAttributeKey,
+      excludeAttributeValues: excludeAttributeValues,
+    );
   }
 
+  /// TODO fully check its behaviour in SceneView
   void addViewPadding({required ViewPadding padding}) {
-    _featureLayerController!.addViewPadding(view: _view!, padding: padding);
+    _layerController!.addViewPadding(view: _activeView!, padding: padding);
+    if (_activePadding == null) {
+      _activePadding = padding;
+      return;
+    } else {
+      _activePadding = _activePadding!.copyWith(
+        top: _activePadding!.top + padding.top,
+        right: _activePadding!.right + padding.right,
+        bottom: _activePadding!.bottom + padding.bottom,
+        left: _activePadding!.left + padding.left,
+      );
+    }
   }
 
-  void toggleBaseMap({required BaseMap baseMap}) {
-    _featureLayerController!.toggleBaseMap(view: _view!, baseMap: baseMap);
+  Future<void> toggleBaseMap({required BaseMap baseMap}) async {
+    await _layerController!.toggleBaseMap(
+      view: _activeView!,
+      baseMap: baseMap,
+      map: _map!,
+      apiKey: _mapOptions.apiKey,
+      showLabelsBeneathGraphics: _mapOptions.showLabelsBeneathGraphics,
+    );
   }
 
-  List<Graphic> get graphicsInView => _featureLayerController!.graphicsInView;
-}
+  List<Graphic> get graphicsInView => _layerController!.graphicsInView;
 
-extension BaseMapExt on BaseMap {
-  static const Map<BaseMap, String> values = {
-    BaseMap.arcgisImagery: 'arcgis-imagery',
-    BaseMap.arcgisImageryStandard: 'arcgis-imagery-standard',
-    BaseMap.arcgisImageryLabels: 'arcgis-imagery-labels',
-    BaseMap.arcgisLightGray: 'arcgis-light-gray',
-    BaseMap.arcgisDarkGray: 'arcgis-dark-gray',
-    BaseMap.arcgisNavigation: 'arcgis-navigation',
-    BaseMap.arcgisNavigationNight: 'arcgis-navigation-night',
-    BaseMap.arcgisStreets: 'arcgis-streets',
-    BaseMap.arcgisStreetsNight: 'arcgis-streets-night',
-    BaseMap.arcgisStreetsRelief: 'arcgis-streets-relief',
-    BaseMap.arcgisTopographic: 'arcgis-topographic',
-    BaseMap.arcgisOceans: 'arcgis-oceans',
-    BaseMap.osmStandard: 'osm-standard',
-    BaseMap.osmStandardRelief: 'osm-standard-relief',
-    BaseMap.osmStreets: 'osm-streets',
-    BaseMap.osmStreetsRelief: 'osm-streets-relief',
-    BaseMap.osmLightGray: 'osm-light-gray',
-    BaseMap.osmDarkGray: 'osm-dark-gray',
-    BaseMap.arcgisTerrain: 'arcgis-terrain',
-    BaseMap.arcgisCommunity: 'arcgis-community',
-    BaseMap.arcgisChartedTerritory: 'arcgis-charted-territory',
-    BaseMap.arcgisColoredPencil: 'arcgis-colored-pencil',
-    BaseMap.arcgisNova: 'arcgis-nova',
-    BaseMap.arcgisModernAntique: 'arcgis-modern-antique',
-    BaseMap.arcgisMidcentury: 'arcgis-midcentury',
-    BaseMap.arcgisNewspaper: 'arcgis-newspaper',
-    BaseMap.arcgisHillshadeLight: 'arcgis-hillshade-light',
-    BaseMap.arcgisHillshadeDark: 'arcgis-hillshade-dark',
-    BaseMap.nationalGepgraphic: 'national-geographic',
-    BaseMap.streetsNavigationVector: 'streets-navigation-vector',
-    BaseMap.darkGrayVector: 'dark-gray-vector',
-    BaseMap.grayVector: 'gray-vector',
-    BaseMap.topo: 'topo',
-    BaseMap.gray: 'gray',
-    BaseMap.darkGray: 'dark-gray',
-    BaseMap.terrain: 'terrain',
-    BaseMap.hybrid: 'hybrid',
-    BaseMap.streets: 'streets',
-    BaseMap.oceans: 'oceans',
-    BaseMap.osm: 'osm',
-    BaseMap.satellite: 'satellite',
-    BaseMap.topoVector: 'topo-vector',
-    BaseMap.streetsNightVector: 'streets-night-vector',
-    BaseMap.streetsVector: 'streets-vector',
-    BaseMap.streetsReliefVector: 'streets-relief-vector',
-  };
-
-  String get value => values[this]!;
+  Stream<bool> get isGraphicHoveredStream =>
+      _layerController!.isGraphicHoveredStreamController.stream;
 }
