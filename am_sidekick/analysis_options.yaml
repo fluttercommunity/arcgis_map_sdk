@@ -1,0 +1,11 @@
+# TODO: Add back as soon as sidekick supports dart 3.0.0
+# include: package:lint/analysis_options.yaml
+
+linter:
+  rules:
+    avoid_print: false
+
+analyzer:
+  exclude:
+    - build/**
+

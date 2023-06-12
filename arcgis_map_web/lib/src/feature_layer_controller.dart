@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html' hide VoidCallback;
-import 'dart:js';
 import 'dart:js_util';
 
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
@@ -106,9 +105,9 @@ class FeatureLayerController {
 
     featureLayers.add(layer);
 
-    final FeatureLayer _featureLayer = FeatureLayer(id: layer.id);
+    final FeatureLayer featureLayer = FeatureLayer(id: layer.id);
 
-    return _featureLayer;
+    return featureLayer;
   }
 
   /// Check if the polygon with the [polygonId] contains the point with the
@@ -141,18 +140,18 @@ class FeatureLayerController {
     // In order to stop watching on the zoom when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     dynamic handle;
-    final StreamController<double> _zoomController =
+    final StreamController<double> zoomController =
         StreamController(onCancel: () => handle.remove());
     handle = view.watch(
       'zoom',
       allowInterop(
         (newValue, _, __, ___) {
-          _zoomController.add(newValue as double);
+          zoomController.add(newValue as double);
         },
       ),
     );
 
-    return _zoomController.stream;
+    return zoomController.stream;
   }
 
   /// A stream for the 'center' attributes
@@ -163,7 +162,7 @@ class FeatureLayerController {
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     dynamic handle;
 
-    final StreamController<LatLng> _positionController = StreamController(
+    final StreamController<LatLng> positionController = StreamController(
       onCancel: () {
         handle.remove();
       },
@@ -174,17 +173,17 @@ class FeatureLayerController {
       allowInterop(
         (newValue, _, __, ___) {
           if (newValue != null) {
-            final _centerViewPoint = LatLng(
+            final centerViewPoint = LatLng(
               newValue.latitude as double,
               newValue.longitude as double,
             );
-            _positionController.add(_centerViewPoint);
+            positionController.add(centerViewPoint);
           }
         },
       ),
     );
 
-    return _positionController.stream;
+    return positionController.stream;
   }
 
   /// Return a Stream of Lists with the ids of the Graphics, that are visible in the current view.
@@ -194,7 +193,7 @@ class FeatureLayerController {
   Stream<List<String>> visibleGraphics(JsMapView view) {
     List<String> graphicIdsInViewBuffer = <String>[];
     dynamic handle;
-    final StreamController<List<String>> _visibleGraphicsController =
+    final StreamController<List<String>> visibleGraphicsController =
         StreamController(
       onCancel: () {
         handle?.remove();
@@ -215,12 +214,12 @@ class FeatureLayerController {
           }),
         );
         if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
-          _visibleGraphicsController.add(graphicIdsInView);
+          visibleGraphicsController.add(graphicIdsInView);
           graphicIdsInViewBuffer = graphicIdsInView;
         }
       }),
     );
-    return _visibleGraphicsController.stream;
+    return visibleGraphicsController.stream;
   }
 
   /// Return a List with the ids of the Graphics, that are visible in the current view, on demand.
@@ -250,7 +249,7 @@ class FeatureLayerController {
     // In order to stop watching on the extent when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     dynamic handle;
-    final StreamController<BoundingBox> _boundsController = StreamController(
+    final StreamController<BoundingBox> boundsController = StreamController(
       onCancel: () {
         handle?.remove();
       },
@@ -279,7 +278,7 @@ class FeatureLayerController {
             y: yDistanceFromViewCenter,
           );
 
-          _boundsController.add(
+          boundsController.add(
             BoundingBox(
               height: newValue.height,
               width: newValue.width,
@@ -290,7 +289,7 @@ class FeatureLayerController {
         }
       }),
     );
-    return _boundsController.stream;
+    return boundsController.stream;
   }
 
   /// Get the attribution text as a [Stream]
@@ -329,8 +328,8 @@ class FeatureLayerController {
 
   /// Changes the mouse cursor to a specified [SystemMouseCursor].
   void setMouseCursor(String mapId, SystemMouseCursor cursor) {
-    final _cursor = cursor.kind == 'basic' ? 'default' : 'pointer';
-    document.getElementById(mapId)?.style.cursor = _cursor;
+    final newCursor = cursor.kind == 'basic' ? 'default' : 'pointer';
+    document.getElementById(mapId)?.style.cursor = newCursor;
   }
 
   /// Updates the graphic representation of an existing [Graphic] with a the [Symbol].

@@ -1,2 +1,2 @@
-include: package:tapped_lints/flutter.yaml
+include: package:flutter_lints/flutter.yaml
 

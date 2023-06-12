@@ -185,8 +185,7 @@ class Accessor {
       dynamic oldValue,
       String propertyName,
       dynamic target,
-    )
-        callback,
+    ) callback,
   );
 }
 

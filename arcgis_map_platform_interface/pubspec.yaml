@@ -3,7 +3,7 @@ description: Esri ArcGIS Flutter platform interface.
 version: 0.9.0
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -14,9 +14,5 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^2.0.1
-  tapped_lints:
-    git:
-      url: https://github.com/tappeddev/tapped_lints.git
-      ref: master
 
 flutter:
