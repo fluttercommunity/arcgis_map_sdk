@@ -147,15 +147,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
-  tapped_lints:
-    dependency: "direct dev"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "8951683e044afadcd747e14052fd9de75d7a60b6"
-      url: "https://github.com/tappeddev/tapped_lints.git"
-    source: git
-    version: "1.0.0+1"
   vector_math:
     dependency: transitive
     description:

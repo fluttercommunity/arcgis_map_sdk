@@ -14,11 +14,13 @@
     "@arcgis/webpack-plugin": "^4.22.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.0",
+    "rimraf": "^3.0.2",
+    "terser-webpack-plugin": "^5.3.6",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
-    "@arcgis/core": "^4.24.7"
+    "@arcgis/core": "^4.26"
   }
 }
