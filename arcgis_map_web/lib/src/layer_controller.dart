@@ -4,7 +4,6 @@ import 'dart:js_util';
 
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:arcgis_map_web/arcgis_map_web_js.dart';
-import 'package:arcgis_map_web/src/arcgis_map_web_controller.dart';
 import 'package:arcgis_map_web/src/components/attribution.dart';
 import 'package:arcgis_map_web/src/components/js_helper_functions.dart';
 import 'package:arcgis_map_web/src/components/vector_layer.dart';
