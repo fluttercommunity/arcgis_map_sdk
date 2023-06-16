@@ -29,7 +29,7 @@ jobs:
           channel: 'stable'
       - run: flutter --version
       - run: flutter pub get
-      - run: find . -name "*.dart" ! -name "*assets.dart" | tr '\n' ' ' | xargs flutter format --set-exit-if-changed -l 80
+      - run: find . -name "*.dart" ! -name "*assets.dart" | tr '\n' ' ' | xargs dart format --set-exit-if-changed -l 80
 
   test:
     timeout-minutes: 10
