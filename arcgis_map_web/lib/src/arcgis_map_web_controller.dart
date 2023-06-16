@@ -426,34 +426,34 @@ class ArcgisMapWebController {
     return;
   }
 
-  Future<void> zoomIn({
+  Future<bool> zoomIn({
     required int lodFactor,
     AnimationOptions? animationOptions,
-  }) async {
-    await _layerController!.zoomIn(
+  }) {
+    return _layerController!.zoomIn(
       lodFactor: lodFactor,
       view: _activeView!,
       animationOptions: animationOptions,
     );
   }
 
-  Future<void> zoomOut({
+  Future<bool> zoomOut({
     required int lodFactor,
     AnimationOptions? animationOptions,
-  }) async {
-    await _layerController!.zoomOut(
+  }) {
+    return _layerController!.zoomOut(
       lodFactor: lodFactor,
       view: _activeView!,
       animationOptions: animationOptions,
     );
   }
 
-  void addGraphic(String featureLayerId, Graphic graphic) {
-    _layerController!.addGraphic(_map!, featureLayerId, graphic);
+  Future<void> addGraphic(String featureLayerId, Graphic graphic) {
+    return _layerController!.addGraphic(_map!, featureLayerId, graphic);
   }
 
-  void removeGraphic(String layerId, String graphicId) {
-    _layerController!.removeGraphic(_map!, layerId, graphicId);
+  Future<void> removeGraphic(String layerId, String graphicId) {
+    return _layerController!.removeGraphic(_map!, layerId, graphicId);
   }
 
   void removeGraphics({

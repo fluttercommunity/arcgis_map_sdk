@@ -67,7 +67,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> zoomIn({
+  Future<bool> zoomIn({
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
@@ -77,7 +77,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> zoomOut({
+  Future<bool> zoomOut({
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
@@ -87,13 +87,13 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void addGraphic(int mapId, String layerId, Graphic graphic) {
-    _map(mapId).addGraphic(layerId, graphic);
+  Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
+    return _map(mapId).addGraphic(layerId, graphic);
   }
 
   @override
-  void removeGraphic(int mapId, String layerId, String objectId) {
-    _map(mapId).removeGraphic(layerId, objectId);
+  Future<void> removeGraphic(int mapId, String layerId, String objectId) {
+    return _map(mapId).removeGraphic(layerId, objectId);
   }
 
   @override

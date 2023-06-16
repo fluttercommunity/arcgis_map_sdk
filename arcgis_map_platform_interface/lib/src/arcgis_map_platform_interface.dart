@@ -138,7 +138,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('moveCamera() has not been implemented.');
   }
 
-  Future<void> zoomIn({
+  Future<bool> zoomIn({
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
@@ -146,7 +146,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('zoomIn() has not been implemented.');
   }
 
-  Future<void> zoomOut({
+  Future<bool> zoomOut({
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
@@ -160,11 +160,11 @@ class ArcgisMapPlatform extends PlatformInterface {
 
   /// Adds the provided graphic to the map.
   /// You can't add a second graphic with the same id.
-  void addGraphic(int mapId, String layerId, Graphic graphic) {
+  Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
     throw UnimplementedError('addGraphic() has not been implemented.');
   }
 
-  void removeGraphic(int mapId, String layerId, String graphicId) {
+  Future<void> removeGraphic(int mapId, String layerId, String graphicId) {
     throw UnimplementedError('removeGraphic() has not been implemented.');
   }
 

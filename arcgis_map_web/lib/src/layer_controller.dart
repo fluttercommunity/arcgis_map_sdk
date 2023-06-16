@@ -865,13 +865,13 @@ class LayerController {
   }
 
   /// Zoom in by a Level Of Detail Factor
-  Future<void> zoomIn({
+  Future<bool> zoomIn({
     required int lodFactor,
     required JsView view,
     AnimationOptions? animationOptions,
   }) async {
     final currentZoomLevel = view.zoom;
-    if (currentZoomLevel >= maxZoom) return;
+    if (currentZoomLevel >= maxZoom) return false;
     final newZoomLevel = currentZoomLevel + lodFactor;
     if (_isZoomInBounds(newZoomLevel)) {
       final Map targetOptions = {};
@@ -884,6 +884,7 @@ class LayerController {
       }
 
       view.goTo(jsify({'zoom': newZoomLevel}), jsify(targetOptions)).toFuture();
+      return true;
     } else {
       throw Exception(
         'Zoom: $newZoomLevel for zoom in is out of bounds'
@@ -893,13 +894,13 @@ class LayerController {
   }
 
   /// Zoom out by a Level Of Detail Factor
-  Future<void> zoomOut({
+  Future<bool> zoomOut({
     required int lodFactor,
     required JsView view,
     AnimationOptions? animationOptions,
   }) async {
     final currentZoomLevel = view.zoom;
-    if (currentZoomLevel <= minZoom) return;
+    if (currentZoomLevel <= minZoom) return false;
     final newZoomLevel = currentZoomLevel - lodFactor;
     if (_isZoomInBounds(newZoomLevel)) {
       final Map targetOptions = {};
@@ -911,6 +912,7 @@ class LayerController {
         });
       }
       view.goTo(jsify({'zoom': newZoomLevel}), jsify(targetOptions)).toFuture();
+      return true;
     } else {
       throw Exception(
         'Zoom: $newZoomLevel for zoom out is out of bounds'
@@ -920,7 +922,7 @@ class LayerController {
   }
 
   /// Add a [Graphic] to a specific [graphicsLayer].
-  void addGraphic(JsEsriMap map, String layerId, Graphic graphic) {
+  Future<void> addGraphic(JsEsriMap map, String layerId, Graphic graphic) {
     final layer = map.findLayerById(layerId);
     if (layer is JsGraphicsLayer) {
       final String graphicId = graphic.getAttributesId();
@@ -939,8 +941,9 @@ class LayerController {
 
     if (graphic.onHover == null &&
         graphic.onEnter == null &&
-        graphic.onExit == null) return;
+        graphic.onExit == null) return Future(() => null);
     _graphics[graphic] = HoveredState.notHovered;
+    return Future(() => null);
   }
 
   final _deBouncer = DeBouncer(milliseconds: 8);
@@ -1012,7 +1015,7 @@ class LayerController {
   }
 
   /// Remove a [Graphic] from a layer, given its [graphicId]
-  void removeGraphic(JsEsriMap map, String layerId, String graphicId) {
+  Future<void> removeGraphic(JsEsriMap map, String layerId, String graphicId) {
     final layer = map.findLayerById(layerId);
     if (layer is JsGraphicsLayer) {
       layer.graphics?.forEach(
@@ -1023,6 +1026,7 @@ class LayerController {
           }
         }),
       );
+      return Future(() => null);
     } else {
       throw Exception('Layer with the id:$layerId not found');
     }

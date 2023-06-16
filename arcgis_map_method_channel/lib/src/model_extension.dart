@@ -29,8 +29,6 @@ extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
       'initialCenter': initialCenter.toMap(),
       'isInteractive': isInteractive,
       'zoom': zoom,
-      'hideDefaultZoomButtons': hideDefaultZoomButtons,
-      'hideAttribution': hideAttribution,
       'padding': padding.toMap(),
       'rotationEnabled': rotationEnabled,
       'minZoom': minZoom,
@@ -56,7 +54,7 @@ extension GraphicToJsonExtension on Graphic {
 extension on PointGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'point',
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
         'point': LatLng(latitude, longitude).toMap(),
         'symbol': symbol.toJson(),
       };
@@ -65,30 +63,22 @@ extension on PointGraphic {
 extension on PolygonGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'polygon',
-        'rings':
-            rings.map((list) => list.map((e) => e.toMap()).toList()).toList(),
+        'rings': rings,
         'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
       };
 }
 
 extension on PolylineGraphic {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'polyline',
-        'paths':
-            paths.map((path) => path.map((e) => e.toMap()).toList()).toList(),
+        'paths': paths,
         'symbol': symbol.toJson(),
-        'attributes': attributes.toMap(),
+        'attributes': attributes.data,
       };
 }
 
 // endregion
-
-extension ArcGisMapAttributesJsonExtension on ArcGisMapAttributes {
-  Map<String, Object> toMap() {
-    return {'id': id, 'name': name};
-  }
-}
 
 // region symbols
 
@@ -98,14 +88,29 @@ extension SymbolToJsonExtension on Symbol {
         ifSimpleMarkerSymbol: (s) => s.convertToJson(),
         ifPictureMarkerSymbol: (s) => s.convertToJson(),
         ifSimpleLineSymbol: (s) => s.convertToJson(),
+        ifMeshSymbol3D: (s) => s.convertToJson(),
       );
+}
+
+extension on MeshSymbol3D {
+  Map<String, dynamic> convertToJson() => <String, dynamic>{
+        'type': 'mesh-3d',
+        'symbolLayers': [
+          {
+            'type': 'fill',
+            'material': {
+              'color': [color.red, color.green, color.blue, colorOpacity],
+            },
+          },
+        ],
+      };
 }
 
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
         'color': _colorToJson(color),
-        'size': size,
+        'size': radius,
         'outlineColor': _colorToJson(outlineColor),
         'outlineWidth': outlineWidth,
       };

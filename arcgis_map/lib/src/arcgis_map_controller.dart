@@ -154,7 +154,7 @@ class ArcgisMapController {
         .setInteraction(mapId, isEnabled: isEnabled);
   }
 
-  Future<void> zoomIn({
+  Future<bool> zoomIn({
     required int lodFactor,
     AnimationOptions? animationOptions,
   }) {
@@ -165,7 +165,7 @@ class ArcgisMapController {
     );
   }
 
-  Future<void> zoomOut({
+  Future<bool> zoomOut({
     required int lodFactor,
     AnimationOptions? animationOptions,
   }) {
@@ -176,12 +176,13 @@ class ArcgisMapController {
     );
   }
 
-  void addGraphic({required String layerId, required Graphic graphic}) {
-    ArcgisMapPlatform.instance.addGraphic(mapId, layerId, graphic);
+  Future<void> addGraphic({required String layerId, required Graphic graphic}) {
+    return ArcgisMapPlatform.instance.addGraphic(mapId, layerId, graphic);
   }
 
-  void removeGraphic({required String layerId, required String objectId}) {
-    ArcgisMapPlatform.instance.removeGraphic(mapId, layerId, objectId);
+  Future<void> removeGraphic(
+      {required String layerId, required String objectId}) {
+    return ArcgisMapPlatform.instance.removeGraphic(mapId, layerId, objectId);
   }
 
   /// Removes the [Graphic]s from a specific [GraphicsLayer], given their [removeByAttributeKey] with an [removeByAttributeValue].
