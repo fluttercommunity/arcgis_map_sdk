@@ -5,6 +5,7 @@ import 'package:arcgis/map_elements.dart';
 import 'package:arcgis/vector_layer_example_page.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const ExampleApp());
@@ -64,7 +65,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _subscribedToZoom = false;
   final Map<String, bool> _hoveredPolygons = {};
 
-  bool show3dMap = true;
+  bool show3dMap = false;
   bool _baseMapToggled = false;
   final initialCenter = LatLng(51.16, 10.45);
   final tappedHQ = LatLng(48.1234963, 11.5910182);
@@ -83,16 +84,19 @@ class _ExampleMapState extends State<ExampleMap> {
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
 
-    _controller?.onClickListener().listen((Attributes? attributes) {
-      if (attributes == null) return;
-      final snackBar = SnackBar(
-        content:
-            Text('Attributes Id after on Click: ${attributes.data['name']}'),
-      );
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(snackBar);
-    });
+    // TODO: Remove when mobile implementation is complete
+    if (kIsWeb) {
+      _controller?.onClickListener().listen((Attributes? attributes) {
+        if (attributes == null) return;
+        final snackBar = SnackBar(
+          content:
+              Text('Attributes Id after on Click: ${attributes.data['name']}'),
+        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
+      });
+    }
 
     _attributionTextSubscription =
         _controller?.attributionText().listen((attribution) {
@@ -364,7 +368,7 @@ class _ExampleMapState extends State<ExampleMap> {
             ground: show3dMap ? Ground.worldElevation : null,
             showLabelsBeneathGraphics: true,
             initialCenter: initialCenter,
-            zoom: 4,
+            zoom: 8,
             rotationEnabled: true,
             onMapCreated: _onMapCreated,
             defaultUiList: [
@@ -378,6 +382,7 @@ class _ExampleMapState extends State<ExampleMap> {
             bottom: 20,
             left: 20,
             child: FloatingActionButton(
+              heroTag: "3d-map-button",
               onPressed: () {
                 setState(() {
                   show3dMap = !show3dMap;
@@ -412,11 +417,12 @@ class _ExampleMapState extends State<ExampleMap> {
             child: Row(
               children: [
                 FloatingActionButton(
+                  heroTag: "move-camera-button",
                   backgroundColor: Colors.red,
                   child: const Icon(Icons.place_outlined),
                   onPressed: () {
                     _controller?.moveCamera(
-                      point: LatLng(50, 9),
+                      point: tappedHQ,
                       zoomLevel: 8.0,
                       threeDHeading: 30,
                       threeDTilt: 60,
@@ -430,6 +436,7 @@ class _ExampleMapState extends State<ExampleMap> {
                 Column(
                   children: [
                     FloatingActionButton(
+                      heroTag: "zoom-in-button",
                       onPressed: () {
                         _controller?.zoomIn(
                           lodFactor: 1,
@@ -443,6 +450,7 @@ class _ExampleMapState extends State<ExampleMap> {
                       child: const Icon(Icons.add),
                     ),
                     FloatingActionButton(
+                      heroTag: "zoom-out-button",
                       onPressed: () {
                         _controller?.zoomOut(
                           lodFactor: 1,
