@@ -649,7 +649,7 @@ class _ExampleMapState extends State<ExampleMap> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
