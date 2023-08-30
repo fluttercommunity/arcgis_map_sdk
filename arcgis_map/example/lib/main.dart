@@ -379,285 +379,277 @@ class _ExampleMapState extends State<ExampleMap> {
             ],
           ),
           Positioned(
-            bottom: 20,
-            left: 20,
-            child: FloatingActionButton(
-              heroTag: "3d-map-button",
-              onPressed: () {
-                setState(() {
-                  show3dMap = !show3dMap;
-                  _controller?.switchMapStyle(
-                    show3dMap ? MapStyle.threeD : MapStyle.twoD,
-                  );
-                });
-              },
-              backgroundColor: show3dMap ? Colors.red : Colors.blue,
-              child: Text(show3dMap ? '3D' : '2D'),
-            ),
-          ),
-          const Positioned(
-            bottom: 10,
-            right: 10,
-            child: Text(
-              'Powered by Esri',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          Positioned(
-            bottom: 10,
-            left: 10,
-            child: Text(
-              _attributionText,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Row(
+            bottom: 40,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FloatingActionButton(
-                  heroTag: "move-camera-button",
-                  backgroundColor: Colors.red,
-                  child: const Icon(Icons.place_outlined),
-                  onPressed: () {
-                    _controller?.moveCamera(
-                      point: tappedHQ,
-                      zoomLevel: 8.0,
-                      threeDHeading: 30,
-                      threeDTilt: 60,
-                      animationOptions: AnimationOptions(
-                        duration: 1500,
-                        animationCurve: AnimationCurve.easeIn,
-                      ),
-                    );
-                  },
-                ),
-                Column(
-                  children: [
-                    FloatingActionButton(
-                      heroTag: "zoom-in-button",
-                      onPressed: () {
-                        _controller?.zoomIn(
-                          lodFactor: 1,
-                          animationOptions: AnimationOptions(
-                            duration: 1000,
-                            animationCurve: AnimationCurve.easeIn,
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          FloatingActionButton(
+                            heroTag: "zoom-in-button",
+                            onPressed: () {
+                              _controller?.zoomIn(
+                                lodFactor: 1,
+                                animationOptions: AnimationOptions(
+                                  duration: 1000,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
+                            },
+                            backgroundColor: Colors.grey,
+                            child: const Icon(Icons.add),
                           ),
-                        );
-                      },
-                      backgroundColor: Colors.grey,
-                      child: const Icon(Icons.add),
-                    ),
-                    FloatingActionButton(
-                      heroTag: "zoom-out-button",
-                      onPressed: () {
-                        _controller?.zoomOut(
-                          lodFactor: 1,
-                          animationOptions: AnimationOptions(
-                            duration: 1000,
-                            animationCurve: AnimationCurve.easeIn,
+                          FloatingActionButton(
+                            heroTag: "zoom-out-button",
+                            onPressed: () {
+                              _controller?.zoomOut(
+                                lodFactor: 1,
+                                animationOptions: AnimationOptions(
+                                  duration: 1000,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
+                            },
+                            backgroundColor: Colors.grey,
+                            child: const Icon(Icons.remove),
                           ),
-                        );
-                      },
-                      backgroundColor: Colors.grey,
-                      child: const Icon(Icons.remove),
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _routeToVectorLayerMap();
-                      },
-                      child: const Text("Show Vector layer example"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _baseMapToggled = !_baseMapToggled;
-                          _controller?.toggleBaseMap(
-                            baseMap: _baseMapToggled
-                                ? BaseMap.hybrid
-                                : BaseMap.osmDarkGray,
-                          );
-                        });
-                      },
-                      child: const Text("Toggle BaseMap"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _controller?.addViewPadding(
-                          padding: const ViewPadding(right: 300),
-                        );
-                      },
-                      child: const Text("Add 300 right"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _controller?.addViewPadding(
-                          padding: const ViewPadding(left: 300),
-                        );
-                      },
-                      child: const Text("Add 300 left"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_isFirstPinInView) {
-                          _removeGraphic(
-                            layerId: _pinLayerId,
-                            objectId: _pinId1,
-                          );
-                          setState(() {
-                            _isFirstPinInView = false;
-                          });
-                        } else {
-                          _addPin(
-                            layerId: _pinLayerId,
-                            objectId: _pinId1,
-                            location: _firstPinCoordinates,
-                          );
-                          setState(() {
-                            _isFirstPinInView = true;
-                          });
-                        }
-                      },
-                      child: _isFirstPinInView
-                          ? const Text('Remove first Pin')
-                          : const Text('Add first Pin'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_isSecondPinInView) {
-                          _removeGraphic(
-                            layerId: _pinLayerId,
-                            objectId: _pinId2,
-                          );
-                          setState(() {
-                            _isSecondPinInView = false;
-                          });
-                        } else {
-                          _addPin(
-                            layerId: _pinLayerId,
-                            objectId: _pinId2,
-                            location: _secondPinCoordinates,
-                          );
-                          setState(() {
-                            _isSecondPinInView = true;
-                          });
-                        }
-                      },
-                      child: _isSecondPinInView
-                          ? const Text('Remove second Pin')
-                          : const Text('Add second Pin'),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_subscribedToZoom) {
-                          _unsubscribeFromZoom();
-                        } else {
-                          _subscribeToZoom();
-                        }
-                      },
-                      child: _subscribedToZoom
-                          ? const Text('Stop zoom')
-                          : const Text('Sub to zoom'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_subscribedToCenterPosition) {
-                          _unsubscribeFromPos();
-                        } else {
-                          _subscribeToPos();
-                        }
-                      },
-                      child: _subscribedToCenterPosition
-                          ? const Text("Stop pos")
-                          : const Text("Sub to pos"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_subscribedToBounds) {
-                          _unsubscribeFromBounds();
-                        } else {
-                          _subscribeToBounds();
-                        }
-                      },
-                      child: _subscribedToBounds
-                          ? const Text("Stop bounds")
-                          : const Text("Sub to bounds"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_subscribedToGraphicsInView) {
-                          _unSubscribeToGraphicsInView();
-                        } else {
-                          _subscribeToGraphicsInView();
-                        }
-                      },
-                      child: _subscribedToGraphicsInView
-                          ? const Text("Stop printing Graphics")
-                          : const Text("Start printing Graphics"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final graphicIdsInView =
-                            _controller?.getVisibleGraphicIds();
-                        graphicIdsInView?.forEach(debugPrint);
-                      },
-                      child: const Text("Print visible Graphics"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _addPolygon(
-                          layerId: _polyLayerId,
-                          graphic: PolygonGraphic(
-                            rings: secondPolygon,
-                            symbol: redFillSymbol,
-                            attributes: Attributes({
-                              'id': _polygon2,
-                              'name': 'Second Polygon',
-                            }),
-                            onHover: (isHovered) {
-                              isHovered
-                                  ? _updateGraphicSymbol(
-                                      layerId: _polyLayerId,
-                                      graphicId: _polygon2,
-                                      symbol: highlightedRedFillSymbol,
-                                    )
-                                  : _updateGraphicSymbol(
-                                      layerId: _polyLayerId,
-                                      graphicId: _polygon2,
-                                      symbol: redFillSymbol,
-                                    );
-                              if (_hoveredPolygons[_polygon2] == isHovered) {
-                                return;
-                              }
-                              _hoveredPolygons[_polygon2] = isHovered;
+                          FloatingActionButton(
+                            heroTag: "move-camera-button",
+                            backgroundColor: Colors.red,
+                            child: const Icon(Icons.place_outlined),
+                            onPressed: () {
+                              _controller?.moveCamera(
+                                point: tappedHQ,
+                                zoomLevel: 8.0,
+                                threeDHeading: 30,
+                                threeDTilt: 60,
+                                animationOptions: AnimationOptions(
+                                  duration: 1500,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
                             },
                           ),
-                        );
-                      },
-                      child: const Text('Add red polygon'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => _removeGraphic(
-                        layerId: _polyLayerId,
-                        objectId: _polygon2,
+                          FloatingActionButton(
+                            heroTag: "3d-map-button",
+                            onPressed: () {
+                              setState(() {
+                                show3dMap = !show3dMap;
+                                _controller?.switchMapStyle(
+                                  show3dMap ? MapStyle.threeD : MapStyle.twoD,
+                                );
+                              });
+                            },
+                            backgroundColor:
+                                show3dMap ? Colors.red : Colors.blue,
+                            child: Text(show3dMap ? '3D' : '2D'),
+                          ),
+                        ],
                       ),
-                      child: const Text('Remove red polygon'),
+                      ElevatedButton(
+                        onPressed: () {
+                          _routeToVectorLayerMap();
+                        },
+                        child: const Text("Show Vector layer example"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _baseMapToggled = !_baseMapToggled;
+                            _controller?.toggleBaseMap(
+                              baseMap: _baseMapToggled
+                                  ? BaseMap.hybrid
+                                  : BaseMap.osmDarkGray,
+                            );
+                          });
+                        },
+                        child: const Text("Toggle BaseMap"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.addViewPadding(
+                            padding: const ViewPadding(right: 300),
+                          );
+                        },
+                        child: const Text("Add 300 right"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.addViewPadding(
+                            padding: const ViewPadding(left: 300),
+                          );
+                        },
+                        child: const Text("Add 300 left"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isFirstPinInView) {
+                            _removeGraphic(
+                              layerId: _pinLayerId,
+                              objectId: _pinId1,
+                            );
+                            setState(() {
+                              _isFirstPinInView = false;
+                            });
+                          } else {
+                            _addPin(
+                              layerId: _pinLayerId,
+                              objectId: _pinId1,
+                              location: _firstPinCoordinates,
+                            );
+                            setState(() {
+                              _isFirstPinInView = true;
+                            });
+                          }
+                        },
+                        child: _isFirstPinInView
+                            ? const Text('Remove first Pin')
+                            : const Text('Add first Pin'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isSecondPinInView) {
+                            _removeGraphic(
+                              layerId: _pinLayerId,
+                              objectId: _pinId2,
+                            );
+                            setState(() {
+                              _isSecondPinInView = false;
+                            });
+                          } else {
+                            _addPin(
+                              layerId: _pinLayerId,
+                              objectId: _pinId2,
+                              location: _secondPinCoordinates,
+                            );
+                            setState(() {
+                              _isSecondPinInView = true;
+                            });
+                          }
+                        },
+                        child: _isSecondPinInView
+                            ? const Text('Remove second Pin')
+                            : const Text('Add second Pin'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToZoom) {
+                            _unsubscribeFromZoom();
+                          } else {
+                            _subscribeToZoom();
+                          }
+                        },
+                        child: _subscribedToZoom
+                            ? const Text('Stop zoom')
+                            : const Text('Sub to zoom'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToCenterPosition) {
+                            _unsubscribeFromPos();
+                          } else {
+                            _subscribeToPos();
+                          }
+                        },
+                        child: _subscribedToCenterPosition
+                            ? const Text("Stop pos")
+                            : const Text("Sub to pos"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToBounds) {
+                            _unsubscribeFromBounds();
+                          } else {
+                            _subscribeToBounds();
+                          }
+                        },
+                        child: _subscribedToBounds
+                            ? const Text("Stop bounds")
+                            : const Text("Sub to bounds"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToGraphicsInView) {
+                            _unSubscribeToGraphicsInView();
+                          } else {
+                            _subscribeToGraphicsInView();
+                          }
+                        },
+                        child: _subscribedToGraphicsInView
+                            ? const Text("Stop printing Graphics")
+                            : const Text("Start printing Graphics"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final graphicIdsInView =
+                              _controller?.getVisibleGraphicIds();
+                          graphicIdsInView?.forEach(debugPrint);
+                        },
+                        child: const Text("Print visible Graphics"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _addPolygon(
+                            layerId: _polyLayerId,
+                            graphic: PolygonGraphic(
+                              rings: secondPolygon,
+                              symbol: redFillSymbol,
+                              attributes: Attributes({
+                                'id': _polygon2,
+                                'name': 'Second Polygon',
+                              }),
+                              onHover: (isHovered) {
+                                isHovered
+                                    ? _updateGraphicSymbol(
+                                        layerId: _polyLayerId,
+                                        graphicId: _polygon2,
+                                        symbol: highlightedRedFillSymbol,
+                                      )
+                                    : _updateGraphicSymbol(
+                                        layerId: _polyLayerId,
+                                        graphicId: _polygon2,
+                                        symbol: redFillSymbol,
+                                      );
+                                if (_hoveredPolygons[_polygon2] == isHovered) {
+                                  return;
+                                }
+                                _hoveredPolygons[_polygon2] = isHovered;
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text('Add red polygon'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _removeGraphic(
+                          layerId: _polyLayerId,
+                          objectId: _polygon2,
+                        ),
+                        child: const Text('Remove red polygon'),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      'Powered by Esri',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      _attributionText,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ],
-                )
+                ),
               ],
             ),
-          ),
+          )
         ],
       ),
     );
