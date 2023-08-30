@@ -17,7 +17,7 @@ class EsriMap {
             js_util.jsify({
               'baseLayers': vectorTileLayerUrls.map(
                 (String url) {
-                  VectorLayer().init(url: url);
+                  return VectorLayer().init(url: url);
                 },
               ).toList(growable: false),
             }),
