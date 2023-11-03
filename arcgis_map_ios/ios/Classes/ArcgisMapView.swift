@@ -201,7 +201,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
         
         let hasExistingGraphics = newGraphics.contains(where: { object in
-            let graphic = object as! AGSGraphic
+            let graphic = object
             guard let id = graphic.attributes["id"] as? String else {
                 return false
             }

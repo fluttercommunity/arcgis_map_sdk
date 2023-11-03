@@ -61,10 +61,10 @@ class GraphicsParser {
     private func parsePolygon(_ dictionary: [String: Any]) -> [AGSGraphic] {
         let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        return payload.rings.map { coordinates in
+        return payload.rings.map { ring in
             let graphic = AGSGraphic()
-            let points = coordinates.map {
-                $0.toAGSPoint()
+            let points = ring.map { coordinate in
+                AGSPoint(x: coordinate[0], y: coordinate[1], spatialReference: .wgs84())
             }
             graphic.geometry = AGSPolygon(points: points)
             graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
@@ -157,5 +157,5 @@ private struct PathPayload: Codable {
 }
 
 private struct PolygonPayload: Codable {
-    let rings: [[LatLng]]
+    let rings: [[[Double]]]
 }

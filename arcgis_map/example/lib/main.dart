@@ -96,23 +96,44 @@ class _ExampleMapState extends State<ExampleMap> {
           ..hideCurrentSnackBar()
           ..showSnackBar(snackBar);
       });
-    }
 
-    _attributionTextSubscription =
-        _controller?.attributionText().listen((attribution) {
-      setState(() {
-        _attributionText = attribution;
+      _attributionTextSubscription =
+          _controller?.attributionText().listen((attribution) {
+        setState(() {
+          _attributionText = attribution;
+        });
       });
-    });
 
-    // Create basic 3D Layer with elevation and 3D buildings
-    await _createSceneLayer();
+      // Create basic 3D Layer with elevation and 3D buildings
+      await _createSceneLayer();
 
-    // Create GraphicsLayer with Polygons
-    await _createGraphicLayer(
-      layerId: _polyLayerId,
-      elevationMode: ElevationMode.onTheGround,
-    );
+      // Create GraphicsLayer with Polygons
+      await _createGraphicLayer(
+        layerId: _polyLayerId,
+        elevationMode: ElevationMode.onTheGround,
+      );
+
+      // Create GraphicsLayer with Lines
+      await _createGraphicLayer(
+        layerId: _lineLayerId,
+        elevationMode: ElevationMode.onTheGround,
+      );
+      _connectTwoPinsWithPolyline(
+        id: 'connecting-polyline-01',
+        name: 'Connecting polyline',
+        start: _firstPinCoordinates,
+        end: _secondPinCoordinates,
+      );
+
+      // Create GraphicsLayer with 3D Pins
+      await _createGraphicLayer(layerId: _pinLayerId);
+
+      // Subscribe to hover events to change the mouse cursor
+      _isGraphicHoveredSubscription =
+          _controller?.isGraphicHoveredStream().listen((bool isHovered) {
+        _setMouseCursor(isHovered);
+      });
+    }
 
     // Add Polygons to the PolyLayer
     _addPolygon(
@@ -138,27 +159,6 @@ class _ExampleMapState extends State<ExampleMap> {
         },
       ),
     );
-
-    // Create GraphicsLayer with Lines
-    await _createGraphicLayer(
-      layerId: _lineLayerId,
-      elevationMode: ElevationMode.onTheGround,
-    );
-    _connectTwoPinsWithPolyline(
-      id: 'connecting-polyline-01',
-      name: 'Connecting polyline',
-      start: _firstPinCoordinates,
-      end: _secondPinCoordinates,
-    );
-
-    // Subscribe to hover events to change the mouse cursor
-    _isGraphicHoveredSubscription =
-        _controller?.isGraphicHoveredStream().listen((bool isHovered) {
-      _setMouseCursor(isHovered);
-    });
-
-    // Create GraphicsLayer with 3D Pins
-    await _createGraphicLayer(layerId: _pinLayerId);
   }
 
   void _updateGraphicSymbol({
