@@ -69,6 +69,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _baseMapToggled = false;
   final initialCenter = LatLng(51.16, 10.45);
   final tappedHQ = LatLng(48.1234963, 11.5910182);
+  var _isInteractionEnabled = true;
 
   @override
   void dispose() {
@@ -450,6 +451,20 @@ class _ExampleMapState extends State<ExampleMap> {
                             child: Text(show3dMap ? '3D' : '2D'),
                           ),
                         ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.setInteraction(
+                            isEnabled: !_isInteractionEnabled,
+                          );
+
+                          setState(() {
+                            _isInteractionEnabled = !_isInteractionEnabled;
+                          });
+                        },
+                        child: Text(
+                          "${_isInteractionEnabled ? "Disable" : "Enable"} Interaction",
+                        ),
                       ),
                       ElevatedButton(
                         onPressed: () {
