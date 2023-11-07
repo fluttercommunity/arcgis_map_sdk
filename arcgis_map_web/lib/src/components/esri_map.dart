@@ -21,7 +21,7 @@ class EsriMap {
                 },
               ).toList(growable: false),
             }),
-          )
+          ),
         }),
       );
     } else {

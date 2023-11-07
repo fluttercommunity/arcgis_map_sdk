@@ -302,7 +302,6 @@ class _ExampleMapState extends State<ExampleMap> {
           Field(name: 'family', type: 'string'),
           Field(name: 'name', type: 'string'),
         ],
-        // symbol: _markerSymbol,
         featureReduction: FeatureReductionCluster().toJson(),
         elevationMode: elevationMode,
       ),

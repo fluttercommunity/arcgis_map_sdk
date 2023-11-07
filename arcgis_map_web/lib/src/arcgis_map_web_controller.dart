@@ -300,7 +300,7 @@ class ArcgisMapWebController {
       map: _map,
       center: [
         _mapOptions.initialCenter.longitude,
-        _mapOptions.initialCenter.latitude
+        _mapOptions.initialCenter.latitude,
       ],
       zoom: _mapOptions.zoom,
       padding: _activePadding ?? _mapOptions.padding,

@@ -857,7 +857,7 @@ class LayerController {
     if (animationOptions != null) {
       targetOptions.addAll({
         'duration': animationOptions.duration,
-        'easing': animationOptions.animationCurve.value
+        'easing': animationOptions.animationCurve.value,
       });
     }
 
@@ -879,7 +879,7 @@ class LayerController {
       if (animationOptions != null) {
         targetOptions.addAll({
           'duration': animationOptions.duration,
-          'easing': animationOptions.animationCurve.value
+          'easing': animationOptions.animationCurve.value,
         });
       }
 
@@ -908,7 +908,7 @@ class LayerController {
       if (animationOptions != null) {
         targetOptions.addAll({
           'duration': animationOptions.duration,
-          'easing': animationOptions.animationCurve.value
+          'easing': animationOptions.animationCurve.value,
         });
       }
       view.goTo(jsify({'zoom': newZoomLevel}), jsify(targetOptions)).toFuture();
@@ -1154,7 +1154,7 @@ class LayerController {
   }) async {
     final basemapToggle = BasemapToggle(
       jsify({
-        "viewModel": jsify({"view": view, "nextBasemap": baseMap.value})
+        "viewModel": jsify({"view": view, "nextBasemap": baseMap.value}),
       }),
     );
 

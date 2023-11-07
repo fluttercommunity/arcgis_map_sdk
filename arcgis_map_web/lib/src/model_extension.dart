@@ -120,7 +120,7 @@ extension on SimpleMarkerSymbol {
             outlineColor.red,
             outlineColor.green,
             outlineColor.blue,
-            outlineColorOpacity
+            outlineColorOpacity,
           ],
           'width': outlineWidth,
         },
@@ -134,7 +134,7 @@ extension on PictureMarkerSymbol {
         'width': '${width}px',
         'height': '${height}px',
         'xoffset': '${xOffset}px',
-        'yoffset': '${yOffset}px'
+        'yoffset': '${yOffset}px',
       };
 }
 
@@ -146,10 +146,10 @@ extension on SimpleFillSymbol {
           'color': [
             outlineColor.red,
             outlineColor.green,
-            outlineColor.blue
+            outlineColor.blue,
           ], // White
-          'width': outlineWidth
-        }
+          'width': outlineWidth,
+        },
       };
 }
 
