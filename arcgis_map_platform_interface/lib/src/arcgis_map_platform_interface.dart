@@ -34,15 +34,42 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
+  Future<GraphicsLayer> addGraphicsLayer(
+    GraphicsLayerOptions options,
+    int mapId,
+    String layerId,
+    void Function(dynamic)? onPressed,
+  ) async {
+    throw UnimplementedError('addGraphicsLayer() has not been implemented.');
+  }
+
+  Future<SceneLayer> addSceneLayer({
+    required SceneLayerOptions options,
+    required String layerId,
+    required String url,
+    required int mapId,
+  }) async {
+    throw UnimplementedError('addSceneLayer() has not been implemented.');
+  }
+
   Stream<double> getZoom(int mapId) {
     throw UnimplementedError('getZoom() has not been implemented');
+  }
+
+  void switchMapStyle(int mapId, MapStyle mapStyle) {
+    throw UnimplementedError('switchMapStyle() has not been implemented.');
   }
 
   void setMouseCursor(SystemMouseCursor cursor, int mapId) {
     throw UnimplementedError('setMouseCursor() has not been implemented');
   }
 
-  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
+  void updateGraphicSymbol({
+    required int mapId,
+    required String layerId,
+    required String graphicId,
+    required Symbol symbol,
+  }) {
     throw UnimplementedError('updateGraphicSymbol() has not been implemented');
   }
 
@@ -62,25 +89,29 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('attributionText() has not been implemented.');
   }
 
-  void onClick(void Function(ArcGisMapAttributes?) onPressed, int mapId) {
-    throw UnimplementedError('onClick() has not been implemented.');
+  Stream<Attributes?> onClickListener(int mapId) {
+    throw UnimplementedError('onClickListener() has not been implemented.');
   }
 
-  Future<void> updateFeatureLayer(List<Graphic> data, int mapId) async {
+  Future<void> updateFeatureLayer({
+    required int mapId,
+    required String featureLayerId,
+    required List<Graphic> data,
+  }) async {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
-  bool destroyFeatureLayer({required String layerId, required int mapId}) {
-    throw UnimplementedError('destroyFeatureLayer() has not been implemented.');
+  bool destroyLayer({required int mapId, required String layerId}) {
+    throw UnimplementedError('destroyLayer() has not been implemented.');
   }
 
-  bool graphicContainsPoint({
+  bool polygonContainsPoint({
     required String polygonId,
     required LatLng pointCoordinates,
     required int mapId,
   }) {
     throw UnimplementedError(
-      'graphicContainsPoint() has not been implemented.',
+      'polygonContainsPoint() has not been implemented.',
     );
   }
 
@@ -96,35 +127,56 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('buildView() has not been implemented.');
   }
 
-  Future<bool> moveCamera({
+  Future<void> moveCamera({
     required LatLng point,
     required int mapId,
-    int? zoomLevel,
+    double? zoomLevel,
+    int? threeDHeading,
+    int? threeDTilt,
     AnimationOptions? animationOptions,
   }) {
     throw UnimplementedError('moveCamera() has not been implemented.');
   }
 
-  Future<bool> zoomIn(int lodFactor, int mapId) {
+  Future<bool> zoomIn({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) {
     throw UnimplementedError('zoomIn() has not been implemented.');
   }
 
-  Future<bool> zoomOut(int lodFactor, int mapId) {
+  Future<bool> zoomOut({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) {
     throw UnimplementedError('zoomOut() has not been implemented.');
   }
 
   Future<void> setInteraction(int mapId, {required bool isEnabled}) {
-    throw UnimplementedError('addGraphic() has not been implemented.');
+    throw UnimplementedError('setInteraction() has not been implemented.');
   }
 
   /// Adds the provided graphic to the map.
   /// You can't add a second graphic with the same id.
-  Future<void> addGraphic(int mapId, Graphic graphic) {
+  Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
     throw UnimplementedError('addGraphic() has not been implemented.');
   }
 
-  Future<void> removeGraphic(int mapId, String graphicId) {
+  Future<void> removeGraphic(int mapId, String layerId, String graphicId) {
     throw UnimplementedError('removeGraphic() has not been implemented.');
+  }
+
+  void removeGraphics({
+    required int mapId,
+    String? layerId,
+    String? removeByAttributeKey,
+    String? removeByAttributeValue,
+    String? excludeAttributeKey,
+    List<String>? excludeAttributeValues,
+  }) {
+    throw UnimplementedError('removeGraphics() has not been implemented.');
   }
 
   void addViewPadding(int mapId, ViewPadding padding) {
@@ -137,6 +189,12 @@ class ArcgisMapPlatform extends PlatformInterface {
 
   List<Graphic> getGraphicsInView(int mapId) {
     throw UnimplementedError('getGraphicsInView() has not been implemented.');
+  }
+
+  Stream<bool> isGraphicHoveredStream(int mapId) {
+    throw UnimplementedError(
+      'isGraphicHoveredStream() has not been implemented.',
+    );
   }
 
   List<String> getVisibleGraphicIds(int mapId) {

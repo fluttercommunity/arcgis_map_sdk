@@ -4,7 +4,7 @@ import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart
 import 'package:flutter/material.dart';
 
 class VectorLayerExamplePage extends StatefulWidget {
-  const VectorLayerExamplePage({Key? key}) : super(key: key);
+  const VectorLayerExamplePage({super.key});
 
   @override
   State<VectorLayerExamplePage> createState() => _VectorLayerExamplePageState();
@@ -24,6 +24,7 @@ class _VectorLayerExamplePageState extends State<VectorLayerExamplePage> {
             vectorTileLayerUrls: const [
               "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer",
             ],
+            mapStyle: MapStyle.twoD,
           ),
         ],
       ),

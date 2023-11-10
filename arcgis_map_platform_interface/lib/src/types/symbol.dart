@@ -6,6 +6,7 @@ enum SymbolType {
   pictureMarker,
   simpleFill,
   simpleLine,
+  mesh3D,
 }
 
 extension SymbolTypeExt on SymbolType {
@@ -14,6 +15,7 @@ extension SymbolTypeExt on SymbolType {
     SymbolType.pictureMarker: 'picture-marker',
     SymbolType.simpleFill: 'simple-fill',
     SymbolType.simpleLine: 'simple-line',
+    SymbolType.mesh3D: 'mesh-3d',
   };
 
   String get value => values[this]!;
@@ -27,6 +29,7 @@ abstract class Symbol {
     required R Function(SimpleMarkerSymbol symbol) ifSimpleMarkerSymbol,
     required R Function(PictureMarkerSymbol symbol) ifPictureMarkerSymbol,
     required R Function(SimpleLineSymbol symbol) ifSimpleLineSymbol,
+    required R Function(MeshSymbol3D symbol) ifMeshSymbol3D,
   }) {
     final self = this;
     if (self is SimpleFillSymbol) {
@@ -41,27 +44,49 @@ abstract class Symbol {
     if (self is SimpleLineSymbol) {
       return ifSimpleLineSymbol(self);
     }
+    if (self is MeshSymbol3D) {
+      return ifMeshSymbol3D(self);
+    }
 
     throw Exception("Unknown Symbol: $self");
   }
+}
+
+/// 3D Mesh symbol
+class MeshSymbol3D extends Symbol {
+  const MeshSymbol3D({
+    required this.color,
+    this.colorOpacity = 1,
+  });
+
+  final Color color;
+  final double colorOpacity;
 }
 
 /// A simple marker on the map
 class SimpleMarkerSymbol extends Symbol {
   const SimpleMarkerSymbol({
     required this.color,
+    this.colorOpacity = 1,
     required this.outlineColor,
-    this.outlineWidth = 2.0,
-    this.size = 4.0,
+    this.outlineColorOpacity = 1,
+    this.outlineWidth = 2,
+    this.radius = 4,
   });
 
   final Color color;
+  final double colorOpacity;
   final Color outlineColor;
-  final double outlineWidth;
-  final double size;
+  final double outlineColorOpacity;
+  final int outlineWidth;
+  final int radius;
 }
 
 /// A picture marker on the map
+///
+/// Add a [uri] of an image to display it as a marker in the whole feature layer
+/// It can be a url or a local path, in which the image is stored locally
+/// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
 ///
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
@@ -92,13 +117,15 @@ class PictureMarkerSymbol extends Symbol {
 class SimpleFillSymbol extends Symbol {
   const SimpleFillSymbol({
     required this.fillColor,
+    required this.opacity,
     required this.outlineColor,
     required this.outlineWidth,
   });
 
   final Color fillColor;
+  final double opacity;
   final Color outlineColor;
-  final double outlineWidth;
+  final int outlineWidth;
 }
 
 /// SimpleLineSymbol is used for rendering 2D polyline geometries in a 2D MapView.
@@ -109,6 +136,7 @@ class SimpleLineSymbol extends Symbol {
   const SimpleLineSymbol({
     this.cap = CapStyle.round,
     this.color,
+    this.colorOpacity = 1,
     this.declaredClass,
     this.join = JoinStyle.round,
     this.marker,
@@ -123,6 +151,7 @@ class SimpleLineSymbol extends Symbol {
 
   /// The color of the symbol.
   final Color? color;
+  final double? colorOpacity;
 
   /// The name of the class.
   /// Only supported on web.
@@ -149,10 +178,11 @@ class SimpleLineSymbol extends Symbol {
 /// LineSymbolMarker is used for rendering a simple marker graphic on a SimpleLineSymbol.
 /// Markers can enhance the cartographic information of a line by providing additional visual cues about the associated feature.
 ///
-/// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-LineSymbolMarker.htm
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-LineSymbolMarker.html
 class LineSymbolMarker {
   const LineSymbolMarker({
     this.color,
+    this.colorOpacity,
     this.declaredClass,
     this.placement = MarkerPlacement.beginEnd,
     this.style = MarkerStyle.arrow,
@@ -160,6 +190,7 @@ class LineSymbolMarker {
 
   /// The color of the marker.
   final Color? color;
+  final double? colorOpacity;
 
   /// The name of the class.
   /// Only supported on web.

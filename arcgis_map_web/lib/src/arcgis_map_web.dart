@@ -49,37 +49,69 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<bool> moveCamera({
+  Future<void> moveCamera({
     required LatLng point,
     required int mapId,
-    int? zoomLevel,
+    double? zoomLevel,
+    int? threeDHeading,
+    int? threeDTilt,
     AnimationOptions? animationOptions,
   }) {
     return _map(mapId).moveCamera(
       point: point,
       zoomLevel: zoomLevel,
+      threeDHeading: threeDHeading,
+      threeDTilt: threeDTilt,
       animationOptions: animationOptions,
     );
   }
 
   @override
-  Future<bool> zoomIn(int lodFactor, int mapId) {
-    return _map(mapId).zoomIn(lodFactor);
+  Future<bool> zoomIn({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) {
+    return _map(mapId)
+        .zoomIn(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
-  Future<bool> zoomOut(int lodFactor, int mapId) {
-    return _map(mapId).zoomOut(lodFactor);
+  Future<bool> zoomOut({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) {
+    return _map(mapId)
+        .zoomOut(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
-  Future<void> addGraphic(int mapId, Graphic graphic) async {
-    _map(mapId).addGraphic(graphic);
+  Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
+    return _map(mapId).addGraphic(layerId, graphic);
   }
 
   @override
-  Future<void> removeGraphic(int mapId, String objectId) async {
-    _map(mapId).removeGraphic(objectId);
+  Future<void> removeGraphic(int mapId, String layerId, String objectId) {
+    return _map(mapId).removeGraphic(layerId, objectId);
+  }
+
+  @override
+  void removeGraphics({
+    required int mapId,
+    String? layerId,
+    String? removeByAttributeKey,
+    String? removeByAttributeValue,
+    String? excludeAttributeKey,
+    List<String>? excludeAttributeValues,
+  }) {
+    _map(mapId).removeGraphics(
+      layerId: layerId,
+      removeByAttributeKey: removeByAttributeKey,
+      removeByAttributeValue: removeByAttributeValue,
+      excludeAttributeKey: excludeAttributeKey,
+      excludeAttributeValues: excludeAttributeValues,
+    );
   }
 
   @override
@@ -89,17 +121,15 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
 
   @override
   Future<void> toggleBaseMap(int mapId, BaseMap baseMap) async {
-    _map(mapId).toggleBaseMap(baseMap: baseMap);
-  }
-
-  @override
-  Future<void> setInteraction(int mapId, {required bool isEnabled}) {
-    // TODO(Matthaios): Impl
-    throw Exception("setInteraction not implemented");
+    return _map(mapId).toggleBaseMap(baseMap: baseMap);
   }
 
   @override
   List<Graphic> getGraphicsInView(int mapId) => _map(mapId).graphicsInView;
+
+  @override
+  Stream<bool> isGraphicHoveredStream(int mapId) =>
+      _map(mapId).isGraphicHoveredStream;
 
   @override
   Future<FeatureLayer> addFeatureLayer(
@@ -116,18 +146,60 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
+  Future<GraphicsLayer> addGraphicsLayer(
+    GraphicsLayerOptions options,
+    int mapId,
+    String layerId,
+    void Function(dynamic)? onPressed,
+  ) async {
+    return _map(mapId).addGraphicsLayer(
+      options,
+      layerId,
+      onPressed,
+    );
+  }
+
+  @override
+  Future<SceneLayer> addSceneLayer({
+    required SceneLayerOptions options,
+    required String layerId,
+    required String url,
+    required int mapId,
+  }) async {
+    return _map(mapId).addSceneLayer(
+      options: options,
+      layerId: layerId,
+      url: url,
+    );
+  }
+
+  @override
   void setMouseCursor(SystemMouseCursor cursor, int mapId) {
     _map(mapId).setMouseCursor(cursor);
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
-    _map(mapId).updateGraphicSymbol(symbol, graphicId);
+  void updateGraphicSymbol({
+    required int mapId,
+    required String layerId,
+    required String graphicId,
+    required Symbol symbol,
+  }) {
+    _map(mapId).updateGraphicSymbol(
+      layerId: layerId,
+      symbol: symbol,
+      graphicId: graphicId,
+    );
   }
 
   @override
   Stream<double> getZoom(int mapId) {
     return _map(mapId).getZoom();
+  }
+
+  @override
+  void switchMapStyle(int mapId, MapStyle mapStyle) {
+    _map(mapId).switchMapStyle(mapStyle);
   }
 
   @override
@@ -156,27 +228,34 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void onClick(void Function(ArcGisMapAttributes?) onPressed, int mapId) {
-    _map(mapId).onClick(onPressed);
+  Stream<Attributes?> onClickListener(int mapId) {
+    return _map(mapId).onClickListener();
   }
 
   @override
-  Future<void> updateFeatureLayer(List<Graphic> data, int mapId) async {
-    await _map(mapId).updateFeatureLayer(data);
+  Future<void> updateFeatureLayer({
+    required String featureLayerId,
+    required int mapId,
+    required List<Graphic> data,
+  }) async {
+    await _map(mapId).updateFeatureLayer(
+      featureLayerId: featureLayerId,
+      data: data,
+    );
   }
 
   @override
-  bool destroyFeatureLayer({required String layerId, required int mapId}) {
+  bool destroyLayer({required int mapId, required String layerId}) {
     return _map(mapId).destroyLayer(layerId);
   }
 
   @override
-  bool graphicContainsPoint({
+  bool polygonContainsPoint({
     required String polygonId,
     required LatLng pointCoordinates,
     required int mapId,
   }) {
-    return _map(mapId).graphicContainsPoint(polygonId, pointCoordinates);
+    return _map(mapId).polygonContainsPoint(polygonId, pointCoordinates);
   }
 
   @override
@@ -203,6 +282,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       /// Since we manage assets locally, the following line is needed to direct to these assets:
       ///
       /// https://developers.arcgis.com/javascript/latest/es-modules/#managing-assets-locally
+      // ignore: avoid_dynamic_calls
       context["esri"]["core"]["config"]["assetsPath"] =
           "/assets/packages/arcgis_map_web/assets/arcgis_js_api_custom_build/assets";
     });

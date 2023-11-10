@@ -1,13 +1,13 @@
 import "dart:js_util" as js_util;
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
-import 'package:arcgis_map_web/arcgis_map_web.dart';
+import 'package:arcgis_map_web/arcgis_map_web_js.dart';
 
 class MapView {
   JsMapView init({
     dynamic container,
     dynamic map,
-    dynamic center,
-    dynamic zoom,
+    required double zoom,
+    required List<double> center,
     required bool rotationEnabled,
     required ViewPadding padding,
     required int minZoom,

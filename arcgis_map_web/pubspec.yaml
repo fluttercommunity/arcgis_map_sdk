@@ -13,6 +13,7 @@ dependencies:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
       ref: main
+  async: ^2.9.0
 
   flutter:
     sdk: flutter
@@ -21,7 +22,7 @@ dependencies:
   js: ^0.6.2
 
 dev_dependencies:
-  lint: ^1.0.0
+  lint: ^2.0.0
 
 # Used to work locally on the package
 dependency_overrides:
@@ -33,7 +34,7 @@ flutter:
     platforms:
       web:
         pluginClass: ArcgisMapWeb
-        fileName: arcgis_map_web.dart
+        fileName: arcgis_map_web_js.dart
   assets:
 
   # assets start

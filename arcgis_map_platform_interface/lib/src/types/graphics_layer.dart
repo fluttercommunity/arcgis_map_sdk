@@ -1,11 +1,10 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 
-class FeatureLayer {
-  FeatureLayer({
+class GraphicsLayer {
+  GraphicsLayer({
     this.id,
     this.data,
     this.onPressed,
-    this.url,
     this.options,
     this.onChanged,
   });
@@ -14,22 +13,17 @@ class FeatureLayer {
   final List<Graphic>? data;
   final void Function()? onPressed;
   final void Function(LatLng)? onChanged;
-  final String? url;
-  FeatureLayerOptions? options;
+  GraphicsLayerOptions? options;
 }
 
-class FeatureLayerOptions {
-  FeatureLayerOptions({
-    required this.symbol,
+class GraphicsLayerOptions {
+  GraphicsLayerOptions({
     required this.fields,
     this.elevationMode = ElevationMode.onTheGround,
     this.featureReduction,
   });
 
-  final Symbol symbol;
   final List<Field> fields;
   final ElevationMode elevationMode;
-
-  // TODO(Matthaios): Change datatype (https://github.com/phntmxyz/arcgis_map/issues/30)
   final Object? featureReduction;
 }

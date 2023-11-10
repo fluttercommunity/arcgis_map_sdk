@@ -1,11 +1,11 @@
 class Field {
-  final String type;
-  final String name;
-
   Field({
     required this.type,
     required this.name,
   });
+
+  final String type;
+  final String name;
 
   @override
   String toString() {

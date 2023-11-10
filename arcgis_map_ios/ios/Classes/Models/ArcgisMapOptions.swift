@@ -13,8 +13,6 @@ struct ArcgisMapOptions: Codable {
     let vectorTilesUrls: Array<String>?
     let initialCenter: LatLng;
     let zoom: Double
-    let hideDefaultZoomButtons: Bool
-    let hideAttribution: Bool
     let padding: ViewPadding
     let isInteractive: Bool
     let rotationEnabled: Bool

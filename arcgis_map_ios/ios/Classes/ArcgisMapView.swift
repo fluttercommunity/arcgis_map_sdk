@@ -201,7 +201,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
         
         let hasExistingGraphics = newGraphics.contains(where: { object in
-            let graphic = object as! AGSGraphic
+            let graphic = object
             guard let id = graphic.attributes["id"] as? String else {
                 return false
             }
@@ -260,11 +260,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         // don't set "isMagnifierEnabled" since we don't want to use this feature
     }
 
-    private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
-        AGSBasemapStyle.allCases.first { enumValue in
-            enumValue.getJsonValue() == string
-        }!
+private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
+    let baseMapStyle = AGSBasemapStyle.allCases.first { enumValue in
+        enumValue.getJsonValue() == string
     }
+    if baseMapStyle == nil {
+        NSLog("Warning: Could not find a base map style matching the input string. Defaulting to .arcGISImageryStandard.")
+    }
+    return baseMapStyle ?? .arcGISImageryStandard
+}
 
     /**
      * Convert map scale to zoom level

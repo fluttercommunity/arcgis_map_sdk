@@ -22,7 +22,7 @@ class GraphicsParser {
                 "point" -> parsePoint(map)
                 "polygon" -> parsePolygon(map)
                 "polyline" -> parsePolyline(map)
-                else -> throw  Exception("No type for $type")
+                else -> throw Exception("No type for $type")
             }
 
             val attributes = map["attributes"] as? Map<String, String>
@@ -62,11 +62,12 @@ class GraphicsParser {
         }
 
         private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
-            val rings = parseToClass<List<List<LatLng>>>(map["rings"]!!)
+            val rings = parseToClass<List<List<List<Double>>>>(map["rings"]!!)
 
-            return rings.map { points ->
+            return rings.map { ring ->
                 Graphic().apply {
-                    geometry = Polygon(PointCollection(points.map { it.toAGSPoint() }))
+                    geometry =
+                        Polygon(PointCollection(ring.map { LatLng(it[0], it[1]).toAGSPoint() }))
                     symbol = parseSymbol(map)
                 }
             }

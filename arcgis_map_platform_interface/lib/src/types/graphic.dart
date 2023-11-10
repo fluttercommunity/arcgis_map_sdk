@@ -37,15 +37,17 @@ class PointGraphic extends Graphic {
     required this.latitude,
     required this.longitude,
     required this.symbol,
+    this.height = 10,
     this.onEnter,
     this.onExit,
     this.onHover,
   });
 
-  final ArcGisMapAttributes attributes;
+  final Attributes attributes;
   final double latitude;
   final double longitude;
   final Symbol symbol;
+  final int height;
 
   @override
   final void Function()? onEnter;
@@ -76,9 +78,9 @@ class PolygonGraphic extends Graphic {
   });
 
   /// Each list of LatLngs creates a polygon
-  final List<List<LatLng>> rings;
+  final List<List<List<double>>> rings;
   final Symbol symbol;
-  final ArcGisMapAttributes attributes;
+  final Attributes attributes;
 
   @override
   final void Function()? onEnter;
@@ -119,9 +121,9 @@ class PolylineGraphic extends Graphic {
   /// path in the spatial reference of the view. Each vertex is represented as an array of two, three, or four numbers.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Polyline.html#paths
-  final List<List<LatLng>> paths;
+  final List<List<List<double>>> paths;
   final SimpleLineSymbol symbol;
-  final ArcGisMapAttributes attributes;
+  final Attributes attributes;
 
   @override
   final void Function()? onEnter;

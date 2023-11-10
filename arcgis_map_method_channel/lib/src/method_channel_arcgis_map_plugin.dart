@@ -35,7 +35,12 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void updateGraphicSymbol(Symbol symbol, String graphicId, int mapId) {
+  void updateGraphicSymbol({
+    required int mapId,
+    required String layerId,
+    required String graphicId,
+    required Symbol symbol,
+  }) {
     throw UnimplementedError('updateGraphicSymbol() has not been implemented');
   }
 
@@ -70,28 +75,32 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void onClick(void Function(ArcGisMapAttributes?) onPressed, int mapId) {
-    throw UnimplementedError('onClick() has not been implemented.');
+  Stream<Attributes?> onClickListener(int mapId) {
+    throw UnimplementedError('onClickListener() has not been implemented.');
   }
 
   @override
-  Future<void> updateFeatureLayer(List<Graphic> data, int mapId) async {
+  Future<void> updateFeatureLayer({
+    required int mapId,
+    required String featureLayerId,
+    required List<Graphic> data,
+  }) async {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
   @override
-  bool destroyFeatureLayer({required String layerId, required int mapId}) {
+  bool destroyLayer({required int mapId, required String layerId}) {
     throw UnimplementedError('destroyFeatureLayer() has not been implemented.');
   }
 
   @override
-  bool graphicContainsPoint({
+  bool polygonContainsPoint({
     required String polygonId,
     required LatLng pointCoordinates,
     required int mapId,
   }) {
     throw UnimplementedError(
-      'graphicContainsPoint() has not been implemented.',
+      'polygonContainsPoint() has not been implemented.',
     );
   }
 
@@ -115,21 +124,27 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   Future<bool> moveCamera({
     required LatLng point,
     required int mapId,
-    int? zoomLevel,
+    double? zoomLevel,
     AnimationOptions? animationOptions,
+    int? threeDHeading,
+    int? threeDTilt,
   }) async {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "move_camera",
       {
         "point": point.toMap(),
-        "zoomLevel": zoomLevel,
+        "zoomLevel": zoomLevel?.round(),
         "animationOptions": animationOptions?.toMap(),
       },
     ).then((value) => value!);
   }
 
   @override
-  Future<bool> zoomIn(int lodFactor, int mapId) async {
+  Future<bool> zoomIn({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) async {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_in",
       {"lodFactor": lodFactor},
@@ -137,7 +152,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<bool> zoomOut(int lodFactor, int mapId) async {
+  Future<bool> zoomOut({
+    required int lodFactor,
+    required int mapId,
+    AnimationOptions? animationOptions,
+  }) async {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_out",
       {"lodFactor": lodFactor},
@@ -154,7 +173,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> addGraphic(int mapId, Graphic graphic) {
+  Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
+    // layers are not implemented for native
     return _methodChannelBuilder(mapId).invokeMethod(
       "add_graphic",
       graphic.toJson(),
@@ -162,7 +182,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> removeGraphic(int mapId, String graphicId) {
+  Future<void> removeGraphic(int mapId, String layerId, String graphicId) {
+    // layers are not implemented for native
     return _methodChannelBuilder(mapId)
         .invokeMethod("remove_graphic", graphicId);
   }

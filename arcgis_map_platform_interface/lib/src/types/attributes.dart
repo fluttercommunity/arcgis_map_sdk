@@ -1,11 +1,11 @@
-class ArcGisMapAttributes {
-  final String id;
-  final String name;
+/// [Attributes] are fully configurable.
+///
+/// You can add any field according to your needs.
+/// It is strongly advised to always include an [id] field.
+class Attributes {
+  final Map<String, dynamic> data;
 
-  const ArcGisMapAttributes({required this.id, required this.name});
+  Attributes(this.data);
 
-  @override
-  String toString() {
-    return 'ArcGisMapAttributes{id: $id, name: $name}';
-  }
+  String get id => data['id'] as String;
 }

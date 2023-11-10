@@ -19,12 +19,18 @@ class ArcgisMap extends StatefulWidget {
     required this.apiKey,
     required this.initialCenter,
     required this.zoom,
+    required this.mapStyle,
     this.basemap,
-    this.hideDefaultZoomButtons = false,
-    this.hideAttribution = false,
+    this.showLabelsBeneathGraphics = false,
+    this.defaultUiList = const [],
+    this.isPopupEnabled = false,
+    this.ground,
     this.isInteractive = true,
     this.padding = const ViewPadding(),
     this.rotationEnabled = false,
+    this.tilt = 0,
+    this.initialHeight = 5000,
+    this.heading = 0,
     this.minZoom = 2,
     this.maxZoom = 22,
     this.xMin = -90,
@@ -42,11 +48,19 @@ class ArcgisMap extends StatefulWidget {
 
   final String apiKey;
   final BaseMap? basemap;
+  final List<DefaultWidget> defaultUiList;
+  final bool isPopupEnabled;
+  final MapStyle mapStyle;
+  final Ground? ground;
   final LatLng initialCenter;
+
+  /// If true, the basemap labels will be moved to the background. Behind any graphics.
+  final bool showLabelsBeneathGraphics;
   final bool isInteractive;
   final double zoom;
-  final bool hideDefaultZoomButtons;
-  final bool hideAttribution;
+  final double tilt;
+  final double initialHeight;
+  final double heading;
   final ViewPadding padding;
   final bool rotationEnabled;
   final int minZoom;
@@ -73,12 +87,18 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   late ArcgisMapOptions _arcgisMapOptions = ArcgisMapOptions(
     apiKey: widget.apiKey,
+    mapStyle: widget.mapStyle,
     basemap: widget.basemap,
+    ground: widget.ground,
     initialCenter: widget.initialCenter,
+    showLabelsBeneathGraphics: widget.showLabelsBeneathGraphics,
     isInteractive: widget.isInteractive,
     zoom: widget.zoom,
-    hideDefaultZoomButtons: widget.hideDefaultZoomButtons,
-    hideAttribution: widget.hideAttribution,
+    heading: widget.heading,
+    initialHeight: widget.initialHeight,
+    tilt: widget.tilt,
+    defaultUiList: widget.defaultUiList,
+    isPopupEnabled: widget.isPopupEnabled,
     padding: widget.padding,
     rotationEnabled: widget.rotationEnabled,
     minZoom: widget.minZoom,
@@ -118,12 +138,16 @@ class _ArcgisMapState extends State<ArcgisMap> {
     }
     _arcgisMapOptions = ArcgisMapOptions(
       apiKey: widget.apiKey,
+      mapStyle: widget.mapStyle,
       basemap: widget.basemap,
+      ground: widget.ground,
       initialCenter: widget.initialCenter,
+      showLabelsBeneathGraphics: widget.showLabelsBeneathGraphics,
       isInteractive: widget.isInteractive,
       zoom: widget.zoom,
-      hideDefaultZoomButtons: widget.hideDefaultZoomButtons,
-      hideAttribution: widget.hideAttribution,
+      heading: widget.heading,
+      initialHeight: widget.initialHeight,
+      tilt: widget.tilt,
       padding: widget.padding,
       rotationEnabled: widget.rotationEnabled,
       minZoom: widget.minZoom,
@@ -133,6 +157,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       yMin: widget.yMin,
       yMax: widget.yMax,
       vectorTilesUrls: widget.vectorTileLayerUrls,
+      defaultUiList: widget.defaultUiList,
     );
   }
 

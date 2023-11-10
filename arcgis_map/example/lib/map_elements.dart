@@ -1,75 +1,84 @@
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/material.dart';
 
+const mesh3d = MeshSymbol3D(
+  color: Color(0xFFFF8282),
+);
+
 /// Examples of polygon areas
-final List<List<LatLng>> redPolygon = [
-  <List<double>>[
+const List<List<List<double>>> redPolygon = [
+  [
     [10, 50],
     [10.45, 50.07],
     [10.78, 50.21],
     [11.3, 50.78],
     [10, 51],
     [10, 50],
-  ].map((e) => LatLng(e[1], e[0])).toList(),
+  ],
 ];
 
-final List<List<LatLng>> greenPolygon = [
-  <List<double>>[
+const List<List<List<double>>> greenPolygon = [
+  [
     [11.0, 50.0],
     [11.45, 50.07],
     [11.78, 50.21],
     [12.3, 50.78],
     [11, 51],
     [11, 50],
-  ].map((e) => LatLng(e[1], e[0])).toList(),
-  <List<double>>[
+  ],
+  [
     [9, 53],
     [9.45, 52.07],
     [10.78, 52.21],
     [12.3, 53.78],
     [12, 54],
     [9, 53],
-  ].map((e) => LatLng(e[1], e[0])).toList()
+  ]
 ];
 
-final List<List<LatLng>> orangePolygon = [
-  <List<double>>[
+const List<List<List<double>>> orangePolygon = [
+  [
     [11.0, 52.0],
     [11.45, 52.07],
     [11.78, 52.21],
     [12.3, 52.78],
     [12, 53],
     [11, 52],
-  ].map((e) => LatLng(e[1], e[0])).toList()
+  ]
 ];
 
 /// Display the areas wit a green, red or orange color
-final greenFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.green.withOpacity(0.25),
+const greenFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.green,
+  opacity: .25,
   outlineColor: Colors.greenAccent,
   outlineWidth: 1,
 );
 
-final redFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red.withOpacity(0.25),
+const redFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red,
+  opacity: .25,
   outlineColor: Colors.redAccent,
   outlineWidth: 1,
 );
 
-final orangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange.withOpacity(0.25),
+const orangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange,
+  opacity: .25,
   outlineColor: Colors.orangeAccent,
   outlineWidth: 1,
 );
 
-final highlightedRedFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.red.withOpacity(0.5),
+const highlightedRedFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.red,
+  opacity: .5,
   outlineColor: Colors.redAccent,
   outlineWidth: 3,
 );
 
-final highlightedOrangeFillSymbol = SimpleFillSymbol(
-  fillColor: Colors.orange.withOpacity(0.5),
+const highlightedOrangeFillSymbol = SimpleFillSymbol(
+  fillColor: Colors.orange,
+  opacity: .5,
   outlineColor: Colors.orangeAccent,
   outlineWidth: 3,
 );
@@ -78,20 +87,20 @@ final highlightedOrangeFillSymbol = SimpleFillSymbol(
 final polygonGraphic = PolygonGraphic(
   rings: redPolygon,
   symbol: redFillSymbol,
-  attributes: const ArcGisMapAttributes(
-    id: 'red-polygon-Id-0',
-    name: 'Red polygon zero',
-  ),
+  attributes: Attributes({
+    'id': 'red-polygon-Id-0',
+    'name': 'Red polygon zero',
+  }),
 );
 
 /// Examples of markers as points or as images
-const pointGraphic = PointGraphic(
+final pointGraphic = PointGraphic(
   longitude: 10.19569,
   latitude: 48.39283,
-  attributes: ArcGisMapAttributes(
-    id: 'f28f57ad-3756-41ea-94d1-81046ae7a6d8',
-    name: 'Bibertal',
-  ),
+  attributes: Attributes({
+    'id': 'f28f57ad-3756-41ea-94d1-81046ae7a6d8',
+    'name': 'Bibertal',
+  }),
   symbol: simpleMarkerSymbol,
 );
 
@@ -108,7 +117,7 @@ const pictureMarkerSymbol = PictureMarkerSymbol(
   height: 32,
 );
 
-final List<List<LatLng>> firstPolygon = [
+const List<List<List<double>>> firstPolygon = [
   [
     [13.1390151, 52.7605088],
     [13.1381278, 52.7625376],
@@ -806,42 +815,36 @@ final List<List<LatLng>> firstPolygon = [
     [13.1366772, 52.75808],
     [13.1312088, 52.7595557],
     [13.1309851, 52.7604014],
-    [13.1390151, 52.7605088]
+    [13.1390151, 52.7605088],
   ],
   [
     [13.0261061, 53.0718401],
     [13.02467318, 53.072411995],
     [13.025970936, 53.071540516],
-    [13.0261061, 53.0718401]
+    [13.0261061, 53.0718401],
   ],
   [
     [13.0239818, 53.0671317],
     [13.025876033, 53.071330169],
     [13.0254484, 53.0713418],
-    [13.0239818, 53.0671317]
+    [13.0239818, 53.0671317],
   ],
   [
     [13.038312897, 52.86771391],
     [13.0400876, 52.8749972],
     [13.039983997, 52.875538852],
     [13.0382231, 52.8679],
-    [13.038312897, 52.86771391]
+    [13.038312897, 52.86771391],
   ],
   [
     [13.0408884, 52.860875],
     [13.040584451, 52.861600148],
     [13.039617603, 52.857164242],
-    [13.0408884, 52.860875]
-  ]
-]
-    .map(
-      (group) => group
-          .map((coordinate) => LatLng(coordinate[1], coordinate[0]))
-          .toList(),
-    )
-    .toList();
+    [13.0408884, 52.860875],
+  ],
+];
 
-final List<List<LatLng>> secondPolygon = [
+const List<List<List<double>>> secondPolygon = [
   [
     [13.2940689, 53.0611202],
     [13.2971861, 53.0610015],
@@ -1476,32 +1479,32 @@ final List<List<LatLng>> secondPolygon = [
     [13.2846752, 53.062181],
     [13.2918888, 53.0610989],
     [13.2924923, 53.0618984],
-    [13.2940689, 53.0611202]
+    [13.2940689, 53.0611202],
   ],
   [
     [13.370313371, 53.075055861],
     [13.3702408, 53.0749697],
     [13.37178204, 53.074299114],
     [13.3718056, 53.0745215],
-    [13.370313371, 53.075055861]
+    [13.370313371, 53.075055861],
   ],
   [
     [13.371361016, 53.072551703],
     [13.3716038, 53.0726167],
     [13.371706997, 53.073590784],
-    [13.371361016, 53.072551703]
+    [13.371361016, 53.072551703],
   ],
   [
     [13.3688009, 53.0720851],
     [13.368842735, 53.071877526],
     [13.370058177, 53.072202916],
-    [13.3688009, 53.0720851]
+    [13.3688009, 53.0720851],
   ],
   [
     [13.3792476, 53.0678736],
     [13.379247, 53.0687861],
     [13.3782965, 53.069999],
-    [13.3792476, 53.0678736]
+    [13.3792476, 53.0678736],
   ],
   [
     [12.9365826, 53.4021072],
@@ -1641,7 +1644,7 @@ final List<List<LatLng>> secondPolygon = [
     [12.9380266, 53.3966749],
     [12.9370261, 53.3997574],
     [12.9383754, 53.401886],
-    [12.9365826, 53.4021072]
+    [12.9365826, 53.4021072],
   ],
   [
     [12.304753, 53.0836461],
@@ -2356,72 +2359,66 @@ final List<List<LatLng>> secondPolygon = [
     [12.3019985, 53.079319],
     [12.3023708, 53.0800905],
     [12.3038256, 53.0797701],
-    [12.304753, 53.0836461]
+    [12.304753, 53.0836461],
   ],
   [
     [12.331654437, 53.317867414],
     [12.3319566, 53.3176838],
     [12.3413009, 53.316169],
-    [12.331654437, 53.317867414]
+    [12.331654437, 53.317867414],
   ],
   [
     [12.6552112, 53.2552413],
     [12.6659826, 53.2531696],
     [12.6601754, 53.2546494],
-    [12.6552112, 53.2552413]
+    [12.6552112, 53.2552413],
   ],
   [
     [12.667643469, 53.248579238],
     [12.6677864, 53.2481842],
     [12.6697411, 53.2480622],
-    [12.667643469, 53.248579238]
+    [12.667643469, 53.248579238],
   ],
   [
     [12.675079429, 53.246825648],
     [12.6752443, 53.2468834],
     [12.6749053, 53.2486382],
-    [12.675079429, 53.246825648]
+    [12.675079429, 53.246825648],
   ],
   [
     [12.669940613, 53.237701879],
     [12.6701123, 53.2377924],
     [12.66995148, 53.237832443],
-    [12.669940613, 53.237701879]
+    [12.669940613, 53.237701879],
   ],
   [
     [12.6649082, 53.232219],
     [12.6706604, 53.2296943],
     [12.664846891, 53.232356102],
-    [12.6649082, 53.232219]
+    [12.6649082, 53.232219],
   ],
   [
     [12.681311133, 53.227328683],
     [12.679987, 53.2282295],
     [12.679426202, 53.228317577],
-    [12.681311133, 53.227328683]
+    [12.681311133, 53.227328683],
   ],
   [
     [12.6831766, 53.22635],
     [12.6861206, 53.2274291],
     [12.682781331, 53.22655737],
-    [12.6831766, 53.22635]
+    [12.6831766, 53.22635],
   ],
   [
     [12.8497529, 53.6040387],
     [12.848231495, 53.604645044],
     [12.851023057, 53.602961386],
-    [12.8497529, 53.6040387]
+    [12.8497529, 53.6040387],
   ],
   [
     [12.8524336, 53.601765],
     [12.8520929, 53.602053973],
     [12.8538344, 53.5972705],
-    [12.8524336, 53.601765]
+    [12.8524336, 53.601765],
   ]
-]
-    .map(
-      (group) => group
-          .map((coordinate) => LatLng(coordinate[1], coordinate[0]))
-          .toList(),
-    )
-    .toList();
+];

@@ -16,7 +16,7 @@ const arcGisApiKey = String.fromEnvironment(
 );
 
 class ExampleApp extends StatelessWidget {
-  const ExampleApp({Key? key}) : super(key: key);
+  const ExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,109 +28,75 @@ class ExampleApp extends StatelessWidget {
   }
 }
 
+/// Example 3D SceneLayer page.
 class ExampleMap extends StatefulWidget {
-  const ExampleMap({Key? key}) : super(key: key);
+  const ExampleMap({super.key});
 
   @override
   State<ExampleMap> createState() => _ExampleMapState();
 }
 
 class _ExampleMapState extends State<ExampleMap> {
-  static const String _polygonId1 = 'polygon1';
-  static const String _polygonId2 = 'polygon2';
-
+  static const String _pinId1 = '123';
   final LatLng _firstPinCoordinates = LatLng(52.9, 13.2);
+  static const String _pinId2 = '456';
   final LatLng _secondPinCoordinates = LatLng(51, 11);
+  static const String _pinLayerId = 'PinLayer';
+  static const String _polygon1 = 'polygon1';
+  static const String _polygon2 = 'polygon2';
+  static const String _polyLayerId = 'PolygonLayer';
+  static const String _lineLayerId = 'LinesGraphics';
 
   /// null when executed on a platform that's not supported yet
   ArcgisMapController? _controller;
 
   StreamSubscription<BoundingBox>? _boundingBoxSubscription;
   StreamSubscription<LatLng>? _centerPositionSubscription;
+  StreamSubscription<List<String>>? _graphicsInViewSubscription;
   StreamSubscription<String>? _attributionTextSubscription;
   StreamSubscription<double>? _zoomSubscription;
-  StreamSubscription<String>? _pointerSubscription;
-  StreamSubscription<List<String>>? _graphicsInViewSubscription;
+  StreamSubscription<bool>? _isGraphicHoveredSubscription;
   String _attributionText = '';
   bool _subscribedToBounds = false;
-  bool _subscribedToCenterPosition = false;
   bool _isFirstPinInView = false;
   bool _isSecondPinInView = false;
-  bool _subscribedToZoom = false;
+  bool _subscribedToCenterPosition = false;
   bool _subscribedToGraphicsInView = false;
+  bool _subscribedToZoom = false;
   final Map<String, bool> _hoveredPolygons = {};
-  var _isInteractionEnabled = true;
 
+  bool show3dMap = false;
   bool _baseMapToggled = false;
   final initialCenter = LatLng(51.16, 10.45);
   final tappedHQ = LatLng(48.1234963, 11.5910182);
+  var _isInteractionEnabled = true;
 
   @override
   void dispose() {
     _boundingBoxSubscription?.cancel();
     _centerPositionSubscription?.cancel();
+    _graphicsInViewSubscription?.cancel();
     _attributionTextSubscription?.cancel();
     _zoomSubscription?.cancel();
-    _pointerSubscription?.cancel();
-    _graphicsInViewSubscription?.cancel();
+    _isGraphicHoveredSubscription?.cancel();
     super.dispose();
   }
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
-    _controller?.addGraphic(
-      const PointGraphic(
-        attributes: ArcGisMapAttributes(
-          id: 'point1',
-          name: 'Point 1',
-        ),
-        latitude: 48.1234963,
-        longitude: 11.5910182,
-        symbol: SimpleMarkerSymbol(
-          color: Colors.blue,
-          outlineColor: Colors.lightBlueAccent,
-          outlineWidth: 4,
-          size: 8,
-        ),
-      ),
-    );
-
-    _controller?.addGraphic(
-      PolylineGraphic(
-        attributes: const ArcGisMapAttributes(
-          id: 'point2',
-          name: 'Point 2',
-        ),
-        symbol: const SimpleLineSymbol(
-          color: Colors.red,
-          width: 4,
-          style: PolylineStyle.dash,
-          miterLimit: 2,
-          join: JoinStyle.bevel,
-          marker: LineSymbolMarker(
-            color: Colors.green,
-            placement: MarkerPlacement.end,
-          ),
-        ),
-        paths: [
-          [initialCenter, tappedHQ]
-        ],
-      ),
-    );
 
     // TODO: Remove when mobile implementation is complete
     if (kIsWeb) {
-      _controller?.onClick(
-        onPressed: (ArcGisMapAttributes? attributes) {
-          if (attributes == null) return;
-          final snackBar = SnackBar(
-            content: Text('Attributes Name after on Click: ${attributes.name}'),
-          );
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(snackBar);
-        },
-      );
+      _controller?.onClickListener().listen((Attributes? attributes) {
+        if (attributes == null) return;
+        final snackBar = SnackBar(
+          content:
+              Text('Attributes Id after on Click: ${attributes.data['name']}'),
+        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
+      });
 
       _attributionTextSubscription =
           _controller?.attributionText().listen((attribution) {
@@ -138,60 +104,80 @@ class _ExampleMapState extends State<ExampleMap> {
           _attributionText = attribution;
         });
       });
-      await _createFeatureLayer();
+
+      // Create basic 3D Layer with elevation and 3D buildings
+      await _createSceneLayer();
+
+      // Create GraphicsLayer with Polygons
+      await _createGraphicLayer(
+        layerId: _polyLayerId,
+        elevationMode: ElevationMode.onTheGround,
+      );
+
+      // Create GraphicsLayer with Lines
+      await _createGraphicLayer(
+        layerId: _lineLayerId,
+        elevationMode: ElevationMode.onTheGround,
+      );
+      _connectTwoPinsWithPolyline(
+        id: 'connecting-polyline-01',
+        name: 'Connecting polyline',
+        start: _firstPinCoordinates,
+        end: _secondPinCoordinates,
+      );
+
+      // Create GraphicsLayer with 3D Pins
+      await _createGraphicLayer(layerId: _pinLayerId);
+
+      // Subscribe to hover events to change the mouse cursor
+      _isGraphicHoveredSubscription =
+          _controller?.isGraphicHoveredStream().listen((bool isHovered) {
+        _setMouseCursor(isHovered);
+      });
     }
 
-    _controller?.addGraphic(
-      PolygonGraphic(
+    // Add Polygons to the PolyLayer
+    _addPolygon(
+      layerId: _polyLayerId,
+      graphic: PolygonGraphic(
         rings: firstPolygon,
         symbol: orangeFillSymbol,
-        attributes:
-            const ArcGisMapAttributes(id: _polygonId1, name: 'First Polygon'),
+        attributes: Attributes({'id': _polygon1, 'name': 'First Polygon'}),
         onHover: (isHovered) {
           isHovered
               ? _updateGraphicSymbol(
-                  polygonId: _polygonId1,
+                  layerId: _polyLayerId,
+                  graphicId: _polygon1,
                   symbol: highlightedOrangeFillSymbol,
                 )
               : _updateGraphicSymbol(
-                  polygonId: _polygonId1,
+                  layerId: _polyLayerId,
+                  graphicId: _polygon1,
                   symbol: orangeFillSymbol,
                 );
-          if (_hoveredPolygons[_polygonId1] == isHovered) return;
-          _hoveredPolygons[_polygonId1] = isHovered;
-          _setMouseCursor();
+          if (_hoveredPolygons[_polygon1] == isHovered) return;
+          _hoveredPolygons[_polygon1] = isHovered;
         },
       ),
     );
   }
 
-  void _removePolygon({required String id}) {
-    _controller?.removeGraphic(id);
-  }
-
-  Future<FeatureLayer?> _createFeatureLayer() async {
-    final List<Graphic> graphics = [pointGraphic];
-
-    final layer = await _controller?.addFeatureLayer(
-      layerId: '1010',
-      data: graphics,
-      options: FeatureLayerOptions(
-        fields: <Field>[
-          Field(name: 'ObjectID', type: 'oid'),
-          Field(name: 'name', type: 'string'),
-        ],
-        symbol: simpleMarkerSymbol,
-        featureReduction: FeatureReductionCluster().toJson(),
-      ),
-      getZoom: (double zoom) {
-        debugPrint('zoom $zoom');
-      },
+  void _updateGraphicSymbol({
+    required String layerId,
+    required String graphicId,
+    required Symbol symbol,
+  }) {
+    _controller?.updateGraphicSymbol(
+      layerId: layerId,
+      symbol: symbol,
+      graphicId: graphicId,
     );
-    return layer;
   }
 
-  void destroyFeatureLayer() {
-    _controller?.destroyFeatureLayer(id: '1010');
+  void _setMouseCursor(bool isHovered) {
+    _controller?.setMouseCursor(
+      isHovered ? SystemMouseCursors.click : SystemMouseCursors.basic,
+    );
   }
 
   void _subscribeToBounds() {
@@ -270,19 +256,74 @@ class _ExampleMapState extends State<ExampleMap> {
     });
   }
 
-  void _addPin(String id, LatLng location) {
+  void _addPin({
+    required String layerId,
+    required String objectId,
+    required LatLng location,
+  }) {
     _controller?.addGraphic(
-      PointGraphic(
+      layerId: layerId,
+      graphic: PointGraphic(
         longitude: location.longitude,
         latitude: location.latitude,
-        attributes: ArcGisMapAttributes(id: id, name: 'Marker Pin'),
+        height: 20,
+        attributes: Attributes({
+          'id': objectId,
+          'name': objectId,
+          'family': 'Pins',
+        }),
         symbol: _markerSymbol,
       ),
     );
   }
 
-  void _removePin(String id) {
-    _controller?.removeGraphic(id);
+  Future<SceneLayer?> _createSceneLayer() async {
+    final layer = await _controller?.addSceneLayer(
+      layerId: '3D Buildings',
+      options: SceneLayerOptions(
+        symbol: mesh3d,
+      ),
+      url:
+          'https://basemaps3d.arcgis.com/arcgis/rest/services/OpenStreetMap3D_Buildings_v1/SceneServer',
+    );
+    return layer;
+  }
+
+  Future<GraphicsLayer?> _createGraphicLayer({
+    required String layerId,
+    ElevationMode elevationMode = ElevationMode.relativeToScene,
+  }) async {
+    final layer = await _controller?.addGraphicsLayer(
+      layerId: layerId,
+      options: GraphicsLayerOptions(
+        fields: <Field>[
+          Field(name: 'oid', type: 'oid'),
+          Field(name: 'id', type: 'string'),
+          Field(name: 'family', type: 'string'),
+          Field(name: 'name', type: 'string'),
+        ],
+        featureReduction: FeatureReductionCluster().toJson(),
+        elevationMode: elevationMode,
+      ),
+    );
+    return layer;
+  }
+
+  void _removeGraphic({
+    required String layerId,
+    required String objectId,
+  }) {
+    _controller?.removeGraphic(layerId: layerId, objectId: objectId);
+  }
+
+  void _addPolygon({
+    required String layerId,
+    required PolygonGraphic graphic,
+  }) {
+    _controller?.addGraphic(
+      layerId: layerId,
+      graphic: graphic,
+    );
   }
 
   void _connectTwoPinsWithPolyline({
@@ -292,9 +333,13 @@ class _ExampleMapState extends State<ExampleMap> {
     required LatLng end,
   }) {
     _controller?.addGraphic(
-      PolylineGraphic(
+      layerId: _lineLayerId,
+      graphic: PolylineGraphic(
         paths: [
-          [start, end]
+          [
+            [start.longitude, start.latitude, 10.0],
+            [end.longitude, end.latitude, 10.0],
+          ]
         ],
         symbol: const SimpleLineSymbol(
           color: Colors.purple,
@@ -302,39 +347,12 @@ class _ExampleMapState extends State<ExampleMap> {
           width: 3,
           marker: LineSymbolMarker(
             color: Colors.green,
+            colorOpacity: 1,
             style: MarkerStyle.circle,
           ),
         ),
-        attributes: ArcGisMapAttributes(
-          id: id,
-          name: name,
-        ),
+        attributes: Attributes({'id': id, 'name': name}),
       ),
-    );
-  }
-
-  void _setMouseCursor() {
-    _controller?.setMouseCursor(
-      _hoveredPolygons.containsValue(true)
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
-    );
-  }
-
-  void _updateGraphicSymbol({
-    required String polygonId,
-    required Symbol symbol,
-  }) {
-    _controller?.updateGraphicSymbol(symbol, polygonId);
-  }
-
-  bool? _isPointInPolygon({
-    required String polygonId,
-    required LatLng pointCoordinates,
-  }) {
-    return _controller?.graphicContainsPoint(
-      polygonId: polygonId,
-      pointCoordinates: pointCoordinates,
     );
   }
 
@@ -344,290 +362,309 @@ class _ExampleMapState extends State<ExampleMap> {
       body: Stack(
         children: [
           ArcgisMap(
+            mapStyle: show3dMap ? MapStyle.threeD : MapStyle.twoD,
             apiKey: arcGisApiKey,
-            basemap:
-                _baseMapToggled ? BaseMap.osmLightGray : BaseMap.osmDarkGray,
+            basemap: BaseMap.osmDarkGray,
+            ground: show3dMap ? Ground.worldElevation : null,
+            showLabelsBeneathGraphics: true,
             initialCenter: initialCenter,
-            zoom: 4,
-            hideDefaultZoomButtons: true,
-            hideAttribution: true,
+            zoom: 8,
+            rotationEnabled: true,
             onMapCreated: _onMapCreated,
-          ),
-          const Positioned(
-            bottom: 10,
-            right: 10,
-            child: Text(
-              'Powered by Esri',
-              style: TextStyle(color: Colors.white),
-            ),
+            defaultUiList: [
+              DefaultWidget(
+                viewType: DefaultWidgetType.compass,
+                position: WidgetPosition.topRight,
+              ),
+            ],
           ),
           Positioned(
-            bottom: 10,
-            left: 10,
-            child: Text(
-              _attributionText,
-              style: const TextStyle(color: Colors.white),
-            ),
-          )
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            FloatingActionButton(
-              heroTag: "move-camera-button",
-              onPressed: () {
-                _controller?.moveCamera(
-                  point: tappedHQ,
-                  zoomLevel: 15,
-                  animationOptions: AnimationOptions(
-                    duration: 1500,
-                    animationCurve: AnimationCurve.easeIn,
-                  ),
-                );
-              },
-              backgroundColor: Colors.red,
-              child: const Icon(Icons.place_outlined),
-            ),
-            FloatingActionButton(
-              heroTag: "zoom-in-button",
-              onPressed: () {
-                _controller?.zoomIn(lodFactor: 1);
-              },
-              backgroundColor: Colors.grey,
-              child: const Icon(Icons.add),
-            ),
-            FloatingActionButton(
-              heroTag: "zoom-out-button",
-              onPressed: () {
-                _controller?.zoomOut(lodFactor: 1);
-              },
-              backgroundColor: Colors.grey,
-              child: const Icon(Icons.remove),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+            bottom: 40,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _routeToVectorLayerMap();
-                  },
-                  child: const Text("Show Vector layer example"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _controller?.setInteraction(
-                      isEnabled: !_isInteractionEnabled,
-                    );
-
-                    setState(() {
-                      _isInteractionEnabled = !_isInteractionEnabled;
-                    });
-                  },
-                  child: Text(
-                    "${_isInteractionEnabled ? "Disable" : "Enable"} Interaction",
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_subscribedToGraphicsInView) {
-                      _unSubscribeToGraphicsInView();
-                    } else {
-                      _subscribeToGraphicsInView();
-                    }
-                  },
-                  child: _subscribedToGraphicsInView
-                      ? const Text("Stop printing Graphics")
-                      : const Text("Start printing Graphics"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final graphicIdsInView =
-                        _controller?.getVisibleGraphicIds();
-                    graphicIdsInView?.forEach(debugPrint);
-                  },
-                  child: const Text("Print visible Graphics"),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Checks if polygon 1 contains the pin
-                    debugPrint(
-                      _isPointInPolygon(
-                        polygonId: _polygonId1,
-                        pointCoordinates: _firstPinCoordinates,
-                      ).toString(),
-                    );
-                  },
-                  child: const Text("Contains Point"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_subscribedToBounds) {
-                      _unsubscribeFromBounds();
-                    } else {
-                      _subscribeToBounds();
-                    }
-                  },
-                  child: _subscribedToBounds
-                      ? const Text("Stop bounds")
-                      : const Text("Sub to bounds"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_subscribedToCenterPosition) {
-                      _unsubscribeFromPos();
-                    } else {
-                      _subscribeToPos();
-                    }
-                  },
-                  child: _subscribedToCenterPosition
-                      ? const Text("Stop pos")
-                      : const Text("Sub to pos"),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _controller?.addViewPadding(
-                      padding: const ViewPadding(right: 300),
-                    );
-                  },
-                  child: const Text("Add 300 right"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _controller?.addViewPadding(
-                      padding: const ViewPadding(left: 300),
-                    );
-                  },
-                  child: const Text("Add 300 left"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _baseMapToggled = !_baseMapToggled;
-                    });
-                  },
-                  child: const Text("Toggle BaseMap"),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (_isFirstPinInView) {
-                      _removePin('_isFirstPinInView');
-                      setState(() {
-                        _isFirstPinInView = false;
-                      });
-                    } else {
-                      _addPin('_isFirstPinInView', _firstPinCoordinates);
-                      setState(() {
-                        _isFirstPinInView = true;
-                      });
-                    }
-                  },
-                  child: _isFirstPinInView
-                      ? const Text('Remove first Pin')
-                      : const Text('Add first Pin'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_isSecondPinInView) {
-                      _removePin('_isSecondPinInView');
-                      setState(() {
-                        _isSecondPinInView = false;
-                      });
-                    } else {
-                      _addPin('_isSecondPinInView', _secondPinCoordinates);
-                      setState(() {
-                        _isSecondPinInView = true;
-                      });
-                    }
-                  },
-                  child: _isSecondPinInView
-                      ? const Text('Remove second Pin')
-                      : const Text('Add second Pin'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _connectTwoPinsWithPolyline(
-                      id: 'connecting-polyline-01',
-                      name: 'Connecting polyline',
-                      start: _firstPinCoordinates,
-                      end: _secondPinCoordinates,
-                    );
-                  },
-                  child: const Text('Connect pins'),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _controller?.addGraphic(
-                      PolygonGraphic(
-                        rings: secondPolygon,
-                        symbol: redFillSymbol,
-                        attributes: const ArcGisMapAttributes(
-                          id: _polygonId2,
-                          name: 'Second Polygon',
-                        ),
-                        onHover: (isHovered) {
-                          isHovered
-                              ? _updateGraphicSymbol(
-                                  polygonId: _polygonId2,
-                                  symbol: highlightedRedFillSymbol,
-                                )
-                              : _updateGraphicSymbol(
-                                  polygonId: _polygonId2,
-                                  symbol: redFillSymbol,
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          FloatingActionButton(
+                            heroTag: "zoom-in-button",
+                            onPressed: () {
+                              _controller?.zoomIn(
+                                lodFactor: 1,
+                                animationOptions: AnimationOptions(
+                                  duration: 1000,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
+                            },
+                            backgroundColor: Colors.grey,
+                            child: const Icon(Icons.add),
+                          ),
+                          FloatingActionButton(
+                            heroTag: "zoom-out-button",
+                            onPressed: () {
+                              _controller?.zoomOut(
+                                lodFactor: 1,
+                                animationOptions: AnimationOptions(
+                                  duration: 1000,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
+                            },
+                            backgroundColor: Colors.grey,
+                            child: const Icon(Icons.remove),
+                          ),
+                          FloatingActionButton(
+                            heroTag: "move-camera-button",
+                            backgroundColor: Colors.red,
+                            child: const Icon(Icons.place_outlined),
+                            onPressed: () {
+                              _controller?.moveCamera(
+                                point: tappedHQ,
+                                zoomLevel: 8.0,
+                                threeDHeading: 30,
+                                threeDTilt: 60,
+                                animationOptions: AnimationOptions(
+                                  duration: 1500,
+                                  animationCurve: AnimationCurve.easeIn,
+                                ),
+                              );
+                            },
+                          ),
+                          FloatingActionButton(
+                            heroTag: "3d-map-button",
+                            onPressed: () {
+                              setState(() {
+                                show3dMap = !show3dMap;
+                                _controller?.switchMapStyle(
+                                  show3dMap ? MapStyle.threeD : MapStyle.twoD,
                                 );
-                          if (_hoveredPolygons[_polygonId2] == isHovered) {
-                            return;
-                          }
-                          _hoveredPolygons[_polygonId2] = isHovered;
-                          _setMouseCursor();
-                        },
+                              });
+                            },
+                            backgroundColor:
+                                show3dMap ? Colors.red : Colors.blue,
+                            child: Text(show3dMap ? '3D' : '2D'),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  child: const Text('Add red polygon'),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.setInteraction(
+                            isEnabled: !_isInteractionEnabled,
+                          );
+
+                          setState(() {
+                            _isInteractionEnabled = !_isInteractionEnabled;
+                          });
+                        },
+                        child: Text(
+                          "${_isInteractionEnabled ? "Disable" : "Enable"} Interaction",
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _routeToVectorLayerMap();
+                        },
+                        child: const Text("Show Vector layer example"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _baseMapToggled = !_baseMapToggled;
+                            _controller?.toggleBaseMap(
+                              baseMap: _baseMapToggled
+                                  ? BaseMap.hybrid
+                                  : BaseMap.osmDarkGray,
+                            );
+                          });
+                        },
+                        child: const Text("Toggle BaseMap"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.addViewPadding(
+                            padding: const ViewPadding(right: 300),
+                          );
+                        },
+                        child: const Text("Add 300 right"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _controller?.addViewPadding(
+                            padding: const ViewPadding(left: 300),
+                          );
+                        },
+                        child: const Text("Add 300 left"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isFirstPinInView) {
+                            _removeGraphic(
+                              layerId: _pinLayerId,
+                              objectId: _pinId1,
+                            );
+                            setState(() {
+                              _isFirstPinInView = false;
+                            });
+                          } else {
+                            _addPin(
+                              layerId: _pinLayerId,
+                              objectId: _pinId1,
+                              location: _firstPinCoordinates,
+                            );
+                            setState(() {
+                              _isFirstPinInView = true;
+                            });
+                          }
+                        },
+                        child: _isFirstPinInView
+                            ? const Text('Remove first Pin')
+                            : const Text('Add first Pin'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isSecondPinInView) {
+                            _removeGraphic(
+                              layerId: _pinLayerId,
+                              objectId: _pinId2,
+                            );
+                            setState(() {
+                              _isSecondPinInView = false;
+                            });
+                          } else {
+                            _addPin(
+                              layerId: _pinLayerId,
+                              objectId: _pinId2,
+                              location: _secondPinCoordinates,
+                            );
+                            setState(() {
+                              _isSecondPinInView = true;
+                            });
+                          }
+                        },
+                        child: _isSecondPinInView
+                            ? const Text('Remove second Pin')
+                            : const Text('Add second Pin'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToZoom) {
+                            _unsubscribeFromZoom();
+                          } else {
+                            _subscribeToZoom();
+                          }
+                        },
+                        child: _subscribedToZoom
+                            ? const Text('Stop zoom')
+                            : const Text('Sub to zoom'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToCenterPosition) {
+                            _unsubscribeFromPos();
+                          } else {
+                            _subscribeToPos();
+                          }
+                        },
+                        child: _subscribedToCenterPosition
+                            ? const Text("Stop pos")
+                            : const Text("Sub to pos"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToBounds) {
+                            _unsubscribeFromBounds();
+                          } else {
+                            _subscribeToBounds();
+                          }
+                        },
+                        child: _subscribedToBounds
+                            ? const Text("Stop bounds")
+                            : const Text("Sub to bounds"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_subscribedToGraphicsInView) {
+                            _unSubscribeToGraphicsInView();
+                          } else {
+                            _subscribeToGraphicsInView();
+                          }
+                        },
+                        child: _subscribedToGraphicsInView
+                            ? const Text("Stop printing Graphics")
+                            : const Text("Start printing Graphics"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final graphicIdsInView =
+                              _controller?.getVisibleGraphicIds();
+                          graphicIdsInView?.forEach(debugPrint);
+                        },
+                        child: const Text("Print visible Graphics"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _addPolygon(
+                            layerId: _polyLayerId,
+                            graphic: PolygonGraphic(
+                              rings: secondPolygon,
+                              symbol: redFillSymbol,
+                              attributes: Attributes({
+                                'id': _polygon2,
+                                'name': 'Second Polygon',
+                              }),
+                              onHover: (isHovered) {
+                                isHovered
+                                    ? _updateGraphicSymbol(
+                                        layerId: _polyLayerId,
+                                        graphicId: _polygon2,
+                                        symbol: highlightedRedFillSymbol,
+                                      )
+                                    : _updateGraphicSymbol(
+                                        layerId: _polyLayerId,
+                                        graphicId: _polygon2,
+                                        symbol: redFillSymbol,
+                                      );
+                                if (_hoveredPolygons[_polygon2] == isHovered) {
+                                  return;
+                                }
+                                _hoveredPolygons[_polygon2] = isHovered;
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text('Add red polygon'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => _removeGraphic(
+                          layerId: _polyLayerId,
+                          objectId: _polygon2,
+                        ),
+                        child: const Text('Remove red polygon'),
+                      ),
+                    ],
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: () => _removePolygon(id: _polygonId2),
-                  child: const Text('Remove red polygon'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_subscribedToZoom) {
-                      _unsubscribeFromZoom();
-                    } else {
-                      _subscribeToZoom();
-                    }
-                  },
-                  child: _subscribedToZoom
-                      ? const Text('Stop zoom')
-                      : const Text('Sub to zoom'),
+                Row(
+                  children: [
+                    const Text(
+                      'Powered by Esri',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      _attributionText,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
