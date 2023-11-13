@@ -1,6 +1,6 @@
 name: arcgis_map
 description: Esri ArcGIS Flutter map package.
-version: 0.9.0
+version: 0.7.1
 
 publish_to: none
 
@@ -24,23 +24,12 @@ dependencies:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: main
+      ref: v0.7.1
 
   flutter:
     sdk: flutter
 
 # Used to work locally on the package
-dependency_overrides:
-  arcgis_map_android:
-    path: ../arcgis_map_android
-  arcgis_map_ios:
-    path: ../arcgis_map_ios
-  arcgis_map_platform_interface:
-    path: ../arcgis_map_platform_interface
-  arcgis_map_method_channel:
-    path: ../arcgis_map_method_channel
-  arcgis_map_web:
-    path: ../arcgis_map_web
 
 dev_dependencies:
   flutter_lints: ^2.0.1
