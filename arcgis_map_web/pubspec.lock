@@ -4,10 +4,12 @@ packages:
   arcgis_map_platform_interface:
     dependency: "direct main"
     description:
-      path: "../arcgis_map_platform_interface"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_platform_interface
+      ref: "v0.7.1"
+      resolved-ref: bac1dcfeab607582f86ec8555262397b98c15c51
+      url: "git@github.com:phntmxyz/arcgis_map.git"
+    source: git
+    version: "0.7.1"
   async:
     dependency: "direct main"
     description:
