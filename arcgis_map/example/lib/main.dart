@@ -38,9 +38,9 @@ class ExampleMap extends StatefulWidget {
 
 class _ExampleMapState extends State<ExampleMap> {
   static const String _pinId1 = '123';
-  final LatLng _firstPinCoordinates = LatLng(52.9, 13.2);
+  final LatLng _firstPinCoordinates = const LatLng(52.9, 13.2);
   static const String _pinId2 = '456';
-  final LatLng _secondPinCoordinates = LatLng(51, 11);
+  final LatLng _secondPinCoordinates = const LatLng(51, 11);
   static const String _pinLayerId = 'PinLayer';
   static const String _polygon1 = 'polygon1';
   static const String _polygon2 = 'polygon2';
@@ -67,8 +67,8 @@ class _ExampleMapState extends State<ExampleMap> {
 
   bool show3dMap = false;
   bool _baseMapToggled = false;
-  final initialCenter = LatLng(51.16, 10.45);
-  final tappedHQ = LatLng(48.1234963, 11.5910182);
+  final initialCenter = const LatLng(51.16, 10.45);
+  final tappedHQ = const LatLng(48.1234963, 11.5910182);
   var _isInteractionEnabled = true;
 
   @override
