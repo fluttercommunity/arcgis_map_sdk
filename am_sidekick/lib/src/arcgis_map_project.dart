@@ -1,7 +1,7 @@
 import 'package:sidekick_core/sidekick_core.dart';
 
-class ArcgisFlutterProject {
-  ArcgisFlutterProject(this.root);
+class ArcgisMapProject {
+  ArcgisMapProject(this.root);
 
   final Directory root;
 
@@ -18,8 +18,17 @@ class ArcgisFlutterProject {
   DartPackage get arcgisMapWeb =>
       DartPackage.fromDirectory(root.directory('arcgis_map_web'))!;
 
-  DartPackage get afSidekickPackage =>
-      DartPackage.fromDirectory(root.directory('af_sidekick'))!;
+  DartPackage get arcgisMapAndroid =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_android'))!;
+
+  DartPackage get arcgisMapIos =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_ios'))!;
+
+  DartPackage get arcgisMapMethodChannel =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_method_channel'))!;
+
+  DartPackage get amSidekickPackage =>
+      DartPackage.fromDirectory(root.directory('am_sidekick'))!;
 
   File get flutterw => root.file('flutterw');
 

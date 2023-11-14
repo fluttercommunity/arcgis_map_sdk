@@ -11,10 +11,10 @@ final dryRunFlag = CliFlag(
 class PublishCommand extends Command {
   @override
   final String description =
-      'Commits & tags the new version and releases the kraken!';
+      'Commits & tags the new version and pushes it to origin.';
 
   @override
-  final String name = 'release-the-kraken';
+  final String name = 'publish';
 
   /// List of all flags and options
   static final List<CliBabo> options = [dryRunFlag];
@@ -40,6 +40,9 @@ class PublishCommand extends Command {
       afProject.arcgisMapExample,
       afProject.arcgisMapPlatformInterface,
       afProject.arcgisMapWeb,
+      afProject.arcgisMapAndroid,
+      afProject.arcgisMapIos,
+      afProject.arcgisMapMethodChannel,
     };
 
     /// Get the version from the pubspec to tag
