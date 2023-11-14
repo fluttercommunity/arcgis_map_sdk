@@ -3,7 +3,7 @@ description: An example app with the ArcGIS package implementation.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 0.7.0
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -13,17 +13,17 @@ dependencies:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map
-      ref: main
+      ref: v0.7.0
   arcgis_map_platform_interface:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: main
+      ref: 0.7.0
   arcgis_map_web:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_web
-      ref: main
+      ref: 0.7.0
 
   cupertino_icons: ^1.0.0
   flutter:

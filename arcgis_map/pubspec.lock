@@ -7,35 +7,35 @@ packages:
       path: "../arcgis_map_android"
       relative: true
     source: path
-    version: "0.9.0"
+    version: "0.7.0"
   arcgis_map_ios:
     dependency: "direct main"
     description:
       path: "../arcgis_map_ios"
       relative: true
     source: path
-    version: "0.9.0"
+    version: "0.7.0"
   arcgis_map_method_channel:
     dependency: "direct overridden"
     description:
       path: "../arcgis_map_method_channel"
       relative: true
     source: path
-    version: "0.9.0"
+    version: "0.7.0"
   arcgis_map_platform_interface:
     dependency: "direct main"
     description:
       path: "../arcgis_map_platform_interface"
       relative: true
     source: path
-    version: "0.9.0"
+    version: "0.7.0"
   arcgis_map_web:
     dependency: "direct overridden"
     description:
       path: "../arcgis_map_web"
       relative: true
     source: path
-    version: "0.9.0"
+    version: "0.7.0"
   async:
     dependency: transitive
     description:
