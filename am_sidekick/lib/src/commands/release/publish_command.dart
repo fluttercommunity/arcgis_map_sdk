@@ -60,7 +60,7 @@ class PublishCommand extends Command {
     areThereStagedFiles = allFilesDiff.exitCode != 0;
 
     if (areThereStagedFiles) {
-      error(red('There are stages files, not committing version bump'));
+      error(red('There are staged files, not committing version bump'));
     }
 
     final detachedHEAD = 'git symbolic-ref -q HEAD'
