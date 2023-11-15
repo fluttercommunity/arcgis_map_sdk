@@ -13,19 +13,26 @@ dependencies:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_android
       ref: v0.7.0
-
   arcgis_map_ios:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_ios
       ref: v0.7.0
-
   arcgis_map_platform_interface:
     git:
       url: git@github.com:phntmxyz/arcgis_map.git
       path: arcgis_map_platform_interface
       ref: v0.7.0
-
+  arcgis_map_method_channel:
+    git:
+      url: git@github.com:phntmxyz/arcgis_map.git
+      path: arcgis_map_method_channel
+      ref: 0.7.0
+  arcgis_map_web:
+    git:
+      url: git@github.com:phntmxyz/arcgis_map.git
+      path: arcgis_map_web
+      ref: 0.7.0
   flutter:
     sdk: flutter
 

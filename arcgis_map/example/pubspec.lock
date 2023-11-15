@@ -9,21 +9,21 @@ packages:
     source: path
     version: "0.7.0"
   arcgis_map_android:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../../arcgis_map_android"
       relative: true
     source: path
     version: "0.7.0"
   arcgis_map_ios:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../../arcgis_map_ios"
       relative: true
     source: path
     version: "0.7.0"
   arcgis_map_method_channel:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../../arcgis_map_method_channel"
       relative: true
