@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:core';
 
-import 'package:arcgis/map_elements.dart';
-import 'package:arcgis/vector_layer_example_page.dart';
+import 'package:arcgis_example/map_elements.dart';
+import 'package:arcgis_example/vector_layer_example_page.dart';
 import 'package:arcgis_map/arcgis_map.dart';
 import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +13,7 @@ void main() => runApp(const ExampleApp());
 const arcGisApiKey = String.fromEnvironment(
   "ARCGIS-API-KEY",
   defaultValue: "YOUR KEY HERE",
+  // request API key at https://developers.arcgis.com/dashboard/
 );
 
 class ExampleApp extends StatelessWidget {
