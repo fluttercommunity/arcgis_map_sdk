@@ -8,31 +8,11 @@ environment:
   sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
-  arcgis_map_android:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_android
-      ref: v0.7.5
-  arcgis_map_ios:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_ios
-      ref: v0.7.5
-  arcgis_map_platform_interface:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_platform_interface
-      ref: v0.7.5
-  arcgis_map_method_channel:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_method_channel
-      ref: v0.7.5
-  arcgis_map_web:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_web
-      ref: v0.7.5
+  arcgis_map_android: ^0.7.5
+  arcgis_map_ios: ^0.7.5
+  arcgis_map_platform_interface: ^0.7.5
+  arcgis_map_method_channel: ^0.7.5
+  arcgis_map_web: ^0.7.5
   flutter:
     sdk: flutter
 

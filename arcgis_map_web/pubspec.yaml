@@ -8,11 +8,7 @@ environment:
   sdk: ">=2.15.0 <3.0.0"
 
 dependencies:
-  arcgis_map_platform_interface:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_platform_interface
-      ref: v0.7.5
+  arcgis_map_platform_interface: ^0.7.5
   async: ^2.9.0
 
   flutter:
