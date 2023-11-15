@@ -2,6 +2,7 @@ name: arcgis_map_android
 description: Esri ArcGIS Flutter Android implementation.
 version: 0.7.5
 repository: https://github.com/fluttercommunity/arcgis_map
+maintainer: Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou)
 
 environment:
   sdk: ">=2.15.0 <4.0.0"
