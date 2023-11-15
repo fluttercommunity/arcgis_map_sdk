@@ -2,8 +2,6 @@ name: arcgis_map
 description: Esri ArcGIS Flutter map package.
 version: 0.7.5
 
-publish_to: none
-
 environment:
   sdk: ">=2.15.0 <4.0.0"
 

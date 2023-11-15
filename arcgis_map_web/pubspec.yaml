@@ -2,8 +2,6 @@ name: arcgis_map_web
 description: Esri ArcGIS Flutter web implementation.
 version: 0.7.5
 
-publish_to: none
-
 environment:
   sdk: ">=2.15.0 <3.0.0"
 
