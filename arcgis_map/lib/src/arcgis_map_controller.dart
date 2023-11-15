@@ -180,8 +180,10 @@ class ArcgisMapController {
     return ArcgisMapPlatform.instance.addGraphic(mapId, layerId, graphic);
   }
 
-  Future<void> removeGraphic(
-      {required String layerId, required String objectId}) {
+  Future<void> removeGraphic({
+    required String layerId,
+    required String objectId,
+  }) {
     return ArcgisMapPlatform.instance.removeGraphic(mapId, layerId, objectId);
   }
 

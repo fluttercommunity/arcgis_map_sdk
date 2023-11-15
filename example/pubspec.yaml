@@ -52,9 +52,6 @@ dev_dependencies:
     sdk: flutter
   lint: ^2.0.0
 
-# Used to work locally on the package
-
-
 flutter:
   assets:
     - assets/

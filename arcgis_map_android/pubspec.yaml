@@ -6,16 +6,14 @@ environment:
   sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
-  arcgis_map_platform_interface: ^0.7.5
   arcgis_map_method_channel: ^0.7.5
+  arcgis_map_platform_interface: ^0.7.5
 
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  flutter_lints: ^2.0.1
-
-# Used to work locally on the package
+  lint: ^2.0.0
 
 flutter:
   plugin:

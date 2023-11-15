@@ -8,13 +8,11 @@ environment:
 dependencies:
   arcgis_map_android: ^0.7.5
   arcgis_map_ios: ^0.7.5
-  arcgis_map_platform_interface: ^0.7.5
   arcgis_map_method_channel: ^0.7.5
+  arcgis_map_platform_interface: ^0.7.5
   arcgis_map_web: ^0.7.5
   flutter:
     sdk: flutter
 
-# Used to work locally on the package
-
 dev_dependencies:
-  flutter_lints: ^2.0.1
+  lint: ^2.0.0

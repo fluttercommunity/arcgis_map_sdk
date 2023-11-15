@@ -18,8 +18,6 @@ dependencies:
 dev_dependencies:
   lint: ^2.0.0
 
-# Used to work locally on the package
-
 flutter:
   plugin:
     platforms:
