@@ -5,6 +5,7 @@ import 'package:am_sidekick/src/commands/clean_command.dart';
 import 'package:am_sidekick/src/commands/generate_arcgis_webpack.dart';
 import 'package:am_sidekick/src/commands/release/bump_version_command.dart';
 import 'package:am_sidekick/src/commands/release/edit_dependency_overrides_command.dart';
+import 'package:am_sidekick/src/commands/release/publish_command.dart';
 import 'package:am_sidekick/src/commands/release/release_command.dart';
 import 'package:am_sidekick/src/commands/test_command.dart';
 import 'package:sidekick_core/sidekick_core.dart';
@@ -26,6 +27,7 @@ Future<void> runAm(List<String> args) async {
     ..addCommand(FormatCommand())
     ..addCommand(BumpVersionCommand())
     ..addCommand(SidekickCommand())
+    ..addCommand(PublishCommand())
     ..addCommand(EditDependencyOverridesCommand())
     ..addCommand(ReleaseCommand())
     ..addCommand(TestCommand())
