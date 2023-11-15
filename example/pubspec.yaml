@@ -1,4 +1,4 @@
-name: arcgis
+name: arcgis_example
 description: An example app with the ArcGIS package implementation.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
