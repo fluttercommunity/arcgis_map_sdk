@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:am_sidekick/src/arcgis_flutter_project.dart';
+import 'package:am_sidekick/src/arcgis_map_project.dart';
 import 'package:am_sidekick/src/commands/clean_command.dart';
 import 'package:am_sidekick/src/commands/generate_arcgis_webpack.dart';
 import 'package:am_sidekick/src/commands/release/bump_version_command.dart';
@@ -10,8 +10,7 @@ import 'package:am_sidekick/src/commands/release/release_command.dart';
 import 'package:am_sidekick/src/commands/test_command.dart';
 import 'package:sidekick_core/sidekick_core.dart';
 
-ArcgisFlutterProject afProject =
-    ArcgisFlutterProject(SidekickContext.projectRoot);
+ArcgisMapProject afProject = ArcgisMapProject(SidekickContext.projectRoot);
 
 Future<void> runAm(List<String> args) async {
   final runner = initializeSidekick(
@@ -28,8 +27,8 @@ Future<void> runAm(List<String> args) async {
     ..addCommand(FormatCommand())
     ..addCommand(BumpVersionCommand())
     ..addCommand(SidekickCommand())
-    ..addCommand(EditDependencyOverridesCommand())
     ..addCommand(PublishCommand())
+    ..addCommand(EditDependencyOverridesCommand())
     ..addCommand(ReleaseCommand())
     ..addCommand(TestCommand())
     ..addCommand(GenerateArcgisWebpack());

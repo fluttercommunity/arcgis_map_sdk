@@ -4,45 +4,57 @@ packages:
   arcgis_map:
     dependency: "direct main"
     description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   arcgis_map_android:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
-      path: "../../arcgis_map_android"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_android
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   arcgis_map_ios:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
-      path: "../../arcgis_map_ios"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_ios
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   arcgis_map_method_channel:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
-      path: "../../arcgis_map_method_channel"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_method_channel
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   arcgis_map_platform_interface:
     dependency: "direct main"
     description:
-      path: "../../arcgis_map_platform_interface"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_platform_interface
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   arcgis_map_web:
     dependency: "direct main"
     description:
-      path: "../../arcgis_map_web"
-      relative: true
-    source: path
-    version: "0.9.0"
+      path: arcgis_map_web
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
+    source: git
+    version: "0.7.5"
   async:
     dependency: transitive
     description:

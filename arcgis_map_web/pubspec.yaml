@@ -1,6 +1,6 @@
 name: arcgis_map_web
 description: Esri ArcGIS Flutter web implementation.
-version: 0.7.1
+version: 0.7.5
 
 publish_to: none
 
@@ -10,9 +10,9 @@ environment:
 dependencies:
   arcgis_map_platform_interface:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: v0.7.1
+      ref: v0.7.5
   async: ^2.9.0
 
   flutter:

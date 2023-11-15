@@ -6,13 +6,9 @@ import 'package:sidekick_core/sidekick_core.dart';
 
 class ReleaseCommand extends Command {
   @override
-  final String description = "Release me, release my body. "
-      "I know it's wrong, "
-      "So why am I with you now? "
-      "I say release me. "
-      "Cause I'm not able to convince myself. "
-      "That I'm better off without you. "
-      "---- Releases new version of a package ----";
+  final String description = "Releases new version of a package. "
+      "This will create a new tag and commit the changes "
+      "to the current branch!";
 
   @override
   final String name = 'release';
@@ -70,7 +66,7 @@ class ReleaseCommand extends Command {
 
     /// Let it rip!
     await runAm(
-      ['release-the-kraken', dryRunFlag.asCommandlineArg(argResults)],
+      ['publish', dryRunFlag.asCommandlineArg(argResults)],
     );
     print(orange('Tag/commit stage done'));
     print('');

@@ -23,7 +23,7 @@ final versionOption = CliOption(
 
 class BumpVersionCommand extends Command {
   @override
-  final String description = 'Bumps the arcgis_flutter version';
+  final String description = 'Bumps the arcgis_map version';
 
   @override
   final String name = 'bump-version';
@@ -81,6 +81,9 @@ class BumpVersionCommand extends Command {
       afProject.arcgisMap,
       afProject.arcgisMapPlatformInterface,
       afProject.arcgisMapWeb,
+      afProject.arcgisMapAndroid,
+      afProject.arcgisMapIos,
+      afProject.arcgisMapMethodChannel,
     };
     for (final package in packages) {
       final pubspecFile = package.pubspec;
@@ -137,7 +140,7 @@ class BumpVersionCommand extends Command {
       /// save to disk
       pubspecFile.replaceFirst(version.toString(), newVersion.toString());
       print(
-        'Arcgis_flutter version bumped from ${yellow(version.toString())} => ${green(newVersion.toString())}',
+        'Arcgis_map version bumped from ${yellow(version.toString())} => ${green(newVersion.toString())}',
       );
     }
   }

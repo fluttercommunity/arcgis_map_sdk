@@ -5,11 +5,11 @@ packages:
     dependency: "direct main"
     description:
       path: arcgis_map_platform_interface
-      ref: "v0.7.1"
-      resolved-ref: bac1dcfeab607582f86ec8555262397b98c15c51
-      url: "git@github.com:phntmxyz/arcgis_map.git"
+      ref: "v0.7.5"
+      resolved-ref: f6f96a5fc8212c6b1700aa3b301cbffc388e197e
+      url: "https://github.com/fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.1"
+    version: "0.7.5"
   async:
     dependency: "direct main"
     description:

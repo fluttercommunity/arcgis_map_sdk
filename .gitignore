@@ -14,6 +14,7 @@ arcgis_map_web/assets_generator_arguments
 .buildlog/
 .history
 .svn/
+.vscode/
 
 # IntelliJ related
 *.iml

@@ -20,17 +20,17 @@ In your app's pubspec.yaml dependencies, add:
 ```
   arcgis_map:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map
       ref: main
   arcgis_map_platform_interface:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_platform_interface
       ref: main
   arcgis_map_web:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_web
       ref: main
 ```

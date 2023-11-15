@@ -36,6 +36,9 @@ class EditDependencyOverridesCommand extends Command {
       afProject.arcgisMap.pubspec,
       afProject.arcgisMapPlatformInterface.pubspec,
       afProject.arcgisMapWeb.pubspec,
+      afProject.arcgisMapAndroid.pubspec,
+      afProject.arcgisMapIos.pubspec,
+      afProject.arcgisMapMethodChannel.pubspec,
     };
 
     for (final pubspecFile in pubspecFiles) {
