@@ -9,12 +9,12 @@ In your app's pubspec.yaml dependencies, add e.g. for web:
 ```
   arcgis_map:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: git@github.com:fluttercommunity/arcgis_map.git
       path: arcgis_map
       ref: main
   arcgis_map_web:
     git:
-      url: git@github.com:phntmxyz/arcgis_map.git
+      url: git@github.com:fluttercommunity/arcgis_map.git
       path: arcgis_map_web
       ref: main
 ```
