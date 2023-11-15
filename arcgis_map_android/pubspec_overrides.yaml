@@ -1,0 +1,5 @@
+dependency_overrides:
+  arcgis_map_method_channel:
+    path: ../arcgis_map_method_channel
+  arcgis_map_platform_interface:
+    path: ../arcgis_map_platform_interface
