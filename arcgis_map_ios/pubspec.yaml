@@ -1,31 +1,21 @@
 name: arcgis_map_ios
 description: Esri ArcGIS Flutter iOS implementation.
 version: 0.7.5
-
-publish_to: none
+repository: https://github.com/fluttercommunity/arcgis_map
+maintainer: Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou)
 
 environment:
   sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
-  arcgis_map_platform_interface:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_platform_interface
-      ref: v0.7.5
-  arcgis_map_method_channel:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_method_channel
-      ref: v0.7.5
+  arcgis_map_method_channel: ^0.7.5
+  arcgis_map_platform_interface: ^0.7.5
 
   flutter:
     sdk: flutter
 
 dev_dependencies:
-  flutter_lints: ^2.0.1
-
-# Used to work locally on the package
+  lint: ^2.0.0
 
 flutter:
   plugin:

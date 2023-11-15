@@ -1,3 +1,4 @@
+// ignore: unnecessary_library_directive
 library arcgis_map_platform_interface;
 
 export 'package:arcgis_map_platform_interface/src/arcgis_map_platform_interface.dart';

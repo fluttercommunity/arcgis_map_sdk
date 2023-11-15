@@ -19,7 +19,7 @@ class FeatureReductionCluster {
                 'weight': 'bold',
                 'family': 'Noto Sans',
                 'size': '12px',
-              }
+              },
             },
             'labelPlacement': 'center-center',
           }

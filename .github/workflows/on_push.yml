@@ -2,10 +2,6 @@ name: CI
 
 on: [push]
 
-defaults:
-  run:
-    working-directory: arcgis_map/example
-
 jobs:
   analyze:
     timeout-minutes: 10
@@ -15,9 +11,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter --version
-      - run: flutter pub get
-      - run: flutter analyze --fatal-warnings --fatal-infos
+      - run: ./am deps
+      - run: ./am analyze --fatal-warnings --fatal-infos
 
   format:
     timeout-minutes: 10
@@ -27,9 +22,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter --version
-      - run: flutter pub get
-      - run: find . -name "*.dart" ! -name "*assets.dart" | tr '\n' ' ' | xargs dart format --set-exit-if-changed -l 80
+      - run: ./am format --verify
 
   test:
     timeout-minutes: 10
@@ -39,6 +32,5 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter --version
-      - run: flutter pub get
-      - run: flutter test
+      - run: ./am deps
+      - run: ./am test

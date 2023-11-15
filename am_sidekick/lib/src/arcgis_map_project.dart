@@ -9,7 +9,7 @@ class ArcgisMapProject {
       DartPackage.fromDirectory(root.directory('arcgis_map'))!;
 
   DartPackage get arcgisMapExample =>
-      DartPackage.fromDirectory(root.directory('arcgis_map/example'))!;
+      DartPackage.fromDirectory(root.directory('example'))!;
 
   DartPackage get arcgisMapPlatformInterface => DartPackage.fromDirectory(
         root.directory('arcgis_map_platform_interface'),
