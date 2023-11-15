@@ -5,56 +5,56 @@ packages:
     dependency: "direct main"
     description:
       path: arcgis_map
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   arcgis_map_android:
     dependency: "direct main"
     description:
       path: arcgis_map_android
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   arcgis_map_ios:
     dependency: "direct main"
     description:
       path: arcgis_map_ios
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   arcgis_map_method_channel:
     dependency: "direct main"
     description:
       path: arcgis_map_method_channel
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   arcgis_map_platform_interface:
     dependency: "direct main"
     description:
       path: arcgis_map_platform_interface
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   arcgis_map_web:
     dependency: "direct main"
     description:
       path: arcgis_map_web
-      ref: "v0.7.3"
-      resolved-ref: "4a6d5ba103a5b02de7dae14b10ad2b1fd66be6fa"
+      ref: "v0.7.4"
+      resolved-ref: "2b0c36ceb24ac690536c4a6da45388f04f83e3ec"
       url: "git@github.com:fluttercommunity/arcgis_map.git"
     source: git
-    version: "0.7.3"
+    version: "0.7.4"
   async:
     dependency: transitive
     description:
