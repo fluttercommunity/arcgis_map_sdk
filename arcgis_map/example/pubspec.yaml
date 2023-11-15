@@ -3,7 +3,7 @@ description: An example app with the ArcGIS package implementation.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.7.4
+version: 0.7.5
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -13,32 +13,32 @@ dependencies:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map
-      ref: v0.7.4
+      ref: v0.7.5
   arcgis_map_android:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_android
-      ref: v0.7.4
+      ref: v0.7.5
   arcgis_map_ios:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_ios
-      ref: v0.7.4
+      ref: v0.7.5
   arcgis_map_method_channel:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_method_channel
-      ref: v0.7.4
+      ref: v0.7.5
   arcgis_map_platform_interface:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_platform_interface
-      ref: v0.7.4
+      ref: v0.7.5
   arcgis_map_web:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_web
-      ref: v0.7.4
+      ref: v0.7.5
 
   cupertino_icons: ^1.0.0
   flutter:
