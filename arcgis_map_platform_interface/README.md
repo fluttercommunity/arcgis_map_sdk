@@ -1,6 +1,6 @@
 # ArcgisMap Platform Interface
 
-[![Flutter Community: device_info_plus_platform_interface](https://fluttercommunity.dev/_github/header/arcgis_map_platform_interface)](https://github.com/fluttercommunity/community)
+[![Flutter Community: arcgis_map_platform_interface](https://fluttercommunity.dev/_github/header/arcgis_map_platform_interface)](https://github.com/fluttercommunity/community)
 
 [![pub package](https://img.shields.io/pub/v/arcgis_map_platform_interface.svg)](https://pub.dev/packages/arcgis_map_platform_interface)
 
