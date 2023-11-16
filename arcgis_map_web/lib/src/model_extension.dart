@@ -232,6 +232,7 @@ extension BaseMapExt on BaseMap {
 extension GroundExt on Ground {
   static const Map<Ground, String> values = {
     Ground.worldElevation: 'world-elevation',
+    Ground.worldTopobathymetry: 'world-topobathymetry',
   };
 
   String get value => values[this]!;
