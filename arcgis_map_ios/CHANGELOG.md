@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.7.5 (15.11.2023)
+## 0.7.6 (16.11.2023)
+
+- Fix plugin registration
+
+## 0.7.5 (16.11.2023)
 
 - First public release
 - Move repository to github.com/fluttercommunity
