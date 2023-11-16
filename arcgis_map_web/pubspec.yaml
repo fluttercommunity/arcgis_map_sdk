@@ -5,10 +5,11 @@ repository: https://github.com/fluttercommunity/arcgis_map
 maintainer: Matthaios Saitakis (@MatthaiosSait), Pascal Welsch (@passsy), Max Peters (@maxpeters)
 
 environment:
-  sdk: ">=2.15.0 <3.0.0"
+  sdk: ">=3.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
-  arcgis_map_platform_interface: ^0.7.5
+  arcgis_map_platform_interface: ^1.0.0
   async: ^2.9.0
 
   flutter:
@@ -22,10 +23,12 @@ dev_dependencies:
 
 flutter:
   plugin:
+    implements: arcgis_map
     platforms:
       web:
         pluginClass: ArcgisMapWeb
         fileName: arcgis_map_web_js.dart
+
   assets:
 
   # assets start

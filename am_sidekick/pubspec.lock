@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: "0c8368c9b3f0abbc193b9d6133649a614204b528982bebc7026372d61677ce3a"
+      sha256: "7b875fd4a20b165a3084bd2d210439b22ebc653f21cea4842729c0c30c82596b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.7"
+    version: "3.4.9"
   args:
     dependency: transitive
     description:
@@ -141,10 +141,10 @@ packages:
     dependency: transitive
     description:
       name: coverage
-      sha256: "2fb815080e44a09b85e0f2ca8a820b15053982b2e714b59267719e8a9ff17097"
+      sha256: "595a29b55ce82d53398e1bcc2cba525d7bd7c59faeb2d2540e9d42c390cfeeeb"
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.3"
+    version: "1.6.4"
   crypto:
     dependency: transitive
     description:
@@ -157,10 +157,10 @@ packages:
     dependency: transitive
     description:
       name: csv
-      sha256: "016b31a51a913744a0a1655c74ff13c9379e1200e246a03d96c81c5d9ed297b5"
+      sha256: "63ed2871dd6471193dffc52c0e6c76fb86269c00244d244297abbb355c84a86e"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "5.1.1"
   dart_console2:
     dependency: transitive
     description:
@@ -205,10 +205,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: ed5337a5660c506388a9f012be0288fb38b49020ce2b45fe1f8b8323fe429f99
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.1.0"
   file:
     dependency: transitive
     description:
@@ -325,10 +325,10 @@ packages:
     dependency: "direct dev"
     description:
       name: lint
-      sha256: "03369e5af39b115ef89872b764ff1ac5e5858ab0227776d036d8fe43844221e8"
+      sha256: "77b3777e8e9adca8e942da1e835882ae3248dfa00488a2ebbdbc1f1a4aa3f4a7"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.20"
+    version: "2.2.0"
   logging:
     dependency: transitive
     description:
@@ -357,10 +357,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "3c74dbf8763d36539f114c799d8a2d87343b5067e9d796ca22b5eb8437090ee3"
+      sha256: d584fa6707a52763a52446f02cc621b077888fb63b93bbcb1143a7be5a0c0c04
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.1"
+    version: "1.11.0"
   mime:
     dependency: transitive
     description:
@@ -669,10 +669,10 @@ packages:
     dependency: transitive
     description:
       name: watcher
-      sha256: "6a7f46926b01ce81bfc339da6a7f20afbe7733eff9846f6d6a5466aa4c6667c0"
+      sha256: "3d2ad6751b3c16cf07c7fca317a1413b3f26530319181b37e3b9039b84fc01d8"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.1.0"
   web_socket_channel:
     dependency: transitive
     description:
@@ -685,10 +685,10 @@ packages:
     dependency: transitive
     description:
       name: webkit_inspection_protocol
-      sha256: "67d3a8b6c79e1987d19d848b0892e582dbb0c66c57cc1fef58a177dd2aa2823d"
+      sha256: "87d3f2333bb240704cd3f1c6b5b7acd8a10e7f0bc28c28dcf14e782014f4a572"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   win32:
     dependency: transitive
     description:

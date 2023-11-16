@@ -6,16 +6,30 @@ maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschalle
   Pascal Welsch (@passsy), Max Peters (@maxpeters)
 
 environment:
-  sdk: ">=2.15.0 <4.0.0"
+  sdk: ">=3.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   arcgis_map_android: ^0.7.5
   arcgis_map_ios: ^0.7.5
-  arcgis_map_method_channel: ^0.7.5
-  arcgis_map_platform_interface: ^0.7.5
+  arcgis_map_platform_interface: ^1.0.0
   arcgis_map_web: ^0.7.5
   flutter:
     sdk: flutter
 
 dev_dependencies:
   lint: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: arcgis_map_android
+      ios:
+        default_package: arcgis_map_ios
+      web:
+        default_package: arcgis_map_web
+
+topics:
+  - map
+  - arcgis

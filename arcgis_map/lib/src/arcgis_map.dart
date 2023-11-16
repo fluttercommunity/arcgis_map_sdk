@@ -39,12 +39,11 @@ class ArcgisMap extends StatefulWidget {
     this.yMax = 66,
     this.onMapCreated,
     this.vectorTileLayerUrls,
-    Key? key,
-  })  : assert(
+    super.key,
+  }) : assert(
           basemap != null ||
               (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
-        ),
-        super(key: key);
+        );
 
   final String apiKey;
   final BaseMap? basemap;
