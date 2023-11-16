@@ -5,7 +5,8 @@ repository: https://github.com/fluttercommunity/arcgis_map
 maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou), Pascal Welsch (@passsy)
 
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: ">=3.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   flutter:
