@@ -4,6 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class AndroidArcgisMapPlugin extends MethodChannelArcgisMapPlugin {
+  /// Registers the Android implementation of ArcgisMapPlatform.
+  static void registerWith() {
+    ArcgisMapPlatform.instance = AndroidArcgisMapPlugin();
+  }
+
   @override
   Widget buildView({
     required int creationId,

@@ -4,6 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class IosArcgisMapPlugin extends MethodChannelArcgisMapPlugin {
+  /// Registers the iOS implementation of ArcgisMapPlatform.
+  static void registerWith() {
+    ArcgisMapPlatform.instance = IosArcgisMapPlugin();
+  }
+
   @override
   Widget buildView({
     required int creationId,
