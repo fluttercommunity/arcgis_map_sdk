@@ -2,7 +2,8 @@ name: arcgis_map_platform_interface
 description: Esri ArcGIS Flutter platform interface.
 version: 0.7.5
 repository: https://github.com/fluttercommunity/arcgis_map
-maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou), Pascal Welsch (@passsy)
+maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou), 
+  Pascal Welsch (@passsy), Max Peters (@maxpeters)
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
