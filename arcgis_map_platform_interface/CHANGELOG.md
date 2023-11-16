@@ -1,12 +1,9 @@
 # Changelog
 
-## 0.7.5 (15.11.2023)
+## 1.0.0 (16.11.2023)
 
 - First public release
 - Move repository to github.com/fluttercommunity
-
-## 0.7.0 (13.10.2023)
-- Bump `latlong2` package version by @MatthaiosSait in https://github.com/phntmxyz/arcgis_map/pull/43
 
 ## Earlier versions
 

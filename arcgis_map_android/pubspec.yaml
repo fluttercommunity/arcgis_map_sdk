@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   arcgis_map_method_channel: ^0.7.5
-  arcgis_map_platform_interface: ^0.7.5
+  arcgis_map_platform_interface: ^1.0.0
 
   flutter:
     sdk: flutter

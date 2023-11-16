@@ -8,7 +8,7 @@ environment:
   sdk: ">=2.15.0 <4.0.0"
 
 dependencies:
-  arcgis_map_platform_interface: ^0.7.5
+  arcgis_map_platform_interface: ^1.0.0
   flutter:
     sdk: flutter
 
