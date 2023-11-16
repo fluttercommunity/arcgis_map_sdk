@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.6 (15.11.2023)
+
+- Publish plugin to pub.dev
+
 ## 0.7.5 (15.11.2023)
 
 - First public release
