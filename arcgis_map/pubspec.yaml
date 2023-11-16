@@ -17,3 +17,17 @@ dependencies:
 
 dev_dependencies:
   lint: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: arcgis_map_android
+      ios:
+        default_package: arcgis_map_ios
+      web:
+        default_package: arcgis_map_web
+
+topics:
+  - map
+  - arcgis

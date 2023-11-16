@@ -19,6 +19,8 @@ dev_dependencies:
 
 flutter:
   plugin:
+    implements: arcgis_map
     platforms:
       ios:
         pluginClass: ArcgisMapPlugin
+        dartPluginClass: IosArcgisMapPlugin
