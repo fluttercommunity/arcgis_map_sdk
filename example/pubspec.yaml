@@ -15,10 +15,10 @@ dependencies:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map
       ref: v0.7.5
-  arcgis_map_android:
+  arcgis_map_sdk_android:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_android
+      path: arcgis_map_sdk_android
       ref: v0.7.5
   arcgis_map_ios:
     git:

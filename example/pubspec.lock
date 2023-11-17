@@ -8,17 +8,17 @@ packages:
       relative: true
     source: path
     version: "0.7.6"
-  arcgis_map_android:
-    dependency: "direct main"
-    description:
-      path: "../arcgis_map_android"
-      relative: true
-    source: path
-    version: "0.7.6"
   arcgis_map_ios:
     dependency: "direct main"
     description:
       path: "../arcgis_map_ios"
+      relative: true
+    source: path
+    version: "0.7.6"
+  arcgis_map_sdk_android:
+    dependency: "direct main"
+    description:
+      path: "../arcgis_map_sdk_android"
       relative: true
     source: path
     version: "0.7.6"

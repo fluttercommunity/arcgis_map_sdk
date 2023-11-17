@@ -1,6 +1,6 @@
 dependency_overrides:
-  arcgis_map_android:
-    path: ../arcgis_map_android
+  arcgis_map_sdk_android:
+    path: ../arcgis_map_sdk_android
   arcgis_map_ios:
     path: ../arcgis_map_ios
   arcgis_map_sdk_method_channel:

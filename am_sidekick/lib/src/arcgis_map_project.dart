@@ -19,7 +19,7 @@ class ArcgisMapProject {
       DartPackage.fromDirectory(root.directory('arcgis_map_sdk_web'))!;
 
   DartPackage get arcgisMapAndroid =>
-      DartPackage.fromDirectory(root.directory('arcgis_map_android'))!;
+      DartPackage.fromDirectory(root.directory('arcgis_map_sdk_android'))!;
 
   DartPackage get arcgisMapIos =>
       DartPackage.fromDirectory(root.directory('arcgis_map_ios'))!;

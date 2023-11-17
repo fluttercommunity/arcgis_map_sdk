@@ -37,13 +37,13 @@ arcgis_webpack/node_modules
 build/
 
 # Android related
-arcgis_map_android/android/**/gradle-wrapper.jar
-arcgis_map_android/android/.gradle
-arcgis_map_android/android/captures/
-arcgis_map_android/android/gradlew
-arcgis_map_android/android/gradlew.bat
-arcgis_map_android/android/local.properties
-arcgis_map_android/android/**/GeneratedPluginRegistrant.java
+arcgis_map_sdk_android/android/**/gradle-wrapper.jar
+arcgis_map_sdk_android/android/.gradle
+arcgis_map_sdk_android/android/captures/
+arcgis_map_sdk_android/android/gradlew
+arcgis_map_sdk_android/android/gradlew.bat
+arcgis_map_sdk_android/android/local.properties
+arcgis_map_sdk_android/android/**/GeneratedPluginRegistrant.java
 
 # iOS/XCode related
 **/ios/**/*.mode1v3

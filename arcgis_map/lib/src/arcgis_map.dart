@@ -6,8 +6,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:arcgis_map/src/arcgis_map_controller.dart';
-import 'package:arcgis_map_android/arcgis_map_android.dart';
 import 'package:arcgis_map_ios/arcgis_map_ios.dart';
+import 'package:arcgis_map_sdk_android/arcgis_map_sdk_android.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
