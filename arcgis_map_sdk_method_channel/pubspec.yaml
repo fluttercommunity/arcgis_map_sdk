@@ -1,4 +1,4 @@
-name: arcgis_map_method_channel
+name: arcgis_map_sdk_method_channel
 description: Esri ArcGIS Flutter method channel implementation.
 version: 0.7.5
 repository: https://github.com/fluttercommunity/arcgis_map

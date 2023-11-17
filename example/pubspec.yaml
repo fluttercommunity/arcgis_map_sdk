@@ -25,10 +25,10 @@ dependencies:
       url: https://github.com/fluttercommunity/arcgis_map.git
       path: arcgis_map_ios
       ref: v0.7.5
-  arcgis_map_method_channel:
+  arcgis_map_sdk_method_channel:
     git:
       url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_method_channel
+      path: arcgis_map_sdk_method_channel
       ref: v0.7.5
   arcgis_map_sdk_platform_interface:
     git:

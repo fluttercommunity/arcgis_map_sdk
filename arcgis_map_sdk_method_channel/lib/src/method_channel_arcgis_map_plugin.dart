@@ -1,4 +1,4 @@
-import 'package:arcgis_map_method_channel/src/model_extension.dart';
+import 'package:arcgis_map_sdk_method_channel/src/model_extension.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
