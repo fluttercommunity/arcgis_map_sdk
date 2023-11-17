@@ -2,7 +2,7 @@ const ArcGISPlugin = require("@arcgis/webpack-plugin");
 const path = require("path");
 const TerserPlugin = require('terser-webpack-plugin');
 const rimraf = require('rimraf');
-const outputPath = "../arcgis_map_web/assets/arcgis_js_api_custom_build";
+const outputPath = "../arcgis_map_sdk_web/assets/arcgis_js_api_custom_build";
 
 module.exports = {
   mode: 'production',

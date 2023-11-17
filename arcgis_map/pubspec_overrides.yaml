@@ -7,5 +7,5 @@ dependency_overrides:
     path: ../arcgis_map_sdk_method_channel
   arcgis_map_sdk_platform_interface:
     path: ../arcgis_map_sdk_platform_interface
-  arcgis_map_web:
-    path: ../arcgis_map_web
+  arcgis_map_sdk_web:
+    path: ../arcgis_map_sdk_web

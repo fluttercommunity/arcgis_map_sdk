@@ -14,7 +14,7 @@ class GenerateArcgisWebpack extends Command {
   Future<void> run() async {
     final root = afProject.root;
     final arcgisWebpackPath = root.directory('arcgis_webpack').path;
-    final arcgisMapWebPath = root.directory('arcgis_map_web').path;
+    final arcgisMapWebPath = root.directory('arcgis_map_sdk_web').path;
     print('Root path: $arcgisWebpackPath');
 
     /// Check if NPM is installed

@@ -1,4 +1,4 @@
-import 'package:arcgis_map_web/arcgis_map_web_js.dart';
+import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
 import 'package:js/js_util.dart';
 
 class VectorLayer {

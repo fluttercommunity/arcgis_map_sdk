@@ -1,6 +1,6 @@
 import "dart:js_util" as js_util;
-import 'package:arcgis_map_web/arcgis_map_web_js.dart';
-import 'package:arcgis_map_web/src/components/vector_layer.dart';
+import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
+import 'package:arcgis_map_sdk_web/src/components/vector_layer.dart';
 
 class EsriMap {
   const EsriMap();

@@ -3,7 +3,7 @@ import 'dart:html';
 import 'dart:js';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
-import 'package:arcgis_map_web/src/arcgis_map_web_controller.dart';
+import 'package:arcgis_map_sdk_web/src/arcgis_map_web_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -19,14 +19,14 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       ..addEventListener("load", (event) => _hasScriptLoaded.complete())
       // ignore: unsafe_html
       ..src =
-          "assets/packages/arcgis_map_web/assets/arcgis_js_api_custom_build/main.js";
+          "assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/main.js";
 
     document.head!.append(script);
 
     final link = LinkElement()
       ..type = "text/css"
       ..href =
-          "assets/packages/arcgis_map_web/assets/css_overrides/override_outline.css"
+          "assets/packages/arcgis_map_sdk_web/assets/css_overrides/override_outline.css"
       ..rel = "stylesheet";
 
     document.head!.append(link);
@@ -284,7 +284,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       /// https://developers.arcgis.com/javascript/latest/es-modules/#managing-assets-locally
       // ignore: avoid_dynamic_calls
       context["esri"]["core"]["config"]["assetsPath"] =
-          "/assets/packages/arcgis_map_web/assets/arcgis_js_api_custom_build/assets";
+          "/assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/assets";
     });
 
     final mapController = ArcgisMapWebController(

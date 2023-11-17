@@ -36,10 +36,10 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
-  arcgis_map_web:
+  arcgis_map_sdk_web:
     dependency: "direct main"
     description:
-      path: "../arcgis_map_web"
+      path: "../arcgis_map_sdk_web"
       relative: true
     source: path
     version: "0.7.5"

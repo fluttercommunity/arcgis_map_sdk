@@ -1,12 +1,12 @@
 @JS()
-library arcgis_map_web;
+library arcgis_map_sdk_web;
 
 import 'dart:async';
 import 'dart:js_util';
 
 import 'package:js/js.dart';
 
-export 'package:arcgis_map_web/src/arcgis_map_web.dart';
+export 'package:arcgis_map_sdk_web/src/arcgis_map_sdk_web.dart';
 
 @JS("JSON.stringify")
 external dynamic jsonStringify(dynamic value);

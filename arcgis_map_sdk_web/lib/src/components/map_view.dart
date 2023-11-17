@@ -1,6 +1,6 @@
 import "dart:js_util" as js_util;
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
-import 'package:arcgis_map_web/arcgis_map_web_js.dart';
+import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
 
 class MapView {
   JsMapView init({
