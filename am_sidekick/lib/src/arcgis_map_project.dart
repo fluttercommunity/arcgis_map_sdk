@@ -24,8 +24,8 @@ class ArcgisMapProject {
   DartPackage get arcgisMapIos =>
       DartPackage.fromDirectory(root.directory('arcgis_map_ios'))!;
 
-  DartPackage get arcgisMapMethodChannel =>
-      DartPackage.fromDirectory(root.directory('arcgis_map_sdk_method_channel'))!;
+  DartPackage get arcgisMapMethodChannel => DartPackage.fromDirectory(
+      root.directory('arcgis_map_sdk_method_channel'))!;
 
   DartPackage get amSidekickPackage =>
       DartPackage.fromDirectory(root.directory('am_sidekick'))!;
