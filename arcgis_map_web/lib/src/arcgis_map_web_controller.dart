@@ -4,7 +4,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:ui' as ui;
 
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_web/src/components/esri_map.dart';
 import 'package:arcgis_map_web/src/components/map_view.dart';

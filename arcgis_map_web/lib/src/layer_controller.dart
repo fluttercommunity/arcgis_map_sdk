@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html' hide VoidCallback;
 import 'dart:js_util';
 
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_web/src/components/attribution.dart';
 import 'package:arcgis_map_web/src/components/js_helper_functions.dart';

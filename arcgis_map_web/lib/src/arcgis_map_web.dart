@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:js';
 
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_web/src/arcgis_map_web_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

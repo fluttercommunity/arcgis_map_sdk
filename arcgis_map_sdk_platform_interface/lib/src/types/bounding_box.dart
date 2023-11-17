@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 /// The bounds of the visible view in map units
 class BoundingBox {

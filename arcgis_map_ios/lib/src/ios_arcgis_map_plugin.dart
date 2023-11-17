@@ -1,5 +1,5 @@
 import 'package:arcgis_map_method_channel/arcgis_map_method_channel.dart';
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 

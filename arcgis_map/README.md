@@ -31,7 +31,7 @@ Integrate the `ArcgisMap` Widget
 
 ```dart 
 import 'package:arcgis_map/arcgis_map.dart';
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
   @override
   Widget build(BuildContext context) {

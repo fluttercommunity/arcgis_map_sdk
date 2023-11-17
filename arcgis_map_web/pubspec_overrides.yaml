@@ -1,3 +1,3 @@
 dependency_overrides:
-  arcgis_map_platform_interface:
-    path: ../arcgis_map_platform_interface
+  arcgis_map_sdk_platform_interface:
+    path: ../arcgis_map_sdk_platform_interface

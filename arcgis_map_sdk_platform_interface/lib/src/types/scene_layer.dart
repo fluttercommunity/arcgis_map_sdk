@@ -1,4 +1,4 @@
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 class SceneLayer {
   SceneLayer({

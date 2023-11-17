@@ -9,7 +9,7 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  arcgis_map_platform_interface: ^1.0.0
+  arcgis_map_sdk_platform_interface: ^1.0.0
   flutter:
     sdk: flutter
 
