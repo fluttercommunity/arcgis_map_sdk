@@ -47,10 +47,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   @override
   Stream<LatLng> centerPosition(int mapId) {
     _centerPositionEventStream ??= EventChannel(
-            "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition")
-        .receiveBroadcastStream()
-        .cast<Map<dynamic, dynamic>>()
-        .map(
+      "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
+    ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
           (data) => LatLng(
             (data['latitude'] as num).toDouble(),
             (data['longitude'] as num).toDouble(),
