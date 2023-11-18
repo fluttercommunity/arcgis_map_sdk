@@ -1,7 +1,7 @@
-name: arcgis_map
+name: arcgis_map_sdk
 description: Esri ArcGIS map for Flutter for Web, iOS and Android platforms
 version: 0.7.6
-repository: https://github.com/fluttercommunity/arcgis_map
+repository: https://github.com/fluttercommunity/arcgis_map_sdk
 maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou), 
   Pascal Welsch (@passsy), Max Peters (@maxpeters)
 

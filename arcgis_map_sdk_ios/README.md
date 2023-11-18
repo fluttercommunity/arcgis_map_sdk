@@ -4,4 +4,4 @@
 
 [![pub package](https://img.shields.io/pub/v/arcgis_map_ios.svg)](https://pub.dev/packages/arcgis_map_ios)
 
-iOS implementation of [`arcgis_map`](https://pub.dev/packages/arcgis_map).
+iOS implementation of [`arcgis_map_sdk`](https://pub.dev/packages/arcgis_map_sdk).

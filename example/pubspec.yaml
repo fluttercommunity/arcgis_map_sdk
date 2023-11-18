@@ -10,36 +10,7 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  arcgis_map:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map
-      ref: v0.7.5
-  arcgis_map_sdk_android:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_sdk_android
-      ref: v0.7.5
-  arcgis_map_sdk_ios:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_sdk_ios
-      ref: v0.7.5
-  arcgis_map_sdk_method_channel:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_sdk_method_channel
-      ref: v0.7.5
-  arcgis_map_sdk_platform_interface:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_sdk_platform_interface
-      ref: v0.7.5
-  arcgis_map_sdk_web:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_sdk_web
-      ref: v0.7.5
+  arcgis_map_sdk:
 
   cupertino_icons: ^1.0.0
   flutter:

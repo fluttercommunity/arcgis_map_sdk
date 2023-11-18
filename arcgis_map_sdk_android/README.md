@@ -4,4 +4,4 @@
 
 [![pub package](https://img.shields.io/pub/v/arcgis_map_sdk_android.svg)](https://pub.dev/packages/arcgis_map_sdk_android)
 
-Android implementation of [`arcgis_map`](https://pub.dev/packages/arcgis_map).
+Android implementation of [`arcgis_map_sdk`](https://pub.dev/packages/arcgis_map_sdk).

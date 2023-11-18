@@ -1,6 +1,6 @@
-# arcgis_map for Flutter
+# Arcgis Maps SDK for Flutter
 
-[![Flutter Community: arcgis_map](https://fluttercommunity.dev/_github/header/arcgis_map)](https://github.com/fluttercommunity/community)
+[![Flutter Community: arcgis_map_sdk](https://fluttercommunity.dev/_github/header/arcgis_map_sdk)](https://github.com/fluttercommunity/community)
 
 
 <img src="https://github.com/fluttercommunity/arcgis_map/assets/1096485/14bd3d39-0770-4fd0-9d94-c6bce679fcd4" alt="Arcgis on iPad" width="600" />
@@ -14,7 +14,7 @@ In your app's pubspec.yaml dependencies, add:
 
 ```yaml
 dependencies:
-  arcgis_map: ^0.7.5
+  arcgis_map_sdk: ^0.8.0
 ```
 
 
@@ -30,7 +30,7 @@ dependencies:
 Integrate the `ArcgisMap` Widget
 
 ```dart 
-import 'package:arcgis_map/arcgis_map.dart';
+import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
   @override

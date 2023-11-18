@@ -1,5 +1,5 @@
 import 'package:arcgis_example/main.dart';
-import 'package:arcgis_map/arcgis_map.dart';
+import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/material.dart';
 

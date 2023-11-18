@@ -4,4 +4,4 @@
 
 [![pub package](https://img.shields.io/pub/v/arcgis_map_sdk_web.svg)](https://pub.dev/packages/arcgis_map_sdk_web)
 
-Web implementation of [`arcgis_map`](https://pub.dev/packages/arcgis_map).
+Web implementation of [`arcgis_map_sdk`](https://pub.dev/packages/arcgis_map_sdk).

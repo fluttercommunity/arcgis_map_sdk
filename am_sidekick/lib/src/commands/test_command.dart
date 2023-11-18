@@ -17,7 +17,8 @@ class TestCommand extends Command {
       ..addOption(
         'package',
         abbr: 'p',
-        allowed: afProject.allPackages.map((it) => it.name),
+        allowed:
+            findAllPackages(SidekickContext.projectRoot).map((it) => it.name),
       );
   }
 
@@ -35,7 +36,8 @@ class TestCommand extends Command {
     }
 
     // outside of package, fallback to all packages
-    for (final package in afProject.allPackages) {
+    final allPackages = findAllPackages(SidekickContext.projectRoot);
+    for (final package in allPackages) {
       collector.add(_test(package));
       print('\n');
     }
