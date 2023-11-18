@@ -14,7 +14,7 @@ ArcgisMapProject afProject = ArcgisMapProject(SidekickContext.projectRoot);
 
 Future<void> runAm(List<String> args) async {
   final runner = initializeSidekick(
-    mainProjectPath: 'arcgis_map',
+    mainProjectPath: 'arcgis_map_sdk',
     flutterSdkPath: systemFlutterSdkPath(),
   );
 

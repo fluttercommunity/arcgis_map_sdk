@@ -1,28 +1,20 @@
 # Arcgis example app
 
-An example app for the plugin. Works on web, android and iOs.
+An example app for the plugin. Works on web, android and iOS.
 
 ## Add the package to your app
 
 In your app's pubspec.yaml dependencies, add e.g. for web:
 
-```
-  arcgis_map:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map
-      ref: main
-  arcgis_map_web:
-    git:
-      url: https://github.com/fluttercommunity/arcgis_map.git
-      path: arcgis_map_web
-      ref: main
+```yaml
+dependencies:
+  arcgis_map_sdk:
 ```
 
 Import the package in your dart file
 
 ```
-import 'package:arcgis_map/arcgis_map.dart';
+import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 ```
 
 Finally, use the `ArcgisMap` Widget in similar way as the example.

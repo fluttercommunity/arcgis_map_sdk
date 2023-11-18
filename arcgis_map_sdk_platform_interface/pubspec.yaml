@@ -1,0 +1,22 @@
+name: arcgis_map_sdk_platform_interface
+description: A common platform interface for the flutter arcgis_map_sdk package
+version: 1.0.0
+repository: https://github.com/fluttercommunity/arcgis_map_sdk
+maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou), 
+  Pascal Welsch (@passsy), Max Peters (@maxpeters)
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  latlong2: ^0.9.0
+  plugin_platform_interface: ^2.1.3
+
+dev_dependencies:
+  lint: ^2.0.0
+
+flutter:

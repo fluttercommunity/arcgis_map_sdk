@@ -5,42 +5,30 @@ class ArcgisMapProject {
 
   final Directory root;
 
-  DartPackage get arcgisMap =>
-      DartPackage.fromDirectory(root.directory('arcgis_map'))!;
+  DartPackage get arcgisMapSdk =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_sdk'))!;
 
   DartPackage get arcgisMapExample =>
       DartPackage.fromDirectory(root.directory('example'))!;
 
-  DartPackage get arcgisMapPlatformInterface => DartPackage.fromDirectory(
-        root.directory('arcgis_map_platform_interface'),
+  DartPackage get arcgisMapSdkPlatformInterface => DartPackage.fromDirectory(
+        root.directory('arcgis_map_sdk_platform_interface'),
       )!;
 
-  DartPackage get arcgisMapWeb =>
-      DartPackage.fromDirectory(root.directory('arcgis_map_web'))!;
+  DartPackage get arcgisMapSdkWeb =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_sdk_web'))!;
 
-  DartPackage get arcgisMapAndroid =>
-      DartPackage.fromDirectory(root.directory('arcgis_map_android'))!;
+  DartPackage get arcgisMapSdkAndroid =>
+      DartPackage.fromDirectory(root.directory('arcgis_map_sdk_android'))!;
 
-  DartPackage get arcgisMapIos =>
+  DartPackage get arcgisMapSdkIos =>
       DartPackage.fromDirectory(root.directory('arcgis_map_ios'))!;
 
-  DartPackage get arcgisMapMethodChannel =>
-      DartPackage.fromDirectory(root.directory('arcgis_map_method_channel'))!;
+  DartPackage get arcgisMapSdkMethodChannel => DartPackage.fromDirectory(
+      root.directory('arcgis_map_sdk_method_channel'))!;
 
   DartPackage get amSidekickPackage =>
       DartPackage.fromDirectory(root.directory('am_sidekick'))!;
 
   File get flutterw => root.file('flutterw');
-
-  List<DartPackage>? _packages;
-
-  List<DartPackage> get allPackages {
-    return _packages ??= root
-        .directory('')
-        .listSync()
-        .whereType<Directory>()
-        .mapNotNull((it) => DartPackage.fromDirectory(it))
-        .toList()
-      ..add(arcgisMapExample);
-  }
 }

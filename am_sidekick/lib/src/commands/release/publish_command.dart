@@ -36,13 +36,13 @@ class PublishCommand extends Command {
     final bool dryRun = dryRunFlag.getFrom(argResults);
 
     final packages = {
-      afProject.arcgisMap,
+      afProject.arcgisMapSdk,
       afProject.arcgisMapExample,
-      afProject.arcgisMapPlatformInterface,
-      afProject.arcgisMapWeb,
-      afProject.arcgisMapAndroid,
-      afProject.arcgisMapIos,
-      afProject.arcgisMapMethodChannel,
+      afProject.arcgisMapSdkPlatformInterface,
+      afProject.arcgisMapSdkWeb,
+      afProject.arcgisMapSdkAndroid,
+      afProject.arcgisMapSdkIos,
+      afProject.arcgisMapSdkMethodChannel,
     };
 
     /// Get the version from the pubspec to tag

@@ -1,4 +1,3 @@
-import 'package:am_sidekick/am_sidekick.dart';
 import 'package:am_sidekick/src/commands/utils.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:sidekick_core/sidekick_core.dart';
@@ -17,7 +16,8 @@ class TestCommand extends Command {
       ..addOption(
         'package',
         abbr: 'p',
-        allowed: afProject.allPackages.map((it) => it.name),
+        allowed:
+            findAllPackages(SidekickContext.projectRoot).map((it) => it.name),
       );
   }
 
@@ -35,7 +35,8 @@ class TestCommand extends Command {
     }
 
     // outside of package, fallback to all packages
-    for (final package in afProject.allPackages) {
+    final allPackages = findAllPackages(SidekickContext.projectRoot);
+    for (final package in allPackages) {
       collector.add(_test(package));
       print('\n');
     }

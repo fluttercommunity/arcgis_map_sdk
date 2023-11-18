@@ -1,1 +1,1 @@
-arcgis_map/README.md
+arcgis_map_sdk/README.md

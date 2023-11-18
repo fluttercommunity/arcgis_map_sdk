@@ -1,4 +1,4 @@
-import 'package:arcgis_map_platform_interface/arcgis_map_platform_interface.dart';
+import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:flutter/material.dart';
 
 const mesh3d = MeshSymbol3D(
