@@ -1,4 +1,3 @@
-import 'package:am_sidekick/am_sidekick.dart';
 import 'package:am_sidekick/src/commands/utils.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:sidekick_core/sidekick_core.dart';
