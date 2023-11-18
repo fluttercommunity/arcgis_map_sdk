@@ -1,1 +1,1 @@
-export 'src/android_arcgis_map_plugin.dart';
+export 'src/arcgis_map_sdk_android_plugin.dart';

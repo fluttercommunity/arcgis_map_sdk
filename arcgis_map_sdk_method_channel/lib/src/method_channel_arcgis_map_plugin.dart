@@ -10,7 +10,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   Stream<LatLng>? _centerPositionEventStream;
 
   MethodChannel _methodChannelBuilder(int viewId) =>
-      MethodChannel("esri.arcgis.flutter_plugin/$viewId");
+      MethodChannel("dev.fluttercommunity.arcgis_map_sdk/$viewId");
 
   /// This method is called when the plugin is first initialized.
   @override
@@ -46,16 +46,16 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<LatLng> centerPosition(int mapId) {
-    _centerPositionEventStream ??=
-        EventChannel("esri.arcgis.flutter_plugin/$mapId/centerPosition")
-            .receiveBroadcastStream()
-            .cast<Map<dynamic, dynamic>>()
-            .map(
-              (data) => LatLng(
-                (data['latitude'] as num).toDouble(),
-                (data['longitude'] as num).toDouble(),
-              ),
-            );
+    _centerPositionEventStream ??= EventChannel(
+            "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition")
+        .receiveBroadcastStream()
+        .cast<Map<dynamic, dynamic>>()
+        .map(
+          (data) => LatLng(
+            (data['latitude'] as num).toDouble(),
+            (data['longitude'] as num).toDouble(),
+          ),
+        );
     return _centerPositionEventStream!;
   }
 
@@ -165,10 +165,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<double> getZoom(int mapId) {
-    _zoomEventStream ??= EventChannel("esri.arcgis.flutter_plugin/$mapId/zoom")
-        .receiveBroadcastStream()
-        .cast<int>()
-        .map((event) => event.toDouble());
+    _zoomEventStream ??=
+        EventChannel("dev.fluttercommunity.arcgis_map_sdk/$mapId/zoom")
+            .receiveBroadcastStream()
+            .cast<int>()
+            .map((event) => event.toDouble());
     return _zoomEventStream!;
   }
 

@@ -10,7 +10,7 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  arcgis_map_ios: ^0.7.5
+  arcgis_map_sdk_ios: ^0.7.5
   arcgis_map_sdk_android: ^0.7.5
   arcgis_map_sdk_platform_interface: ^1.0.0
   arcgis_map_sdk_web: ^0.7.5
@@ -26,7 +26,7 @@ flutter:
       android:
         default_package: arcgis_map_sdk_android
       ios:
-        default_package: arcgis_map_ios
+        default_package: arcgis_map_sdk_ios
       web:
         default_package: arcgis_map_sdk_web
 

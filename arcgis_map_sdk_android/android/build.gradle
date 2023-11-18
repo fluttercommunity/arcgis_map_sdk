@@ -1,4 +1,4 @@
-group 'esri.arcgis.flutter_plugin'
+group 'dev.fluttercommunity.arcgis_map_sdk_android'
 version '1.0-SNAPSHOT'
 
 buildscript {

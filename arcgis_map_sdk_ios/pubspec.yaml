@@ -1,5 +1,5 @@
-name: arcgis_map_sdk_android
-description: Esri ArcGIS Flutter Android implementation.
+name: arcgis_map_sdk_ios
+description: Esri ArcGIS Flutter iOS implementation.
 version: 0.7.6
 repository: https://github.com/fluttercommunity/arcgis_map
 maintainer: Stefan Schaller (@stefanschaller), Julian Bissekkou (@JulianBissekkou)
@@ -22,7 +22,6 @@ flutter:
   plugin:
     implements: arcgis_map
     platforms:
-      android:
-        package: dev.fluttercommunity.arcgis_map_sdk_android
+      ios:
         pluginClass: ArcgisMapPlugin
-        dartPluginClass: AndroidArcgisMapPlugin
+        dartPluginClass: IosArcgisMapPlugin

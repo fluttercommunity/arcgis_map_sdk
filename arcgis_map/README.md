@@ -22,7 +22,7 @@ dependencies:
 (Android) In `<app>/android/app/proguard-rules.pro` add:
 
 ```
--keep class esri.arcgis.flutter_plugin.** { *; }
+-keep class dev.fluttercommunity.arcgis_map_sdk.** { *; }
 ```
 
 
