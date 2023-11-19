@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0 (19.11.2023)
+
+- Change package name to `arcgis_map_sdk_ios`
+
 ## 0.7.6 (16.11.2023)
 
 - Fix plugin registration
