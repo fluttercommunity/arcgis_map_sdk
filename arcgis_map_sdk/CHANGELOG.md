@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0 (19.11.2023)
+
+- Change package name to `arcgis_map_sdk`
+
 ## 0.7.6 (15.11.2023)
 
 - Publish plugin to pub.dev

@@ -12,7 +12,7 @@ environment:
 dependencies:
   arcgis_map_sdk_android: ^0.8.0
   arcgis_map_sdk_ios: ^0.8.0
-  arcgis_map_sdk_platform_interface: ^1.0.0
+  arcgis_map_sdk_platform_interface: ^1.0.1
   arcgis_map_sdk_web: ^0.8.0
   flutter:
     sdk: flutter
