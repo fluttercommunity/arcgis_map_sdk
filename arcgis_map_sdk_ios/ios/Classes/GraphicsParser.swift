@@ -9,19 +9,19 @@ import Foundation
 import ArcGIS
 
 class GraphicsParser {
-    func parse(dictionary: Dictionary<String, Any>) -> [AGSGraphic] {
+    func parse(dictionary: Dictionary<String, Any>) throws -> [AGSGraphic] {
         let type = dictionary["type"] as! String
 
         let newGraphics: [AGSGraphic]
         switch (type) {
         case "point":
-            newGraphics = parsePoint(dictionary)
+            newGraphics = try! parsePoint(dictionary)
         case "polygon":
-            newGraphics = parsePolygon(dictionary)
+            newGraphics = try! parsePolygon(dictionary)
         case "polyline":
-            newGraphics = parsePolyline(dictionary)
+            newGraphics = try! parsePolyline(dictionary)
         default:
-            fatalError("Unknown type: \(type)")
+            throw ParseException(message: "Unknown graphic type: \(type)")
         }
 
         let attributes = dictionary["attributes"] as? Dictionary<String, Any>
@@ -33,32 +33,39 @@ class GraphicsParser {
         return newGraphics
     }
 
-    private func parsePoint(_ dictionary: [String: Any]) -> [AGSGraphic] {
+    private func parsePoint(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
         let point: LatLng = try! JsonUtil.objectOfJson(dictionary["point"] as! Dictionary<String, Any>)
 
         let graphic = AGSGraphic()
         graphic.geometry = point.toAGSPoint()
-        graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+        graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
         return [graphic]
     }
 
-    private func parsePolyline(_ dictionary: [String: Any]) -> [AGSGraphic] {
+    private func parsePolyline(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
         let payload: PathPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        return payload.paths.map { coordinates in
-            let points = coordinates.map {
-                $0.toAGSPoint()
+        return try payload.paths.map { coordinates in
+            let points = try coordinates.map { array in
+                if(array.count < 2) {
+                    throw ParseException(message: "Size of coordinates need to be at least 2. Got \(array)")
+                }
+                if(array.count > 2) {
+                    return AGSPoint(x: array[0], y: array[1], z: array[2], spatialReference: .wgs84())
+                }
+                return AGSPoint(x: array[0], y: array[1], spatialReference: .wgs84())
             }
+            
             let graphic = AGSGraphic()
-
             graphic.geometry = AGSPolyline(points: points)
-            graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+            graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+            
             return graphic
         }
     }
 
-    private func parsePolygon(_ dictionary: [String: Any]) -> [AGSGraphic] {
+    private func parsePolygon(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
         let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
 
         return payload.rings.map { ring in
@@ -67,7 +74,7 @@ class GraphicsParser {
                 AGSPoint(x: coordinate[0], y: coordinate[1], spatialReference: .wgs84())
             }
             graphic.geometry = AGSPolygon(points: points)
-            graphic.symbol = parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
+            graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
             return graphic
         }
@@ -75,7 +82,7 @@ class GraphicsParser {
 
     // region symbol parsing
 
-    private func parseSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+    private func parseSymbol(_ dictionary: [String: Any]) throws -> AGSSymbol {
         let type = dictionary["type"] as! String;
         switch (type) {
         case "simple-marker":
@@ -87,7 +94,7 @@ class GraphicsParser {
         case "simple-line":
             return parseSimpleLineSymbol(dictionary)
         default:
-            fatalError("Unknown type: \(type)")
+            throw ParseException(message: "Unknown symbol type: \(type)")
         }
     }
 
@@ -153,7 +160,7 @@ class GraphicsParser {
 }
 
 private struct PathPayload: Codable {
-    let paths: [[LatLng]]
+    let paths: [[[Double]]]
 }
 
 private struct PolygonPayload: Codable {

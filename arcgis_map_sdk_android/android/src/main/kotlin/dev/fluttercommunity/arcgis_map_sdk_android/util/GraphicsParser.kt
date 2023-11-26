@@ -1,10 +1,16 @@
 package dev.fluttercommunity.arcgis_map_sdk_android.util
 
+import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
+import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.mapping.view.Graphic
-import com.esri.arcgisruntime.symbology.*
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
+import com.esri.arcgisruntime.symbology.SimpleFillSymbol
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
+import com.esri.arcgisruntime.symbology.Symbol
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
 import dev.fluttercommunity.arcgis_map_sdk_android.model.symbol.PictureMarkerSymbolPayload
 import dev.fluttercommunity.arcgis_map_sdk_android.model.symbol.SimpleFillSymbolPayload
@@ -51,11 +57,21 @@ class GraphicsParser {
         }
 
         private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
-            val points = parseToClass<List<List<LatLng>>>(map["paths"]!!)
+            val points = parseToClass<List<List<List<Double>>>>(map["paths"]!!)
 
             return points.map { subPoints ->
                 Graphic().apply {
-                    geometry = Polyline(PointCollection(subPoints.map { it.toAGSPoint() }))
+                    geometry = Polyline(PointCollection(subPoints.map { coordinateArray ->
+                        val x = coordinateArray.elementAtOrNull(0)
+                        val y = coordinateArray.elementAtOrNull(1)
+                        val z = coordinateArray.elementAtOrNull(2)
+                        if (x == null || y == null) {
+                            throw Exception("Coordinate array needs at least 2 doubles. Got $coordinateArray")
+                        }
+
+                        if (z != null) Point(x, y, z, SpatialReferences.getWgs84())
+                        else Point(x, y, SpatialReferences.getWgs84())
+                    }))
                     symbol = parseSymbol(map)
                 }
             }
