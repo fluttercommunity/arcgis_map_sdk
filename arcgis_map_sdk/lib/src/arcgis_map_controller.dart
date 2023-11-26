@@ -1,12 +1,31 @@
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
 
+class ArcgisLocationDisplay {
+  final int mapId;
+
+  ArcgisLocationDisplay._(this.mapId);
+
+  Future<void> startSource() {
+    return ArcgisMapPlatform.instance.startLocationDisplayDataSource(mapId);
+  }
+
+  Future<void> stopSource() {
+    return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(mapId);
+  }
+
+  Future<void> setDataSource() {
+    return ArcgisMapPlatform.instance.setLocationDisplayDataSource(mapId);
+  }
+}
+
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  });
+  }) : locationDisplay = ArcgisLocationDisplay._(mapId);
 
   final int mapId;
+  final ArcgisLocationDisplay locationDisplay;
 
   static Future<ArcgisMapController> init(
     int id,

@@ -202,4 +202,22 @@ class ArcgisMapPlatform extends PlatformInterface {
       'getVisibleGraphicIds() has not been implemented.',
     );
   }
+
+  Future<void> startLocationDisplayDataSource(int mapId) {
+    throw UnimplementedError(
+      'startLocationDisplayDataSource() has not been implemented.',
+    );
+  }
+
+  Future<void> stopLocationDisplayDataSource(int mapId) {
+    throw UnimplementedError(
+      'stopLocationDisplayDataSource() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayDataSource(int mapId) {
+    throw UnimplementedError(
+      'setLocationDisplayDataSource() has not been implemented.',
+    );
+  }
 }

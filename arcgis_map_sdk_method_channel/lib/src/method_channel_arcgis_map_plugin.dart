@@ -210,4 +210,22 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       'getVisibleGraphicIds() has not been implemented.',
     );
   }
+
+  @override
+  Future<void> startLocationDisplayDataSource(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("location_display_start_data_source");
+  }
+
+  @override
+  Future<void> stopLocationDisplayDataSource(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("location_display_stop_data_source");
+  }
+
+  @override
+  Future<void> setLocationDisplayDataSource(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("location_display_set_data_source");
+  }
 }
