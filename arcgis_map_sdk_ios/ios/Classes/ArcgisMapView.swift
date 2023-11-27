@@ -198,6 +198,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             newGraphics.append(contentsOf: try parser.parse(dictionary: call.arguments as! Dictionary<String, Any>))
         } catch {
             result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
+            return
         }
         
         
