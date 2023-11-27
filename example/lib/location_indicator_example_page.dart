@@ -50,6 +50,7 @@ class _LocationIndicatorExamplePageState
         onMapCreated: (controller) {
           _controller = controller;
           _requestLocationPermission();
+          _configureLocationDisplay();
         },
       ),
     );
@@ -63,6 +64,27 @@ class _LocationIndicatorExamplePageState
     await _controller!.moveCamera(
       point: LatLng(location.latitude, location.longitude),
       zoomLevel: 12,
+    );
+  }
+
+  Future<void> _configureLocationDisplay() async {
+    await _controller!.locationDisplay.setDefaultSymbol(
+      SimpleMarkerSymbol(
+        color: Colors.pink,
+        outlineColor: Colors.amberAccent,
+      ),
+    );
+    await _controller!.locationDisplay.setPingAnimationSymbol(
+      SimpleMarkerSymbol(
+        color: Colors.blueAccent,
+        outlineColor: Colors.blue.withOpacity(0.5),
+      ),
+    );
+    await _controller!.locationDisplay.setAccuracySymbol(
+      SimpleMarkerSymbol(
+        color: Colors.deepPurple,
+        outlineColor: Colors.deepPurple,
+      ),
     );
   }
 }

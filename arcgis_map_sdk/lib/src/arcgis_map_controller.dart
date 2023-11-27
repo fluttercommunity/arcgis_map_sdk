@@ -17,6 +17,21 @@ class ArcgisLocationDisplay {
   Future<void> setDataSource() {
     return ArcgisMapPlatform.instance.setLocationDisplayDataSource(mapId);
   }
+
+  Future<void> setDefaultSymbol(Symbol symbol) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplayDefaultSymbol(mapId, symbol);
+  }
+
+  Future<void> setAccuracySymbol(Symbol symbol) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplayAccuracySymbol(mapId, symbol);
+  }
+
+  Future<void> setPingAnimationSymbol(Symbol symbol) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplayPingAnimationSymbol(mapId, symbol);
+  }
 }
 
 class ArcgisMapController {

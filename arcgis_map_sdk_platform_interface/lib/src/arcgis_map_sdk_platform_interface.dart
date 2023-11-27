@@ -220,4 +220,25 @@ class ArcgisMapPlatform extends PlatformInterface {
       'setLocationDisplayDataSource() has not been implemented.',
     );
   }
+
+  Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
+    throw UnimplementedError(
+      'setLocationDisplayDefaultSymbol() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayAccuracySymbol(int mapId, Symbol symbol) {
+    throw UnimplementedError(
+      'setLocationDisplayAccuracySymbol() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayPingAnimationSymbol(
+    int mapId,
+    Symbol symbol,
+  ) {
+    throw UnimplementedError(
+      'setLocationDisplayPingAnimationSymbol() has not been implemented.',
+    );
+  }
 }

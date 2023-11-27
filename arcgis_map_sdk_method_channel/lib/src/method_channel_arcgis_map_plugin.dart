@@ -228,4 +228,31 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     return _methodChannelBuilder(mapId)
         .invokeMethod("location_display_set_data_source");
   }
+
+  @override
+  Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_default_symbol",
+      symbol.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplayAccuracySymbol(int mapId, Symbol symbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_accuracy_symbol",
+      symbol.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplayPingAnimationSymbol(
+    int mapId,
+    Symbol symbol,
+  ) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_ping_animation_symbol",
+      symbol.toJson(),
+    );
+  }
 }

@@ -104,13 +104,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView.setViewpoint(viewport, duration: 0) { _ in
         }
         
-        /*
-         map.maxExtent = AGSEnvelope(
-         min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
-         max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
-         )
-         */
-        
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
     }
@@ -129,6 +122,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_start_data_source" : onStartLocationDisplayDataSource(call, result)
             case "location_display_stop_data_source" : onStopLocationDisplayDataSource(call, result)
             case "location_display_set_data_source" : onSetLocationDisplayDataSource(call, result)
+            case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
+            case "location_display_set_accuracy_symbol": onSetLocationDisplayAccuracySymbol(call, result)
+            case "location_display_set_ping_animation_symbol" : onSetLocationDisplayPingAnimationSymbol(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -299,17 +295,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     
     
     private func onStartLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let pointSymbol = AGSSimpleMarkerSymbol(style: .circle, color: UIColor.red, size: 15.0)
-        pointSymbol.outline = AGSSimpleLineSymbol(style: .solid, color: UIColor.yellow, width: 3.0)
-        
-        let accuracySymbol = AGSSimpleFillSymbol(style: .solid, color: UIColor.blue, outline: AGSSimpleLineSymbol(style: .solid, color: UIColor.systemBlue, width: 1.5))
-        
-        let pingAnimationSymbol = AGSSimpleMarkerSymbol(style: .circle, color: UIColor.purple, size: 200)
-        
-        mapView.locationDisplay.defaultSymbol = pointSymbol
-        mapView.locationDisplay.accuracySymbol = accuracySymbol
-        mapView.locationDisplay.pingAnimationSymbol = pingAnimationSymbol
-        
         mapView.locationDisplay.dataSource.start { error in
             if let error = error {
                 let flutterError = FlutterError(
@@ -331,6 +316,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
     
     private func onSetLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        result(true)
+    }
+    
+    private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        result(true)
+    }
+    
+    private func onSetLocationDisplayAccuracySymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        result(true)
+    }
+    
+    private func onSetLocationDisplayPingAnimationSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         result(true)
     }
 }
