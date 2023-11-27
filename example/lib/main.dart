@@ -10,8 +10,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(const ExampleApp());
 
 const arcGisApiKey = String.fromEnvironment(
-  "ARCGIS-API-KEY",
-  defaultValue: "YOUR KEY HERE",
+  "APIKEY",
   // request API key at https://developers.arcgis.com/dashboard/
 );
 
@@ -315,6 +314,13 @@ class _ExampleMapState extends State<ExampleMap> {
     required String objectId,
   }) {
     _controller?.removeGraphic(layerId: layerId, objectId: objectId);
+  }
+
+  void _makePolylineVisible({required List<LatLng> points}) {
+    _controller?.moveCameraToPoints(
+      points: points,
+      padding: 30,
+    );
   }
 
   void _addPolygon({
@@ -649,6 +655,12 @@ class _ExampleMapState extends State<ExampleMap> {
                       ),
                     ],
                   ),
+                ),
+                ElevatedButton(
+                  onPressed: () => _makePolylineVisible(
+                    points: [_firstPinCoordinates, _secondPinCoordinates],
+                  ),
+                  child: const Text('Make polyline visible'),
                 ),
                 Row(
                   children: [
