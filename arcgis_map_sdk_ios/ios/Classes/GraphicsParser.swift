@@ -82,7 +82,7 @@ class GraphicsParser {
 
     // region symbol parsing
 
-    private func parseSymbol(_ dictionary: [String: Any]) throws -> AGSSymbol {
+    func parseSymbol(_ dictionary: [String: Any]) throws -> AGSSymbol {
         let type = dictionary["type"] as! String;
         switch (type) {
         case "simple-marker":

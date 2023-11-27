@@ -320,6 +320,19 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
     
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        do {
+            guard let args = call.arguments as? [String: Any] else {
+                result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+                return
+            }
+            let symbol = try GraphicsParser().parseSymbol(args)
+            mapView.locationDisplay.defaultSymbol = symbol
+            result(true)
+        }
+        catch {
+            result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
+            return
+        }
         result(true)
     }
     
