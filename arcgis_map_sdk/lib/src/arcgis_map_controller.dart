@@ -149,6 +149,17 @@ class ArcgisMapController {
     );
   }
 
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+  }) {
+    return ArcgisMapPlatform.instance.moveCameraToPoints(
+      mapId: mapId,
+      points: points,
+      padding: padding,
+    );
+  }
+
   Future<void> setInteraction({required bool isEnabled}) {
     return ArcgisMapPlatform.instance
         .setInteraction(mapId, isEnabled: isEnabled);
