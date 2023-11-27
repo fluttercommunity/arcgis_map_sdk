@@ -263,4 +263,23 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       useCourseSymbol,
     );
   }
+
+  @override
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_update_display_source_position_manually",
+      position.toMap(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplay(int mapId, String type) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_data_source_type",
+      type,
+    );
+  }
 }

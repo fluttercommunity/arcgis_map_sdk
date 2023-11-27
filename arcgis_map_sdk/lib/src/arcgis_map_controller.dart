@@ -1,51 +1,17 @@
+import 'package:arcgis_map_sdk/src/arcgis_location_display.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
-
-class ArcgisLocationDisplay {
-  final int mapId;
-
-  ArcgisLocationDisplay._(this.mapId);
-
-  Future<void> startSource() {
-    return ArcgisMapPlatform.instance.startLocationDisplayDataSource(mapId);
-  }
-
-  Future<void> stopSource() {
-    return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(mapId);
-  }
-
-  Future<void> setDataSource() {
-    return ArcgisMapPlatform.instance.setLocationDisplayDataSource(mapId);
-  }
-
-  Future<void> setDefaultSymbol(Symbol symbol) {
-    return ArcgisMapPlatform.instance
-        .setLocationDisplayDefaultSymbol(mapId, symbol);
-  }
-
-  Future<void> setAccuracySymbol(Symbol symbol) {
-    return ArcgisMapPlatform.instance
-        .setLocationDisplayAccuracySymbol(mapId, symbol);
-  }
-
-  Future<void> setPingAnimationSymbol(Symbol symbol) {
-    return ArcgisMapPlatform.instance
-        .setLocationDisplayPingAnimationSymbol(mapId, symbol);
-  }
-
-  Future<void> setUseCourseSymbolOnMovement(bool useCourseSymbol) {
-    return ArcgisMapPlatform.instance
-        .setUseCourseSymbolOnMovement(mapId, useCourseSymbol);
-  }
-}
 
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  }) : locationDisplay = ArcgisLocationDisplay._(mapId);
+  }) : _locationDisplay = ArcgisLocationDisplay(mapId);
 
   final int mapId;
-  final ArcgisLocationDisplay locationDisplay;
+
+  late ArcgisLocationDisplay _locationDisplay;
+
+  ArcgisLocationDisplay get locationDisplay => _locationDisplay;
 
   static Future<ArcgisMapController> init(
     int id,
@@ -287,5 +253,11 @@ class ArcgisMapController {
 
   List<String> getVisibleGraphicIds() {
     return ArcgisMapPlatform.instance.getVisibleGraphicIds(mapId);
+  }
+
+  Future<void> setLocationDisplay(ArcgisLocationDisplay locationDisplay) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplay(mapId, locationDisplay.type)
+        .whenComplete(() => _locationDisplay = locationDisplay);
   }
 }

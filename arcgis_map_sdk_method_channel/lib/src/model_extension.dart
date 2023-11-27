@@ -20,6 +20,14 @@ extension LatLngJsonExtension on LatLng {
       };
 }
 
+extension UserPositionExtension on UserPosition {
+  Map<String, Object?> toMap() => {
+        'latLng': latLng.toMap(),
+        'accuracy': accuracy,
+        'heading': heading,
+      };
+}
+
 extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
   Map<String, dynamic> toMap() {
     return <String, Object?>{

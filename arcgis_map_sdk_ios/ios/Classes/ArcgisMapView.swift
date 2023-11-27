@@ -126,6 +126,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_set_accuracy_symbol": onSetLocationDisplayAccuracySymbol(call, result)
             case "location_display_set_ping_animation_symbol" : onSetLocationDisplayPingAnimationSymbol(call, result)
             case "location_display_set_use_course_symbol_on_move" : onSetLocationDisplayUseCourseSymbolOnMove(call, result)
+            case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
+            case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -341,6 +343,44 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         mapView.locationDisplay.useCourseSymbolOnMovement = active
         result(true)
+    }
+    
+    private func onUpdateLocationDisplaySourcePositionManually(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dataSource = mapView.locationDisplay.dataSource
+        guard let source = dataSource as? ManualLocationDataSource else {
+            result(FlutterError(code: "invalid_state", message: "Expected ManualLocationDataSource but got \(dataSource)", details: nil))
+            return
+        }
+        
+        guard let dict = call.arguments as? Dictionary<String, Any>, let position: UserPosition = try? JsonUtil.objectOfJson(dict) else {
+            result(FlutterError(code: "missing_data", message: "Expected arguments to contain data of UserPosition.", details: nil))
+            return
+        }
+        
+        source.setNewLocation(coordinate: position.latLng, accuracy: position.accuracy, course: position.heading)
+    }
+    
+    private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.locationDisplay.dataSource.status == .started) {
+            result(FlutterError(code: "invalid_state", message: "Current data source is running. Make sure to stop it before setting a new data source", details: nil))
+            return
+        }
+        
+        guard let type = call.arguments as? String else {
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected a type of data source as string.", details: nil))
+            return
+        }
+        
+        switch(type) {
+        case "manual" :
+            mapView.locationDisplay.dataSource = ManualLocationDataSource()
+            result(true)
+        case "system" :
+            mapView.locationDisplay.dataSource = AGSCLLocationDataSource()
+            result(true)
+        default:
+            result(FlutterError(code: "missing_data", message: "Unknown data source type \(String(describing: type))", details: nil))
+        }
     }
     
     private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {

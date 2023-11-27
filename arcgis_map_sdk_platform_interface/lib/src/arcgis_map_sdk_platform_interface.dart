@@ -247,4 +247,19 @@ class ArcgisMapPlatform extends PlatformInterface {
       'setUseCourseSymbolOnMovement() has not been implemented.',
     );
   }
+
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
+    throw UnimplementedError(
+      'updateLocationDisplaySourcePositionManually() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplay(int mapId, String type) {
+    throw UnimplementedError(
+      'setLocationDisplay() has not been implemented.',
+    );
+  }
 }
