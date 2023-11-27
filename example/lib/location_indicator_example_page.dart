@@ -16,6 +16,7 @@ class _LocationIndicatorExamplePageState
   final _snackBarKey = GlobalKey<ScaffoldState>();
   ArcgisMapController? _controller;
   bool _isStarted = false;
+  bool _useCourseSymbolForMovement = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +42,48 @@ class _LocationIndicatorExamplePageState
           setState(() => _isStarted = !_isStarted);
         },
       ),
-      body: ArcgisMap(
-        apiKey: arcGisApiKey,
-        initialCenter: const LatLng(51.16, 10.45),
-        zoom: 13,
-        basemap: BaseMap.arcgisNavigationNight,
-        mapStyle: MapStyle.twoD,
-        onMapCreated: (controller) {
-          _controller = controller;
-          _requestLocationPermission();
-          _configureLocationDisplay();
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: ArcgisMap(
+              apiKey: arcGisApiKey,
+              initialCenter: const LatLng(51.16, 10.45),
+              zoom: 13,
+              basemap: BaseMap.arcgisNavigationNight,
+              mapStyle: MapStyle.twoD,
+              onMapCreated: (controller) {
+                _controller = controller;
+                _requestLocationPermission();
+                _configureLocationDisplay(Colors.blue);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _configureLocationDisplay(Colors.green),
+            child: Text("tint indicator green"),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () => _configureLocationDisplay(Colors.red),
+            child: Text("tint indicator red"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(
+                () =>
+                    _useCourseSymbolForMovement = !_useCourseSymbolForMovement,
+              );
+              _configureLocationDisplay(Colors.red);
+            },
+            child: Text(
+              _useCourseSymbolForMovement
+                  ? "Disable course indicator"
+                  : "Enable course indicator",
+            ),
+          ),
+          SizedBox(height: MediaQuery.paddingOf(context).bottom),
+        ],
       ),
     );
   }
@@ -63,28 +95,29 @@ class _LocationIndicatorExamplePageState
 
     await _controller!.moveCamera(
       point: LatLng(location.latitude, location.longitude),
-      zoomLevel: 12,
+      zoomLevel: 16,
     );
   }
 
-  Future<void> _configureLocationDisplay() async {
+  Future<void> _configureLocationDisplay(MaterialColor color) async {
+    await _controller!.locationDisplay.setUseCourseSymbolOnMovement(
+      _useCourseSymbolForMovement,
+    );
     await _controller!.locationDisplay.setDefaultSymbol(
       SimpleMarkerSymbol(
-        color: Colors.pink,
-        outlineColor: Colors.amberAccent,
+        color: color.shade100,
+        outlineColor: color.shade500,
+        radius: 24,
       ),
     );
     await _controller!.locationDisplay.setPingAnimationSymbol(
       SimpleMarkerSymbol(
-        color: Colors.blueAccent,
-        outlineColor: Colors.blue.withOpacity(0.5),
+        color: color.shade50,
+        outlineColor: color.shade900,
       ),
     );
     await _controller!.locationDisplay.setAccuracySymbol(
-      SimpleMarkerSymbol(
-        color: Colors.deepPurple,
-        outlineColor: Colors.deepPurple,
-      ),
+      SimpleLineSymbol(color: color.shade800, width: 3),
     );
   }
 }

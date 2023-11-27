@@ -255,4 +255,12 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       symbol.toJson(),
     );
   }
+
+  @override
+  Future<void> setUseCourseSymbolOnMovement(int mapId, bool useCourseSymbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_use_course_symbol_on_move",
+      useCourseSymbol,
+    );
+  }
 }

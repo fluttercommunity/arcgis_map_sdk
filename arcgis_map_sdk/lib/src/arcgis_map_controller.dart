@@ -32,6 +32,11 @@ class ArcgisLocationDisplay {
     return ArcgisMapPlatform.instance
         .setLocationDisplayPingAnimationSymbol(mapId, symbol);
   }
+
+  Future<void> setUseCourseSymbolOnMovement(bool useCourseSymbol) {
+    return ArcgisMapPlatform.instance
+        .setUseCourseSymbolOnMovement(mapId, useCourseSymbol);
+  }
 }
 
 class ArcgisMapController {

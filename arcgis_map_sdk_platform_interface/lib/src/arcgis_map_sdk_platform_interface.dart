@@ -241,4 +241,10 @@ class ArcgisMapPlatform extends PlatformInterface {
       'setLocationDisplayPingAnimationSymbol() has not been implemented.',
     );
   }
+
+  Future<void> setUseCourseSymbolOnMovement(int mapId, bool useCourseSymbol) {
+    throw UnimplementedError(
+      'setUseCourseSymbolOnMovement() has not been implemented.',
+    );
+  }
 }

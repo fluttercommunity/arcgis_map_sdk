@@ -125,6 +125,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
             case "location_display_set_accuracy_symbol": onSetLocationDisplayAccuracySymbol(call, result)
             case "location_display_set_ping_animation_symbol" : onSetLocationDisplayPingAnimationSymbol(call, result)
+            case "location_display_set_use_course_symbol_on_move" : onSetLocationDisplayUseCourseSymbolOnMove(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -320,28 +321,41 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
     
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.defaultSymbol = $0 }
+    }
+    
+    private func onSetLocationDisplayAccuracySymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.accuracySymbol = $0 }
+    }
+    
+    private func onSetLocationDisplayPingAnimationSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.pingAnimationSymbol = $0 }
+    }
+
+    
+    private func onSetLocationDisplayUseCourseSymbolOnMove(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let active = call.arguments as? Bool else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
+            return
+        }
+        
+        mapView.locationDisplay.useCourseSymbolOnMovement = active
+        result(true)
+    }
+    
+    private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {
         do {
             guard let args = call.arguments as? [String: Any] else {
                 result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
                 return
             }
             let symbol = try GraphicsParser().parseSymbol(args)
-            mapView.locationDisplay.defaultSymbol = symbol
+            handler(symbol)
             result(true)
         }
         catch {
             result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
-            return
         }
-        result(true)
-    }
-    
-    private func onSetLocationDisplayAccuracySymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        result(true)
-    }
-    
-    private func onSetLocationDisplayPingAnimationSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        result(true)
     }
 }
 
