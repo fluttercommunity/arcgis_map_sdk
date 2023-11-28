@@ -123,7 +123,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
             val payload = map.parseToClass<PictureMarkerSymbolPayload>()
 
             // return local asset in case its a local path
-            if(payload.assetUri.isWebUrl()) {
+            if(!payload.assetUri.isWebUrl()) {
                 return PictureMarkerSymbol(getBitmapFromAssetPath(payload.assetUri)).apply {
                     width = payload.width.toFloat()
                     height = payload.height.toFloat()

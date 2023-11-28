@@ -91,23 +91,33 @@ class SimpleMarkerSymbol extends Symbol {
 /// [xOffset] The offset on the x-axis in pixels
 /// [yOffset] The offset on the y-axis in pixels
 class PictureMarkerSymbol extends Symbol {
-  const PictureMarkerSymbol({
+  PictureMarkerSymbol({
     required this.assetUri,
     required this.width,
     required this.height,
     this.xOffset = 0,
     this.yOffset = 0,
-  });
+  }) : assert(
+          assertLocalAssetIsPng(assetUri),
+          "Local assetUri must have type .png. Got $assetUri.",
+        );
 
   /// Add a [assetUri] of an image to display it as a marker in the whole feature layer
   /// This can be a url or a local path in which the image is stored locally.
   /// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
-  /// TODO(stefan): docu png
+  /// Local assets must have the type .png.
   final String assetUri;
   final double width;
   final double height;
   final int xOffset;
   final int yOffset;
+
+  static bool assertLocalAssetIsPng(String assetUri) {
+    if (assetUri.startsWith("https://") || assetUri.startsWith("http://")) {
+      return true;
+    }
+    return assetUri.endsWith(".png");
+  }
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map

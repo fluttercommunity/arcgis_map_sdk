@@ -691,8 +691,8 @@ class _ExampleMapState extends State<ExampleMap> {
   //   height: 56,
   // );
 
-  final _markerSymbol = const PictureMarkerSymbol(
-    assetUri: 'assets/pin_filled.svg',
+  final _markerSymbol = PictureMarkerSymbol(
+    assetUri: 'assets/navPointer.png',
     width: 56,
     height: 56,
   );

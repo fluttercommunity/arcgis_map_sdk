@@ -109,7 +109,7 @@ const simpleMarkerSymbol = SimpleMarkerSymbol(
   outlineColor: Color(0xFF598DD8),
 );
 
-const pictureMarkerSymbol = PictureMarkerSymbol(
+final pictureMarkerSymbol = PictureMarkerSymbol(
   assetUri: 'web/icons/Icon-192.png',
   width: 32,
   height: 32,
