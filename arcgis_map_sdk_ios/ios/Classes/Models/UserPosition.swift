@@ -11,4 +11,5 @@ struct UserPosition: Codable {
     let latLng: LatLng
     let accuracy: Double?
     let heading: Double?
+    let velocity: Double?
 }

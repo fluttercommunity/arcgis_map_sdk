@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:arcgis_example/main.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +15,21 @@ class LocationIndicatorExamplePage extends StatefulWidget {
 
 class _LocationIndicatorExamplePageState
     extends State<LocationIndicatorExamplePage> {
+  final _mockLocations = [
+    LatLng(48.1234963, 11.5910182),
+    LatLng(48.1239241, 11.45897063),
+    LatLng(48.123876, 11.590120),
+    LatLng(48.123876, 11.590120),
+    LatLng(48.123740, 11.589015),
+    LatLng(48.123164, 11.588585),
+    LatLng(48.1234963, 11.5910182),
+  ];
+
   final _snackBarKey = GlobalKey<ScaffoldState>();
   ArcgisMapController? _controller;
   bool _isStarted = false;
   bool _useCourseSymbolForMovement = false;
+  bool _isManualLocationSource = false;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +72,20 @@ class _LocationIndicatorExamplePageState
             ),
           ),
           const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _switchLocationSource,
+            child: Text(
+              _isManualLocationSource
+                  ? "Use auto location source"
+                  : "Use manual location source",
+            ),
+          ),
+          if (_isManualLocationSource) ...[
+            ElevatedButton(
+              onPressed: _simulateLocationChange,
+              child: Text("simulate location change"),
+            ),
+          ],
           ElevatedButton(
             onPressed: () => _configureLocationDisplay(Colors.green),
             child: Text("tint indicator green"),
@@ -119,5 +146,42 @@ class _LocationIndicatorExamplePageState
     await _controller!.locationDisplay.setAccuracySymbol(
       SimpleLineSymbol(color: color.shade800, width: 3),
     );
+  }
+
+  Future<void> _switchLocationSource() async {
+    await _controller!.locationDisplay.stopSource();
+    await _controller!.setLocationDisplay(
+      _isManualLocationSource
+          ? ArcgisLocationDisplay()
+          : ArcgisManualLocationDisplay(),
+    );
+    setState(() => _isManualLocationSource = !_isManualLocationSource);
+
+    if (!_isManualLocationSource) {
+      final location = await Geolocator.getLastKnownPosition();
+      if (location == null) return;
+      await _controller!.moveCamera(
+        point: LatLng(location.latitude, location.longitude),
+      );
+    }
+  }
+
+  Future<void> _simulateLocationChange() async {
+    final display = _controller!.locationDisplay as ArcgisManualLocationDisplay;
+
+    await _controller!.moveCamera(point: _mockLocations.first);
+    for (final latLng in _mockLocations) {
+      if (!mounted) break;
+      if (!_isManualLocationSource) break;
+
+      await display.updateLocation(
+        UserPosition(
+          latLng: latLng,
+          accuracy: Random().nextInt(100).toDouble(),
+          velocity: Random().nextInt(100).toDouble(),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+    }
   }
 }

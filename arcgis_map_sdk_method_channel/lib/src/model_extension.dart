@@ -25,6 +25,7 @@ extension UserPositionExtension on UserPosition {
         'latLng': latLng.toMap(),
         'accuracy': accuracy,
         'heading': heading,
+        'velocity': velocity,
       };
 }
 

@@ -1,55 +1,75 @@
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
+import 'package:flutter/cupertino.dart';
 
 class ArcgisManualLocationDisplay extends ArcgisLocationDisplay {
   @override
   String get type => "manual";
 
-  ArcgisManualLocationDisplay(super.mapId);
+  ArcgisManualLocationDisplay({super.mapId});
 
   Future<void> updateLocation(UserPosition position) {
+    _assertAttached();
     return ArcgisMapPlatform.instance
         .updateLocationDisplaySourcePositionManually(
-      mapId,
+      _mapId!,
       position,
     );
   }
 }
 
 class ArcgisLocationDisplay {
-  final int mapId;
+  int? _mapId;
   final String type = "system";
 
-  ArcgisLocationDisplay(this.mapId);
+  ArcgisLocationDisplay({int? mapId}) : _mapId = mapId;
+
+  void attachToMap(int mapId) => _mapId = mapId;
+
+  void deattachFromMap() => _mapId = null;
 
   Future<void> startSource() {
-    return ArcgisMapPlatform.instance.startLocationDisplayDataSource(mapId);
+    _assertAttached();
+    return ArcgisMapPlatform.instance.startLocationDisplayDataSource(_mapId!);
   }
 
   Future<void> stopSource() {
-    return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(mapId);
+    _assertAttached();
+    return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(_mapId!);
   }
 
   Future<void> setDataSource() {
-    return ArcgisMapPlatform.instance.setLocationDisplayDataSource(mapId);
+    _assertAttached();
+    return ArcgisMapPlatform.instance.setLocationDisplayDataSource(_mapId!);
   }
 
   Future<void> setDefaultSymbol(Symbol symbol) {
+    _assertAttached();
     return ArcgisMapPlatform.instance
-        .setLocationDisplayDefaultSymbol(mapId, symbol);
+        .setLocationDisplayDefaultSymbol(_mapId!, symbol);
   }
 
   Future<void> setAccuracySymbol(Symbol symbol) {
+    _assertAttached();
     return ArcgisMapPlatform.instance
-        .setLocationDisplayAccuracySymbol(mapId, symbol);
+        .setLocationDisplayAccuracySymbol(_mapId!, symbol);
   }
 
   Future<void> setPingAnimationSymbol(Symbol symbol) {
+    _assertAttached();
     return ArcgisMapPlatform.instance
-        .setLocationDisplayPingAnimationSymbol(mapId, symbol);
+        .setLocationDisplayPingAnimationSymbol(_mapId!, symbol);
   }
 
   Future<void> setUseCourseSymbolOnMovement(bool useCourseSymbol) {
+    _assertAttached();
     return ArcgisMapPlatform.instance
-        .setUseCourseSymbolOnMovement(mapId, useCourseSymbol);
+        .setUseCourseSymbolOnMovement(_mapId!, useCourseSymbol);
+  }
+
+  void _assertAttached() {
+    assert(
+      _mapId != null,
+      "LocationDisplay has not been attached to any map. Make sure to call ArcgisMapController.setLocationDisplay.",
+    );
   }
 }

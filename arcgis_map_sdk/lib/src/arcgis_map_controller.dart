@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  }) : _locationDisplay = ArcgisLocationDisplay(mapId);
+  }) : _locationDisplay = ArcgisLocationDisplay(mapId: mapId);
 
   final int mapId;
 
@@ -258,6 +258,11 @@ class ArcgisMapController {
   Future<void> setLocationDisplay(ArcgisLocationDisplay locationDisplay) {
     return ArcgisMapPlatform.instance
         .setLocationDisplay(mapId, locationDisplay.type)
-        .whenComplete(() => _locationDisplay = locationDisplay);
+        .whenComplete(
+      () {
+        _locationDisplay.deattachFromMap();
+        _locationDisplay = locationDisplay..attachToMap(mapId);
+      },
+    );
   }
 }

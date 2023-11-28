@@ -9,12 +9,12 @@ import Foundation
 import ArcGIS
 
 class ManualLocationDataSource: AGSLocationDataSource {
-    public func setNewLocation(coordinate: LatLng, accuracy: Double?, course: Double?) {
+    public func setNewLocation(_ position: UserPosition) {
         let loc = AGSLocation(
-            position: coordinate.toAGSPoint(),
-            horizontalAccuracy: accuracy ?? 0,
-            velocity: 0,
-            course: course ?? 0,
+            position: position.latLng.toAGSPoint(),
+            horizontalAccuracy: position.accuracy ?? 0,
+            velocity: position.velocity ?? 0,
+            course: position.heading ?? 0,
             lastKnown: false
         )
         didUpdate(loc)

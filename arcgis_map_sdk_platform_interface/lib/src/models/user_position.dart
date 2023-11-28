@@ -4,10 +4,12 @@ class UserPosition {
   final LatLng latLng;
   final double? accuracy;
   final double? heading;
+  final double? velocity;
 
   const UserPosition({
     required this.latLng,
-    required this.accuracy,
+    this.accuracy,
+    this.velocity,
     this.heading,
   });
 }

@@ -357,7 +357,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         
-        source.setNewLocation(coordinate: position.latLng, accuracy: position.accuracy, course: position.heading)
+        source.setNewLocation(position)
+        result(true)
     }
     
     private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
