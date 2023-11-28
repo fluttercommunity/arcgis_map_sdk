@@ -10,6 +10,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let zoomStreamHandler = ZoomStreamHandler()
     private let centerPositionEventChannel: FlutterEventChannel
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
+    private let flutterPluginRegistrar: FlutterPluginRegistrar
 
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
@@ -36,20 +37,21 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             frame: CGRect,
             viewIdentifier viewId: Int64,
             mapOptions: ArcgisMapOptions,
-            binaryMessenger messenger: FlutterBinaryMessenger
+            flutterPluginRegistrar registrar: FlutterPluginRegistrar
     ) {
+        flutterPluginRegistrar = registrar
         methodChannel = FlutterMethodChannel(
                 name: "dev.fluttercommunity.arcgis_map_sdk/\(viewId)",
-                binaryMessenger: messenger
+                binaryMessenger: flutterPluginRegistrar.messenger()
         )
         zoomEventChannel = FlutterEventChannel(
                 name: "dev.fluttercommunity.arcgis_map_sdk/\(viewId)/zoom",
-                binaryMessenger: messenger
+                binaryMessenger: flutterPluginRegistrar.messenger()
         )
         zoomEventChannel.setStreamHandler(zoomStreamHandler)
         centerPositionEventChannel = FlutterEventChannel(
                 name: "dev.fluttercommunity.arcgis_map_sdk/\(viewId)/centerPosition",
-                binaryMessenger: messenger
+                binaryMessenger: flutterPluginRegistrar.messenger()
         )
         centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
@@ -211,7 +213,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let parser = GraphicsParser()
+        let parser = GraphicsParser(registrar: flutterPluginRegistrar)
         var newGraphics = [AGSGraphic]()
         do {
             newGraphics.append(contentsOf: try parser.parse(dictionary: call.arguments as! Dictionary<String, Any>))
