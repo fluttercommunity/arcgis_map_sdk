@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 void main() => runApp(const ExampleApp());
 
 const arcGisApiKey = String.fromEnvironment(
-  "APIKEY",
+  "ARCGIS-API-KEY",
+  defaultValue: "YOUR KEY HERE",
   // request API key at https://developers.arcgis.com/dashboard/
 );
 
@@ -660,7 +661,7 @@ class _ExampleMapState extends State<ExampleMap> {
                   onPressed: () => _makePolylineVisible(
                     points: [_firstPinCoordinates, _secondPinCoordinates],
                   ),
-                  child: const Text('Make polyline visible'),
+                  child: const Text('Zoom to polyline'),
                 ),
                 Row(
                   children: [

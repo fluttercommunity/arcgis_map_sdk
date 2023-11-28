@@ -149,7 +149,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
         "points": points.map((p) => p.toMap()).toList(),
         "padding": padding,
       },
-    ).then((value) => value!);
+    );
   }
 
   @override

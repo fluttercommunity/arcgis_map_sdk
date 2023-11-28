@@ -87,18 +87,18 @@ internal class ArcgisMapView(
         mapView.addViewpointChangedListener {
             val center = mapView.visibleArea.extent.center
             val wgs84Center =
-                GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
+                    GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
             centerPositionStreamHandler.add(
-                LatLng(
-                    longitude = wgs84Center.x,
-                    latitude = wgs84Center.y
-                )
+                    LatLng(
+                            longitude = wgs84Center.x,
+                            latitude = wgs84Center.y
+                    )
             )
         }
 
         val viewPoint = Viewpoint(
-            mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
-            getMapScale(mapOptions.zoom.roundToInt()),
+                mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
+                getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
 
@@ -183,10 +183,10 @@ internal class ArcgisMapView(
 
         // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
         mapView.setViewInsets(
-            viewPadding.left,
-            viewPadding.top,
-            viewPadding.right,
-            viewPadding.bottom
+                viewPadding.left,
+                viewPadding.top,
+                viewPadding.right,
+                viewPadding.bottom
         )
 
         result.success(true)
@@ -211,7 +211,7 @@ internal class ArcgisMapView(
         }
 
         val existingIds =
-            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+                defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
         val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
 
         if (existingIds.any(newIds::contains)) {
@@ -251,8 +251,8 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-            if (animationOptionMap == null || animationOptionMap.isEmpty()) null
-            else animationOptionMap.parseToClass<AnimationOptions>()
+                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+                else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -262,9 +262,9 @@ internal class ArcgisMapView(
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         val future = mapView.setViewpointAsync(
-            initialViewPort,
-            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+                initialViewPort,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
         )
 
         future.addDoneListener {
@@ -278,12 +278,19 @@ internal class ArcgisMapView(
 
     private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
         val arguments = call.arguments as Map<String, Any>
-        val latLongs = (arguments["points"] as ArrayList<Map<String,Any>>).map { p->parseToClass<LatLng>(p) }
+        val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
+                .map { p -> parseToClass<LatLng>(p) }
+
         val padding = arguments["padding"] as Double?
 
-        val polyline = Polyline(PointCollection(latLongs.map { latLng-> Point(latLng.longitude,latLng.latitude) }),SpatialReferences.getWgs84())
+        val polyline = Polyline(
+                PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
+                SpatialReferences.getWgs84()
+        )
 
-        val future = if(padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding) else mapView.setViewpointGeometryAsync(polyline.extent)
+        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+        else mapView.setViewpointGeometryAsync(polyline.extent)
+
         future.addDoneListener {
             try {
                 result.success(future.get())
@@ -295,8 +302,8 @@ internal class ArcgisMapView(
 
     private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
         val newStyle = gson.fromJson<BasemapStyle>(
-            call.arguments as String,
-            object : TypeToken<BasemapStyle>() {}.type
+                call.arguments as String,
+                object : TypeToken<BasemapStyle>() {}.type
         )
         map.basemap = Basemap(newStyle)
         result.success(true)
