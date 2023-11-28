@@ -26,6 +26,7 @@ import dev.fluttercommunity.arcgis_map_sdk_android.model.ArcgisMapOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -43,20 +44,21 @@ import kotlin.math.roundToInt
 internal class ArcgisMapView(
     context: Context,
     private val viewId: Int,
-    private val binaryMessenger: BinaryMessenger,
     private val mapOptions: ArcgisMapOptions,
+      val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
     private val defaultGraphicsOverlay = GraphicsOverlay()
+    private val graphicsParser = GraphicsParser(binding)
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
     private val methodChannel =
-        MethodChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
+        MethodChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
 
     override fun getView(): View = view
 
@@ -131,10 +133,10 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
+        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
+        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
             .setStreamHandler(centerPositionStreamHandler)
     }
 
@@ -202,7 +204,7 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         lateinit var newGraphic: List<Graphic>
         try {
-            newGraphic = GraphicsParser.parse(graphicArguments)
+            newGraphic = graphicsParser.parse(graphicArguments)
         } catch (e: Throwable) {
             result.error("unknown_error", "Error while adding graphic. $e)", null)
             return

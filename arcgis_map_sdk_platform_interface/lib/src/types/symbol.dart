@@ -92,21 +92,18 @@ class SimpleMarkerSymbol extends Symbol {
 /// [yOffset] The offset on the y-axis in pixels
 class PictureMarkerSymbol extends Symbol {
   const PictureMarkerSymbol({
-    required this.webUri,
-    required this.mobileUri,
+    required this.assetUri,
     required this.width,
     required this.height,
     this.xOffset = 0,
     this.yOffset = 0,
   });
 
-  /// Add a [webUri] of an image to display it as a marker in the whole feature layer
+  /// Add a [assetUri] of an image to display it as a marker in the whole feature layer
   /// This can be a url or a local path in which the image is stored locally.
   /// For example 'web/icons/Icon-192.png' or 'https://[someUrl].png'
-  final String webUri;
-
-  /// This uri refers to a remote image url only.
-  final String mobileUri;
+  /// TODO(stefan): docu png
+  final String assetUri;
   final double width;
   final double height;
   final int xOffset;
