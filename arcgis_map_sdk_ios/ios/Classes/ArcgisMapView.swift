@@ -196,8 +196,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let dict = call.arguments as! Dictionary<String, Any>
     
         let payload: MoveToPointsPayload = try! JsonUtil.objectOfJson(dict)
-        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude,y:latLng.latitude,spatialReference:.wgs84())
-        })
+        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
 
         if(payload.padding != nil) {
             mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
