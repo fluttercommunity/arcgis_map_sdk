@@ -18,6 +18,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
+    private var initialZoom: Double
     private var mapView: AGSMapView
     private let map = AGSMap()
     private let graphicsOverlay = AGSGraphicsOverlay()
@@ -43,6 +44,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             flutterPluginRegistrar registrar: FlutterPluginRegistrar
     ) {
         flutterPluginRegistrar = registrar
+        initialZoom = mapOptions.zoom
         methodChannel = FlutterMethodChannel(
                 name: "dev.fluttercommunity.arcgis_map_sdk/\(viewId)",
                 binaryMessenger: flutterPluginRegistrar.messenger()
@@ -204,11 +206,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
 
-        print("Arcgis mapscale \(mapView.mapScale)")
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
 
+        
+        
         mapView.setViewpoint(
-            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+            AGSViewpoint(center: point.toAGSPoint(), scale: scale.isNaN ? initialZoom : scale),
             duration: (animationOptions?.duration ?? 0) / 1000,
             curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { success in
