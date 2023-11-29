@@ -72,7 +72,9 @@ internal class ArcgisMapView(
     override fun getView(): View = view
 
     init {
-        ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
+        mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
+        mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
+
         mapView = view.findViewById(R.id.mapView)
 
         map.apply {

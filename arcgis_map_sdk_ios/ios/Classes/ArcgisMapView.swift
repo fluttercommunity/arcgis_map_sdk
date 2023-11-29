@@ -58,7 +58,17 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
-        AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
+        if let apiKey = mapOptions.apiKey {
+            AGSArcGISRuntimeEnvironment.apiKey = apiKey
+        }
+        if let licenseKey = mapOptions.licenseKey {
+            do {
+                try AGSArcGISRuntimeEnvironment.setLicenseKey(licenseKey)
+            } catch {
+                print("setLicenseKey failed. \(error)")
+            }
+        }
+
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
@@ -193,7 +203,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
-        
+
         print("Arcgis mapscale \(mapView.mapScale)")
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
 

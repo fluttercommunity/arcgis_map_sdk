@@ -1149,7 +1149,7 @@ class LayerController {
     required JsView view,
     required BaseMap baseMap,
     required JsEsriMap map,
-    required String apiKey,
+    required String? apiKey,
     bool? showLabelsBeneathGraphics,
   }) async {
     final basemapToggle = BasemapToggle(
@@ -1204,7 +1204,7 @@ class LayerController {
   void moveBaseMapLabelsToBackground({
     required JsEsriMap map,
     required JsBaseMap baseMap,
-    required String apiKey,
+    required String? apiKey,
   }) {
     // Get the reference layer of the base map, which is the labels layer.
     final labelsLayers = baseMap.referenceLayers;

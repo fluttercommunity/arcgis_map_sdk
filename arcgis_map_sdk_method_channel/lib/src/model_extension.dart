@@ -33,6 +33,7 @@ extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
   Map<String, dynamic> toMap() {
     return <String, Object?>{
       'apiKey': apiKey,
+      'licenseKey': licenseKey,
       'basemap': basemap?.name,
       "vectorTilesUrls": vectorTilesUrls,
       'initialCenter': initialCenter.toMap(),
