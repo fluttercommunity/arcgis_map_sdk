@@ -138,6 +138,21 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    required int mapId,
+    double? padding,
+  }) {
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+      "move_camera_to_points",
+      {
+        "points": points.map((p) => p.toMap()).toList(),
+        "padding": padding,
+      },
+    );
+  }
+
+  @override
   Future<bool> zoomIn({
     required int lodFactor,
     required int mapId,

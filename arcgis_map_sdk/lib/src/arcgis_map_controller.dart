@@ -172,6 +172,17 @@ class ArcgisMapController {
     );
   }
 
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+  }) {
+    return ArcgisMapPlatform.instance.moveCameraToPoints(
+      mapId: mapId,
+      points: points,
+      padding: padding,
+    );
+  }
+
   VoidCallback addStatusChangeListener(MapStatusListener listener) {
     _listeners.add(listener);
     return () => _listeners.removeWhere((l) => l == listener);

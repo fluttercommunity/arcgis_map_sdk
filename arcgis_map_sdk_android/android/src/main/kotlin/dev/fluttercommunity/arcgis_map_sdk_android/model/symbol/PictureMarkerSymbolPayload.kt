@@ -1,7 +1,7 @@
 package dev.fluttercommunity.arcgis_map_sdk_android.model.symbol
 
 data class PictureMarkerSymbolPayload(
-    val url: String,
+    val assetUri: String,
     val width: Double,
     val height: Double,
     val xOffset: Int,

@@ -2,10 +2,10 @@ import Flutter
 import UIKit
 
 class ArcgisMapViewFactory: NSObject, FlutterPlatformViewFactory {
-    private var messenger: FlutterBinaryMessenger
+    private var registrar: FlutterPluginRegistrar
 
-    init(messenger: FlutterBinaryMessenger) {
-        self.messenger = messenger
+    init(registrar: FlutterPluginRegistrar) {
+        self.registrar = registrar
         super.init()
     }
 
@@ -21,7 +21,7 @@ class ArcgisMapViewFactory: NSObject, FlutterPlatformViewFactory {
                 frame: frame,
                 viewIdentifier: viewId,
                 mapOptions: mapOptions,
-                binaryMessenger: messenger
+                flutterPluginRegistrar: registrar
         )
     }
 

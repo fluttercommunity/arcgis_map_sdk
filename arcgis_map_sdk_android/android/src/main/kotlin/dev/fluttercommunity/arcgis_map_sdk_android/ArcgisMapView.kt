@@ -4,8 +4,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.geometry.Geometry
 import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.esri.arcgisruntime.geometry.Multipoint
 import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.PointCollection
+import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
@@ -14,6 +18,7 @@ import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.google.gson.reflect.TypeToken
@@ -22,6 +27,7 @@ import dev.fluttercommunity.arcgis_map_sdk_android.model.ArcgisMapOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -39,19 +45,21 @@ import kotlin.math.roundToInt
 internal class ArcgisMapView(
     context: Context,
     private val viewId: Int,
-    private val binaryMessenger: BinaryMessenger,
     private val mapOptions: ArcgisMapOptions,
+      val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
     private val defaultGraphicsOverlay = GraphicsOverlay()
+    private val graphicsParser = GraphicsParser(binding)
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
-    private val methodChannel = MethodChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
+    private val methodChannel =
+        MethodChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
 
     override fun getView(): View = view
 
@@ -84,18 +92,18 @@ internal class ArcgisMapView(
         mapView.addViewpointChangedListener {
             val center = mapView.visibleArea.extent.center
             val wgs84Center =
-                GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
+                    GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
             centerPositionStreamHandler.add(
-                LatLng(
-                    longitude = wgs84Center.x,
-                    latitude = wgs84Center.y
-                )
+                    LatLng(
+                            longitude = wgs84Center.x,
+                            latitude = wgs84Center.y
+                    )
             )
         }
 
         val viewPoint = Viewpoint(
-            mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
-            getMapScale(mapOptions.zoom.roundToInt()),
+                mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
+                getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
 
@@ -125,6 +133,7 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
+                "move_camera_to_points" -> onMoveCameraToPoints(call = call, result = result)
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
@@ -138,10 +147,10 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
+        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
+        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
             .setStreamHandler(centerPositionStreamHandler)
     }
 
@@ -188,10 +197,10 @@ internal class ArcgisMapView(
 
         // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
         mapView.setViewInsets(
-            viewPadding.left,
-            viewPadding.top,
-            viewPadding.right,
-            viewPadding.bottom
+                viewPadding.left,
+                viewPadding.top,
+                viewPadding.right,
+                viewPadding.bottom
         )
 
         result.success(true)
@@ -207,10 +216,16 @@ internal class ArcgisMapView(
 
     private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
         val graphicArguments = call.arguments as Map<String, Any>
-        val newGraphic = GraphicsParser.parse(graphicArguments)
+        lateinit var newGraphic: List<Graphic>
+        try {
+            newGraphic = graphicsParser.parse(graphicArguments)
+        } catch (e: Throwable) {
+            result.error("unknown_error", "Error while adding graphic. $e)", null)
+            return
+        }
 
         val existingIds =
-            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+                defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
         val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
 
         if (existingIds.any(newIds::contains)) {
@@ -250,8 +265,8 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-            if (animationOptionMap == null || animationOptionMap.isEmpty()) null
-            else animationOptionMap.parseToClass<AnimationOptions>()
+                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+                else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -261,9 +276,9 @@ internal class ArcgisMapView(
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         val future = mapView.setViewpointAsync(
-            initialViewPort,
-            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+                initialViewPort,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
         )
 
         future.addDoneListener {
@@ -275,10 +290,34 @@ internal class ArcgisMapView(
         }
     }
 
+    private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
+        val arguments = call.arguments as Map<String, Any>
+        val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
+                .map { p -> parseToClass<LatLng>(p) }
+
+        val padding = arguments["padding"] as Double?
+
+        val polyline = Polyline(
+                PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
+                SpatialReferences.getWgs84()
+        )
+
+        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+        else mapView.setViewpointGeometryAsync(polyline.extent)
+
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, e)
+            }
+        }
+    }
+
     private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
         val newStyle = gson.fromJson<BasemapStyle>(
-            call.arguments as String,
-            object : TypeToken<BasemapStyle>() {}.type
+                call.arguments as String,
+                object : TypeToken<BasemapStyle>() {}.type
         )
         map.basemap = Basemap(newStyle)
         result.success(true)
