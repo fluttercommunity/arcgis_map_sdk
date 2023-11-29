@@ -1,3 +1,4 @@
+import 'package:arcgis_map_sdk/src/arcgis_location_display.dart';
 import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -12,9 +13,14 @@ class ArcgisMapController {
       mapId: mapId,
       onCall: _onCall,
     );
+    _locationDisplay = ArcgisLocationDisplay(mapId: mapId);
   }
 
   final int mapId;
+
+  late ArcgisLocationDisplay _locationDisplay;
+
+  ArcgisLocationDisplay get locationDisplay => _locationDisplay;
 
   final _listeners = <MapStatusListener>[];
   MapStatus _mapStatus = MapStatus.unknown;
@@ -298,5 +304,16 @@ class ArcgisMapController {
 
   List<String> getVisibleGraphicIds() {
     return ArcgisMapPlatform.instance.getVisibleGraphicIds(mapId);
+  }
+
+  Future<void> setLocationDisplay(ArcgisLocationDisplay locationDisplay) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplay(mapId, locationDisplay.type)
+        .whenComplete(
+      () {
+        _locationDisplay.deattachFromMap();
+        _locationDisplay = locationDisplay..attachToMap(mapId);
+      },
+    );
   }
 }

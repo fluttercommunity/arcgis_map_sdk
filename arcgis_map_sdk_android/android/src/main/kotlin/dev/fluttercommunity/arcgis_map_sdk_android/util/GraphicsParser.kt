@@ -91,7 +91,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
             }
         }
 
-        private fun parseSymbol(map: Map<String, Any>): Symbol {
+        fun parseSymbol(map: Map<String, Any>): Symbol {
             val symbolMap = map["symbol"] as Map<String, Any>
 
             val symbol = when (val type = symbolMap["type"]) {

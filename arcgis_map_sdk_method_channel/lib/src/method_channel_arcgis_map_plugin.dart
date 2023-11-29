@@ -238,4 +238,70 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       'getVisibleGraphicIds() has not been implemented.',
     );
   }
+
+  @override
+  Future<void> startLocationDisplayDataSource(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("location_display_start_data_source");
+  }
+
+  @override
+  Future<void> stopLocationDisplayDataSource(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("location_display_stop_data_source");
+  }
+
+  @override
+  Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_default_symbol",
+      symbol.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplayAccuracySymbol(int mapId, Symbol symbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_accuracy_symbol",
+      symbol.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplayPingAnimationSymbol(
+    int mapId,
+    Symbol symbol,
+  ) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_ping_animation_symbol",
+      symbol.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setUseCourseSymbolOnMovement(int mapId, bool useCourseSymbol) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_use_course_symbol_on_move",
+      useCourseSymbol,
+    );
+  }
+
+  @override
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_update_display_source_position_manually",
+      position.toMap(),
+    );
+  }
+
+  @override
+  Future<void> setLocationDisplay(int mapId, String type) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "location_display_set_data_source_type",
+      type,
+    );
+  }
 }

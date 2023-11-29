@@ -6,6 +6,7 @@ export 'package:arcgis_map_sdk_platform_interface/src/events/map_event.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/models/animation_options.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/models/basemap.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/models/ground.dart';
+export 'package:arcgis_map_sdk_platform_interface/src/models/user_position.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/models/view_position.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/types/arcgis_map_options.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/types/attributes.dart';

@@ -17,6 +17,8 @@ import com.esri.arcgisruntime.loadable.LoadStatus.LOADED
 import com.esri.arcgisruntime.loadable.LoadStatus.LOADING
 import com.esri.arcgisruntime.loadable.LoadStatus.NOT_LOADED
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
+import com.esri.arcgisruntime.location.AndroidLocationDataSource
+import com.esri.arcgisruntime.location.LocationDataSource
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
@@ -25,10 +27,12 @@ import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
+import com.esri.arcgisruntime.symbology.Symbol
 import com.google.gson.reflect.TypeToken
 import dev.fluttercommunity.arcgis_map_sdk_android.model.AnimationOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ArcgisMapOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
+import dev.fluttercommunity.arcgis_map_sdk_android.model.UserPosition
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
@@ -47,7 +51,7 @@ import kotlin.math.roundToInt
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-    context: Context,
+    private val context: Context,
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
       val binding: FlutterPluginBinding,
@@ -142,8 +146,160 @@ internal class ArcgisMapView(
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
                 "reload" -> onReload(result = result)
+                "location_display_start_data_source" -> onStartLocationDisplayDataSource(result)
+                "location_display_stop_data_source" -> onStopLocationDisplayDataSource(result)
+                "location_display_set_default_symbol" -> onSetLocationDisplayDefaultSymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_accuracy_symbol" -> onSetLocationDisplayAccuracySymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_ping_animation_symbol" -> onSetLocationDisplayPingAnimationSymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_use_course_symbol_on_move" -> onSetLocationDisplayUseCourseSymbolOnMove(
+                    call,
+                    result
+                )
+
+                "location_display_update_display_source_position_manually" -> onUpdateLocationDisplaySourcePositionManually(
+                    call,
+                    result
+                )
+
+                "location_display_set_data_source_type" -> onSetLocationDisplayDataSourceType(
+                    call,
+                    result
+                )
+
                 else -> result.notImplemented()
             }
+        }
+    }
+
+    private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
+        val future = mapView.locationDisplay.locationDataSource.startAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
+
+    private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
+        val future = mapView.locationDisplay.locationDataSource.stopAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
+
+    private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.defaultSymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayAccuracySymbol(call: MethodCall, result: MethodChannel.Result) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.accuracySymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayPingAnimationSymbol(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.pingAnimationSymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayUseCourseSymbolOnMove(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val active = call.arguments as? Boolean
+        if (active == null) {
+            result.error("missing_data", "Invalid arguments.", null)
+            return
+        }
+
+        mapView.locationDisplay.isUseCourseSymbolOnMovement = active
+        result.success(true)
+    }
+
+    private fun onUpdateLocationDisplaySourcePositionManually(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val dataSource =
+            mapView.locationDisplay.locationDataSource as? ManualLocationDisplayDataSource
+        if (dataSource == null) {
+            result.error(
+                "invalid_state",
+                "Expected ManualLocationDataSource but got $dataSource",
+                null
+            )
+            return
+        }
+
+        val optionParams = call.arguments as Map<String, Any>
+        val position = optionParams.parseToClass<UserPosition>()
+
+        dataSource.setNewLocation(position)
+    }
+
+    private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.locationDisplay.locationDataSource.status == LocationDataSource.Status.STARTED) {
+            result.error(
+                "invalid_state",
+                "Current data source is running. Make sure to stop it before setting a new data source",
+                null
+            )
+            return
+        }
+
+        when (call.arguments as String) {
+            "manual" -> {
+                mapView.locationDisplay.locationDataSource = ManualLocationDisplayDataSource()
+                result.success(true)
+            }
+
+            "system" -> {
+                mapView.locationDisplay.locationDataSource = AndroidLocationDataSource(context)
+                result.success(true)
+            }
+
+            else -> result.error("invalid_data", "Unknown data source type ${call.arguments}", null)
+        }
+    }
+
+
+    private fun operationWithSymbol(
+        call: MethodCall,
+        result: MethodChannel.Result,
+        function: (Symbol) -> Unit
+    ) {
+        try {
+            val map = call.arguments as Map<String, Any>
+            val symbol = GraphicsParser.parseSymbol(map)
+            function(symbol)
+            result.success(true)
+        } catch (e: Throwable) {
+            result.error("unknown_error", "Error while adding graphic. $e)", null)
+            return
         }
     }
 
@@ -201,10 +357,10 @@ internal class ArcgisMapView(
 
         // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
         mapView.setViewInsets(
-                viewPadding.left,
-                viewPadding.top,
-                viewPadding.right,
-                viewPadding.bottom
+            viewPadding.left,
+            viewPadding.top,
+            viewPadding.right,
+            viewPadding.bottom
         )
 
         result.success(true)
