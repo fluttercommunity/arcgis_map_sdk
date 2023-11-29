@@ -54,7 +54,7 @@ internal class ArcgisMapView(
     private val context: Context,
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
-      val binding: FlutterPluginBinding,
+    val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -294,7 +294,7 @@ internal class ArcgisMapView(
     ) {
         try {
             val map = call.arguments as Map<String, Any>
-            val symbol = GraphicsParser.parseSymbol(map)
+            val symbol = graphicsParser.parseSymbol(map)
             function(symbol)
             result.success(true)
         } catch (e: Throwable) {
