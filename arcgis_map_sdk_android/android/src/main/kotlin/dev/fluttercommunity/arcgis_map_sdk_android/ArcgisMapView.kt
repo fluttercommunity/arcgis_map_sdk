@@ -12,6 +12,11 @@ import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
+import com.esri.arcgisruntime.loadable.LoadStatus.FAILED_TO_LOAD
+import com.esri.arcgisruntime.loadable.LoadStatus.LOADED
+import com.esri.arcgisruntime.loadable.LoadStatus.LOADING
+import com.esri.arcgisruntime.loadable.LoadStatus.NOT_LOADED
+import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
