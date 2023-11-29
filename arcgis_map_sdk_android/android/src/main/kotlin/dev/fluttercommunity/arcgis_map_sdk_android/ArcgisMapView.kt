@@ -8,6 +8,7 @@ import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
+import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
@@ -58,16 +59,20 @@ internal class ArcgisMapView(
         ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
         mapView = view.findViewById(R.id.mapView)
 
-        if (mapOptions.basemap != null) {
-            map.basemap = Basemap(mapOptions.basemap)
-        } else {
-            val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
+        map.apply {
 
-            map.basemap = Basemap(layers, null)
+            basemap = if (mapOptions.basemap != null) {
+                Basemap(mapOptions.basemap)
+            } else {
+                val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
+                Basemap(layers, null)
+            }
+
+            minScale = getMapScale(mapOptions.minZoom)
+            maxScale = getMapScale(mapOptions.maxZoom)
+            addLoadStatusChangedListener(::onLoadStatusChanged)
         }
 
-        map.minScale = getMapScale(mapOptions.minZoom)
-        map.maxScale = getMapScale(mapOptions.maxZoom)
         mapView.map = map
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
@@ -100,7 +105,15 @@ internal class ArcgisMapView(
         setupEventChannel()
     }
 
-    override fun dispose() {}
+    private fun onLoadStatusChanged(event: LoadStatusChangedEvent?) {
+        if (event == null) return
+        methodChannel.invokeMethod("onStatusChanged", event.jsonValue())
+    }
+
+    override fun dispose() {
+        map.removeLoadStatusChangedListener(::onLoadStatusChanged)
+        mapView.dispose()
+    }
 
     // region helper
 
@@ -115,6 +128,7 @@ internal class ArcgisMapView(
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
+                "reload" -> onReload(result = result)
                 else -> result.notImplemented()
             }
         }
@@ -270,6 +284,11 @@ internal class ArcgisMapView(
         result.success(true)
     }
 
+    private fun onReload(result: MethodChannel.Result) {
+        mapView.map.retryLoadAsync()
+        result.success(true)
+    }
+
     /**
      * Convert map scale to zoom level
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
@@ -312,4 +331,11 @@ internal class ArcgisMapView(
     // endregion
 }
 
+private fun LoadStatusChangedEvent.jsonValue() = when (newLoadStatus) {
+    LOADED -> "loaded"
+    LOADING -> "loading"
+    FAILED_TO_LOAD -> "failedToLoad"
+    NOT_LOADED -> "notLoaded"
+    else -> "unknown"
+}
 
