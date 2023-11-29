@@ -101,13 +101,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
 
 
-        let viewport = AGSViewpoint(
+        let viewpoint = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
             longitude: mapOptions.initialCenter.longitude,
             scale: getMapScale(Int(mapOptions.zoom))
         )
-        mapView.setViewpoint(viewport, duration: 0) { _ in
-        }
+        mapView.setViewpoint(viewpoint)
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
