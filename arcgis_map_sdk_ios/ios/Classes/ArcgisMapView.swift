@@ -11,6 +11,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionEventChannel: FlutterEventChannel
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
 
+    private var mapLoadStatusObservation: NSKeyValueObservation?
+    
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
@@ -113,6 +115,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
+        
+        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
+                    DispatchQueue.main.async {
+                        let status = map.loadStatus
+                        self?.notifyStatus(status)
+                    }
+                }
     }
 
     private func setupMethodChannel() {
@@ -126,6 +135,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
+            case "reload" : onReload(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
             }
@@ -242,6 +252,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         map.basemap = AGSBasemap(style: parseBaseMapStyle(baseMapString))
         
         result(true)
+    }
+
+    private func onReload(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+       mapView.map!.retryLoad()
+       result(true)
+    }
+
+    private func notifyStatus(_ status:  AGSLoadStatus) {
+        methodChannel.invokeMethod("onStatusChanged", arguments: status.jsonValue())
     }
     
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -438,6 +457,25 @@ extension AGSBasemapStyle {
             return nil
         @unknown default:
             return nil
+        }
+    }
+}
+
+extension AGSLoadStatus {
+    func jsonValue()  -> String {
+        switch self {
+        case .loaded:
+            return "loaded"
+        case .loading:
+            return "loading"
+        case .failedToLoad:
+            return "failedToLoad"
+        case .notLoaded:
+            return "notLoaded"
+        case .unknown:
+            return "unknown"
+        @unknown default:
+            return "unknown"
         }
     }
 }

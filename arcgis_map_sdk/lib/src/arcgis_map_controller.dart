@@ -1,12 +1,25 @@
+import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
+
+typedef MapStatusListener = void Function(MapStatus status);
 
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  });
+  }) {
+    ArcgisMapPlatform.instance.setMethodCallHandler(
+      mapId: mapId,
+      onCall: _onCall,
+    );
+  }
 
   final int mapId;
+
+  final _listeners = <MapStatusListener>[];
+  MapStatus _mapStatus = MapStatus.unknown;
+
+  MapStatus get mapStatus => _mapStatus;
 
   static Future<ArcgisMapController> init(
     int id,
@@ -58,6 +71,16 @@ class ArcgisMapController {
       url: url,
       mapId: mapId,
     );
+  }
+
+  Future<void> _onCall(MethodCall call) async {
+    final method = call.method;
+    switch (method) {
+      case "onStatusChanged":
+        return _notifyStatusChanged(call);
+      default:
+        throw UnimplementedError('Method "$method" not implemented');
+    }
   }
 
   Stream<double> getZoom() {
@@ -147,6 +170,22 @@ class ArcgisMapController {
       threeDTilt: threeDTilt,
       animationOptions: animationOptions,
     );
+  }
+
+  VoidCallback addStatusChangeListener(MapStatusListener listener) {
+    _listeners.add(listener);
+    return () => _listeners.removeWhere((l) => l == listener);
+  }
+
+  Future<void> reload() {
+    return ArcgisMapPlatform.instance.reload(mapId);
+  }
+
+  void _notifyStatusChanged(MethodCall call) {
+    _mapStatus = MapStatus.values.byName(call.arguments as String);
+    for (final listener in _listeners) {
+      listener(_mapStatus);
+    }
   }
 
   Future<void> setInteraction({required bool isEnabled}) {
