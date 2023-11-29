@@ -193,7 +193,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
-
+        
+        print("Arcgis mapscale \(mapView.mapScale)")
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
 
         mapView.setViewpoint(
