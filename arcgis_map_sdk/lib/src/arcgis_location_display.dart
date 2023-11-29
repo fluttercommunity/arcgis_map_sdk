@@ -1,5 +1,4 @@
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
-import 'package:flutter/cupertino.dart';
 
 class ArcgisManualLocationDisplay extends ArcgisLocationDisplay {
   @override
@@ -35,11 +34,6 @@ class ArcgisLocationDisplay {
   Future<void> stopSource() {
     _assertAttached();
     return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(_mapId!);
-  }
-
-  Future<void> setDataSource() {
-    _assertAttached();
-    return ArcgisMapPlatform.instance.setLocationDisplayDataSource(_mapId!);
   }
 
   Future<void> setDefaultSymbol(Symbol symbol) {

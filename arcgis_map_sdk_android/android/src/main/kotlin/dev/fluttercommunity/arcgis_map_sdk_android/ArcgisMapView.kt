@@ -8,6 +8,8 @@ import com.esri.arcgisruntime.geometry.GeometryEngine
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
+import com.esri.arcgisruntime.location.AndroidLocationDataSource
+import com.esri.arcgisruntime.location.LocationDataSource
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
@@ -16,10 +18,12 @@ import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
+import com.esri.arcgisruntime.symbology.Symbol
 import com.google.gson.reflect.TypeToken
 import dev.fluttercommunity.arcgis_map_sdk_android.model.AnimationOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ArcgisMapOptions
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
+import dev.fluttercommunity.arcgis_map_sdk_android.model.UserPosition
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
 import io.flutter.plugin.common.BinaryMessenger
@@ -37,7 +41,7 @@ import kotlin.math.roundToInt
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-    context: Context,
+    private val context: Context,
     private val viewId: Int,
     private val binaryMessenger: BinaryMessenger,
     private val mapOptions: ArcgisMapOptions,
@@ -109,16 +113,168 @@ internal class ArcgisMapView(
     private fun setupMethodChannel() {
         methodChannel.setMethodCallHandler { call, result ->
             when (call.method) {
-                "zoom_in" -> onZoomIn(call = call, result = result)
-                "zoom_out" -> onZoomOut(call = call, result = result)
-                "add_view_padding" -> onAddViewPadding(call = call, result = result)
-                "set_interaction" -> onSetInteraction(call = call, result = result)
-                "move_camera" -> onMoveCamera(call = call, result = result)
-                "add_graphic" -> onAddGraphic(call = call, result = result)
-                "remove_graphic" -> onRemoveGraphic(call = call, result = result)
-                "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
+                "zoom_in" -> onZoomIn(call, result)
+                "zoom_out" -> onZoomOut(call, result)
+                "add_view_padding" -> onAddViewPadding(call, result)
+                "set_interaction" -> onSetInteraction(call, result)
+                "move_camera" -> onMoveCamera(call, result)
+                "add_graphic" -> onAddGraphic(call, result)
+                "remove_graphic" -> onRemoveGraphic(call, result)
+                "toggle_base_map" -> onToggleBaseMap(call, result)
+                "location_display_start_data_source" -> onStartLocationDisplayDataSource(result)
+                "location_display_stop_data_source" -> onStopLocationDisplayDataSource(result)
+                "location_display_set_default_symbol" -> onSetLocationDisplayDefaultSymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_accuracy_symbol" -> onSetLocationDisplayAccuracySymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_ping_animation_symbol" -> onSetLocationDisplayPingAnimationSymbol(
+                    call,
+                    result
+                )
+
+                "location_display_set_use_course_symbol_on_move" -> onSetLocationDisplayUseCourseSymbolOnMove(
+                    call,
+                    result
+                )
+
+                "location_display_update_display_source_position_manually" -> onUpdateLocationDisplaySourcePositionManually(
+                    call,
+                    result
+                )
+
+                "location_display_set_data_source_type" -> onSetLocationDisplayDataSourceType(
+                    call,
+                    result
+                )
+
                 else -> result.notImplemented()
             }
+        }
+    }
+
+    private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
+        val future = mapView.locationDisplay.locationDataSource.startAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
+
+    private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
+        val future = mapView.locationDisplay.locationDataSource.stopAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, null)
+            }
+        }
+    }
+
+    private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.defaultSymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayAccuracySymbol(call: MethodCall, result: MethodChannel.Result) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.accuracySymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayPingAnimationSymbol(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        operationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.pingAnimationSymbol = symbol
+        }
+    }
+
+    private fun onSetLocationDisplayUseCourseSymbolOnMove(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val active = call.arguments as? Boolean
+        if (active == null) {
+            result.error("missing_data", "Invalid arguments.", null)
+            return
+        }
+
+        mapView.locationDisplay.isUseCourseSymbolOnMovement = active
+        result.success(true)
+    }
+
+    private fun onUpdateLocationDisplaySourcePositionManually(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        val dataSource =
+            mapView.locationDisplay.locationDataSource as? ManualLocationDisplayDataSource
+        if (dataSource == null) {
+            result.error(
+                "invalid_state",
+                "Expected ManualLocationDataSource but got $dataSource",
+                null
+            )
+            return
+        }
+
+        val optionParams = call.arguments as Map<String, Any>
+        val position = optionParams.parseToClass<UserPosition>()
+
+        dataSource.setNewLocation(position)
+    }
+
+    private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.locationDisplay.locationDataSource.status == LocationDataSource.Status.STARTED) {
+            result.error(
+                "invalid_state",
+                "Current data source is running. Make sure to stop it before setting a new data source",
+                null
+            )
+            return
+        }
+
+        when (call.arguments as String) {
+            "manual" -> {
+                mapView.locationDisplay.locationDataSource = ManualLocationDisplayDataSource()
+                result.success(true)
+            }
+
+            "system" -> {
+                mapView.locationDisplay.locationDataSource = AndroidLocationDataSource(context)
+                result.success(true)
+            }
+
+            else -> result.error("invalid_data", "Unknown data source type ${call.arguments}", null)
+        }
+    }
+
+
+    private fun operationWithSymbol(
+        call: MethodCall,
+        result: MethodChannel.Result,
+        function: (Symbol) -> Unit
+    ) {
+        try {
+            val map = call.arguments as Map<String, Any>
+            val symbol = GraphicsParser.parseSymbol(map)
+            function(symbol)
+            result.success(true)
+        } catch (e: Throwable) {
+            result.error("unknown_error", "Error while adding graphic. $e)", null)
+            return
         }
     }
 

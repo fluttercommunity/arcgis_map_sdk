@@ -121,7 +121,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "toggle_base_map" : onToggleBaseMap(call, result)
             case "location_display_start_data_source" : onStartLocationDisplayDataSource(call, result)
             case "location_display_stop_data_source" : onStopLocationDisplayDataSource(call, result)
-            case "location_display_set_data_source" : onSetLocationDisplayDataSource(call, result)
             case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
             case "location_display_set_accuracy_symbol": onSetLocationDisplayAccuracySymbol(call, result)
             case "location_display_set_ping_animation_symbol" : onSetLocationDisplayPingAnimationSymbol(call, result)
@@ -318,10 +317,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
     
-    private func onSetLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        result(true)
-    }
-    
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         operationWithSymbol(call, result) { mapView.locationDisplay.defaultSymbol = $0 }
     }
@@ -380,7 +375,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             mapView.locationDisplay.dataSource = AGSCLLocationDataSource()
             result(true)
         default:
-            result(FlutterError(code: "missing_data", message: "Unknown data source type \(String(describing: type))", details: nil))
+            result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
     }
     

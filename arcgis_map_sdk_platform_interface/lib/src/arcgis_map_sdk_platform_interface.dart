@@ -215,12 +215,6 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> setLocationDisplayDataSource(int mapId) {
-    throw UnimplementedError(
-      'setLocationDisplayDataSource() has not been implemented.',
-    );
-  }
-
   Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
     throw UnimplementedError(
       'setLocationDisplayDefaultSymbol() has not been implemented.',
