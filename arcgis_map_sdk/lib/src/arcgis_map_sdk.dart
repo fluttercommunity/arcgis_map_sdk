@@ -16,10 +16,11 @@ int _nextMapCreationId = 0;
 
 class ArcgisMap extends StatefulWidget {
   const ArcgisMap({
-    required this.apiKey,
     required this.initialCenter,
     required this.zoom,
     required this.mapStyle,
+    this.apiKey,
+    this.licenseKey,
     this.basemap,
     this.showLabelsBeneathGraphics = false,
     this.defaultUiList = const [],
@@ -45,7 +46,8 @@ class ArcgisMap extends StatefulWidget {
               (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
         );
 
-  final String apiKey;
+  final String? apiKey;
+  final String? licenseKey;
   final BaseMap? basemap;
   final List<DefaultWidget> defaultUiList;
   final bool isPopupEnabled;
@@ -86,6 +88,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   late ArcgisMapOptions _arcgisMapOptions = ArcgisMapOptions(
     apiKey: widget.apiKey,
+    licenseKey: widget.licenseKey,
     mapStyle: widget.mapStyle,
     basemap: widget.basemap,
     ground: widget.ground,
@@ -137,6 +140,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     }
     _arcgisMapOptions = ArcgisMapOptions(
       apiKey: widget.apiKey,
+      licenseKey: widget.licenseKey,
       mapStyle: widget.mapStyle,
       basemap: widget.basemap,
       ground: widget.ground,

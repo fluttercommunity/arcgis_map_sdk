@@ -55,14 +55,15 @@ internal class ArcgisMapView(
     override fun getView(): View = view
 
     init {
-        ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
+        mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
+        mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
+
         mapView = view.findViewById(R.id.mapView)
 
         if (mapOptions.basemap != null) {
             map.basemap = Basemap(mapOptions.basemap)
         } else {
             val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
-
             map.basemap = Basemap(layers, null)
         }
 

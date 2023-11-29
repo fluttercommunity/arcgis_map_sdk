@@ -10,7 +10,8 @@ import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interf
 /// an attribution must still be provided, according to following layout and design guidelines from Esri
 /// https://developers.arcgis.com/documentation/mapping-apis-and-services/deployment/basemap-attribution/#layout-and-design-guidelines
 class ArcgisMapOptions {
-  final String apiKey;
+  final String? apiKey;
+  final String? licenseKey;
   final MapStyle mapStyle;
   final LatLng initialCenter;
   final bool showLabelsBeneathGraphics;
@@ -35,6 +36,7 @@ class ArcgisMapOptions {
 
   const ArcgisMapOptions({
     required this.apiKey,
+    required this.licenseKey,
     required this.mapStyle,
     required this.initialCenter,
     required this.isInteractive,
@@ -60,7 +62,7 @@ class ArcgisMapOptions {
 
   @override
   String toString() {
-    return 'ArcgisMapOptions{apiKey: $apiKey, mapStyle: $mapStyle, initialCenter: $initialCenter, showLabelsBeneathGraphics: $showLabelsBeneathGraphics, isInteractive: $isInteractive, zoom: $zoom, tilt: $tilt, initialHeight: $initialHeight, heading: $heading, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, ground: $ground, vectorTilesUrls: $vectorTilesUrls, defaultUiList: $defaultUiList, isPopupEnabled: $isPopupEnabled}';
+    return 'ArcgisMapOptions{apiKey: $apiKey, licenseKey: $licenseKey, mapStyle: $mapStyle, initialCenter: $initialCenter, showLabelsBeneathGraphics: $showLabelsBeneathGraphics, isInteractive: $isInteractive, zoom: $zoom, tilt: $tilt, initialHeight: $initialHeight, heading: $heading, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, ground: $ground, vectorTilesUrls: $vectorTilesUrls, defaultUiList: $defaultUiList, isPopupEnabled: $isPopupEnabled}';
   }
 }
 
