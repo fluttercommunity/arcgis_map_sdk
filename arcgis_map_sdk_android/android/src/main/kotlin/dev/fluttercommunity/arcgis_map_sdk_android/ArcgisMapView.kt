@@ -17,7 +17,6 @@ import com.esri.arcgisruntime.loadable.LoadStatus.LOADED
 import com.esri.arcgisruntime.loadable.LoadStatus.LOADING
 import com.esri.arcgisruntime.loadable.LoadStatus.NOT_LOADED
 import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
-import com.esri.arcgisruntime.loadable.LoadStatusChangedEvent
 import com.esri.arcgisruntime.mapping.ArcGISMap
 import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
