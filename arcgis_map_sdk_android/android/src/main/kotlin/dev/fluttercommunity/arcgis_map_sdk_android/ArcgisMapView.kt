@@ -234,6 +234,7 @@ internal class ArcgisMapView(
         val position = optionParams.parseToClass<UserPosition>()
 
         dataSource.setNewLocation(position)
+        result.success(true)
     }
 
     private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
