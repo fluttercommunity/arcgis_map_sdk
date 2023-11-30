@@ -297,7 +297,7 @@ internal class ArcgisMapView(
     ) {
         try {
             val map = call.arguments as Map<String, Any>
-            val symbol = graphicsParser.parseSymbol("symbol" to map)
+            val symbol = graphicsParser.parseSymbol(map)
             function(symbol)
             result.success(true)
         } catch (e: Throwable) {
