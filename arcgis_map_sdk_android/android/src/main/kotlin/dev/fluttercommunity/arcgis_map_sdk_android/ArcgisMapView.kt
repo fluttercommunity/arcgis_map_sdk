@@ -63,6 +63,8 @@ internal class ArcgisMapView(
     private val defaultGraphicsOverlay = GraphicsOverlay()
     private val graphicsParser = GraphicsParser(binding)
 
+    private lateinit val initialZoom: Int
+
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
@@ -74,6 +76,8 @@ internal class ArcgisMapView(
     init {
         mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
         mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
+
+        initialZoom = mapOptions.zoom.toInt()
 
         mapView = view.findViewById(R.id.mapView)
 
@@ -433,8 +437,10 @@ internal class ArcgisMapView(
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
-        } else {
+        } else if(!mapView.mapScale.isNaN()){
             mapView.mapScale
+        } else {
+            getMapScale(initialZoom)
         }
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
