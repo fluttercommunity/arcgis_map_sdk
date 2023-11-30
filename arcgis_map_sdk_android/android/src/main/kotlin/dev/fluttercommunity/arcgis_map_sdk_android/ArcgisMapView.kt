@@ -63,7 +63,7 @@ internal class ArcgisMapView(
     private val defaultGraphicsOverlay = GraphicsOverlay()
     private val graphicsParser = GraphicsParser(binding)
 
-    private lateinit val initialZoom: Int
+    private val initialZoom: Int
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
