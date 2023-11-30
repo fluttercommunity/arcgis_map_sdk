@@ -114,7 +114,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
 
-        print("Set ViewPoint with zoom \(mapOptions.zoom)")
         let viewpoint = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
             longitude: mapOptions.initialCenter.longitude,
@@ -208,7 +207,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
 
-        print("Move \(zoomLevel); \(mapView.mapScale)")
         let scale: Double
         if(zoomLevel == nil && mapView.mapScale.isNaN) {
             scale = convertZoomLevelToMapScale(initialZoom)
@@ -342,7 +340,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
     private func convertScaleToZoomLevel(_ scale: Double) -> Int {
-        print("try to convert \(scale)")
         let result = -1.443 * log(scale) + 29.14
         return Int(result.rounded())
     }
