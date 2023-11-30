@@ -208,12 +208,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
 
         let scale: Double
-        if(zoomLevel == nil && mapView.mapScale.isNaN) {
-            scale = convertZoomLevelToMapScale(initialZoom)
+        if let zoomLevel = zoomLevel {
+            scale = convertZoomLevelToMapScale(zoomLevel)
         } else {
-            scale = zoomLevel != nil ? convertZoomLevelToMapScale(zoomLevel!) : mapView.mapScale
+            scale = mapView.mapScale.isNaN ? convertZoomLevelToMapScale(initialZoom) : mapView.mapScale
         }
-        
+ 
         mapView.setViewpoint(
             AGSViewpoint(center: point.toAGSPoint(), scale: scale),
             duration: (animationOptions?.duration ?? 0) / 1000,
