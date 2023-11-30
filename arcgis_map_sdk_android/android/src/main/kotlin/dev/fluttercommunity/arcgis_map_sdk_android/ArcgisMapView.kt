@@ -77,7 +77,7 @@ internal class ArcgisMapView(
         mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
         mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
 
-        initialZoom = mapOptions.zoom.toInt()
+        initialZoom = mapOptions.zoom.roundToInt()
 
         mapView = view.findViewById(R.id.mapView)
 
