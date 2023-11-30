@@ -18,7 +18,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
-    private var initialZoom: Double
+    private let initialZoom: Int
+    
     private var mapView: AGSMapView
     private let map = AGSMap()
     private let graphicsOverlay = AGSGraphicsOverlay()
@@ -44,7 +45,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             flutterPluginRegistrar registrar: FlutterPluginRegistrar
     ) {
         flutterPluginRegistrar = registrar
-        initialZoom = mapOptions.zoom
         methodChannel = FlutterMethodChannel(
                 name: "dev.fluttercommunity.arcgis_map_sdk/\(viewId)",
                 binaryMessenger: flutterPluginRegistrar.messenger()
@@ -70,6 +70,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 print("setLicenseKey failed. \(error)")
             }
         }
+        
+        initialZoom = Int(mapOptions.zoom)
 
         mapView = AGSMapView.init(frame: frame)
 
@@ -84,8 +86,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
         }
 
-        map.minScale = getMapScale(mapOptions.minZoom)
-        map.maxScale = getMapScale(mapOptions.maxZoom)
+        map.minScale = convertZoomLevelToMapScale(mapOptions.minZoom)
+        map.maxScale = convertZoomLevelToMapScale(mapOptions.maxZoom)
 
         mapView.map = map
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
@@ -95,7 +97,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 guard let self = self else {
                     return
                 }
-                let newZoom = self.getZoomLevel(self.mapView.mapScale)
+                let newZoom = self.convertScaleToZoomLevel(self.mapView.mapScale)
                 self.zoomStreamHandler.addZoom(zoom: newZoom)
             }
         }
@@ -112,11 +114,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
 
-
+        print("Set ViewPoint with zoom \(mapOptions.zoom)")
         let viewpoint = AGSViewpoint(
             latitude: mapOptions.initialCenter.latitude,
             longitude: mapOptions.initialCenter.longitude,
-            scale: getMapScale(Int(mapOptions.zoom))
+            scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
 
@@ -160,12 +162,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
-        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel > getZoomLevel(map.maxScale)) {
+        if (totalZoomLevel > convertScaleToZoomLevel(map.maxScale)) {
             return
         }
-        let newScale = getMapScale(totalZoomLevel)
+        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
         mapView.setViewpointScale(newScale) { _ in
             result(true)
         }
@@ -173,12 +175,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
-        let currentZoomLevel = getZoomLevel(mapView.mapScale)
+        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel < getZoomLevel(map.minScale)) {
+        if (totalZoomLevel < convertScaleToZoomLevel(map.minScale)) {
             return
         }
-        let newScale = getMapScale(totalZoomLevel)
+        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
         mapView.setViewpointScale(newScale) { success in
             result(success)
         }
@@ -206,12 +208,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
         let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
 
-        let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
-
-        
+        print("Move \(zoomLevel); \(mapView.mapScale)")
+        let scale: Double
+        if(zoomLevel == nil && mapView.mapScale.isNaN) {
+            scale = convertZoomLevelToMapScale(initialZoom)
+        } else {
+            scale = zoomLevel != nil ? convertZoomLevelToMapScale(zoomLevel!) : mapView.mapScale
+        }
         
         mapView.setViewpoint(
-            AGSViewpoint(center: point.toAGSPoint(), scale: scale.isNaN ? initialZoom : scale),
+            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
             duration: (animationOptions?.duration ?? 0) / 1000,
             curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { success in
@@ -335,7 +341,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      * Convert map scale to zoom level
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
-    private func getZoomLevel(_ scale: Double) -> Int {
+    private func convertScaleToZoomLevel(_ scale: Double) -> Int {
+        print("try to convert \(scale)")
         let result = -1.443 * log(scale) + 29.14
         return Int(result.rounded())
     }
@@ -344,7 +351,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      *  Convert zoom level to map scale
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
-    private func getMapScale(_ zoomLevel: Int) -> Double {
+    private func convertZoomLevelToMapScale(_ zoomLevel: Int) -> Double {
         591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 
