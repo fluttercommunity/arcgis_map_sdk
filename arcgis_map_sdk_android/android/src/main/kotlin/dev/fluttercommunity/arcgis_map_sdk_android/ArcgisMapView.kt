@@ -13,6 +13,7 @@ import com.esri.arcgisruntime.mapping.Basemap
 import com.esri.arcgisruntime.mapping.BasemapStyle
 import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
+import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.google.gson.reflect.TypeToken
@@ -50,7 +51,8 @@ internal class ArcgisMapView(
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
-    private val methodChannel = MethodChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
+    private val methodChannel =
+        MethodChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
 
     override fun getView(): View = view
 
@@ -193,7 +195,13 @@ internal class ArcgisMapView(
 
     private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
         val graphicArguments = call.arguments as Map<String, Any>
-        val newGraphic = GraphicsParser.parse(graphicArguments)
+        lateinit var newGraphic: List<Graphic>
+        try {
+            newGraphic = GraphicsParser.parse(graphicArguments)
+        } catch (e: Throwable) {
+            result.error("unknown_error", "Error while adding graphic. $e)", null)
+            return
+        }
 
         val existingIds =
             defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }

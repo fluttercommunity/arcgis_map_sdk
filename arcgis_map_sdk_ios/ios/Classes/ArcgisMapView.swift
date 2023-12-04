@@ -193,7 +193,14 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
-        let newGraphics = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        var newGraphics = [AGSGraphic]()
+        do {
+            newGraphics.append(contentsOf: try parser.parse(dictionary: call.arguments as! Dictionary<String, Any>))
+        } catch {
+            result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
+            return
+        }
+        
         
         let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
             let graphic = object as! AGSGraphic
