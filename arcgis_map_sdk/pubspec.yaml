@@ -13,7 +13,9 @@ dependencies:
   arcgis_map_sdk_android: ^0.8.0
   arcgis_map_sdk_ios: ^0.8.0
   arcgis_map_sdk_platform_interface: ^1.0.1
-  arcgis_map_sdk_web: ^0.8.0
+  # todo: this was removed to make sure we don't end up with web artifacts in our mobile build
+  # this is only a temporary solution.
+  #arcgis_map_sdk_web: ^0.8.0
   flutter:
     sdk: flutter
 
