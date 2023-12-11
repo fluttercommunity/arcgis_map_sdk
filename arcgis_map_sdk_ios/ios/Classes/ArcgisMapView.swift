@@ -53,7 +53,17 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
-        AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
+        if let apiKey = mapOptions.apiKey {
+            AGSArcGISRuntimeEnvironment.apiKey = apiKey
+        }
+        if let licenseKey = mapOptions.licenseKey {
+            do {
+                try AGSArcGISRuntimeEnvironment.setLicenseKey(licenseKey)
+            } catch {
+                print("setLicenseKey failed. \(error)")
+            }
+        }
+        
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
@@ -96,20 +106,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
 
 
-        let viewport = AGSViewpoint(
+        let viewpoint = AGSViewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
                 scale: getMapScale(Int(mapOptions.zoom))
         )
-        mapView.setViewpoint(viewport, duration: 0) { _ in
-        }
-
-        /*
-        map.maxExtent = AGSEnvelope(
-            min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
-            max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
-        )
-        */
+        mapView.setViewpoint(viewpoint)
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
