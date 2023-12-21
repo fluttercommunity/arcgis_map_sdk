@@ -306,6 +306,9 @@ internal class ArcgisMapView(
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
     private fun updateMap() {
+        if(mapView.mapScale.isNaN()) {
+            return
+        }
         mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 
