@@ -135,6 +135,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+        
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
@@ -148,6 +153,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+        
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel - lodFactor

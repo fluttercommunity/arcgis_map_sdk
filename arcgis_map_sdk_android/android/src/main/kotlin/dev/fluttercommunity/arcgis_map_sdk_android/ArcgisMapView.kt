@@ -135,6 +135,11 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+        if(mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.",null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
@@ -154,6 +159,11 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+        if(mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.",null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
