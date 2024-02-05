@@ -56,11 +56,11 @@ class GraphicsParser {
                 }
                 return AGSPoint(x: array[0], y: array[1], spatialReference: .wgs84())
             }
-            
+
             let graphic = AGSGraphic()
             graphic.geometry = AGSPolyline(points: points)
             graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
-            
+
             return graphic
         }
     }

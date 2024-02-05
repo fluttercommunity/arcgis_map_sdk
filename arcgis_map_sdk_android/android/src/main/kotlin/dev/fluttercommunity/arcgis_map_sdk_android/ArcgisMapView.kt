@@ -61,14 +61,15 @@ internal class ArcgisMapView(
     override fun getView(): View = view
 
     init {
-        ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
+        mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
+        mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
+
         mapView = view.findViewById(R.id.mapView)
 
         if (mapOptions.basemap != null) {
             map.basemap = Basemap(mapOptions.basemap)
         } else {
             val layers = mapOptions.vectorTilesUrls.map { url -> ArcGISVectorTiledLayer(url) }
-
             map.basemap = Basemap(layers, null)
         }
 
@@ -85,18 +86,18 @@ internal class ArcgisMapView(
         mapView.addViewpointChangedListener {
             val center = mapView.visibleArea.extent.center
             val wgs84Center =
-                GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
+                    GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
             centerPositionStreamHandler.add(
-                LatLng(
-                    longitude = wgs84Center.x,
-                    latitude = wgs84Center.y
-                )
+                    LatLng(
+                            longitude = wgs84Center.x,
+                            latitude = wgs84Center.y
+                    )
             )
         }
 
         val viewPoint = Viewpoint(
-            mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
-            getMapScale(mapOptions.zoom.roundToInt()),
+                mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
+                getMapScale(mapOptions.zoom.roundToInt()),
         )
         mapView.setViewpoint(viewPoint)
 
@@ -284,13 +285,18 @@ internal class ArcgisMapView(
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
         EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
-            .setStreamHandler(zoomStreamHandler)
+                .setStreamHandler(zoomStreamHandler)
 
         EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
-            .setStreamHandler(centerPositionStreamHandler)
+                .setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
@@ -310,6 +316,11 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
@@ -333,10 +344,10 @@ internal class ArcgisMapView(
 
         // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
         mapView.setViewInsets(
-            viewPadding.left,
-            viewPadding.top,
-            viewPadding.right,
-            viewPadding.bottom
+                viewPadding.left,
+                viewPadding.top,
+                viewPadding.right,
+                viewPadding.bottom
         )
 
         result.success(true)
@@ -361,7 +372,7 @@ internal class ArcgisMapView(
         }
 
         val existingIds =
-            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+                defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
         val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
 
         if (existingIds.any(newIds::contains)) {
@@ -401,8 +412,8 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-            if (animationOptionMap == null || animationOptionMap.isEmpty()) null
-            else animationOptionMap.parseToClass<AnimationOptions>()
+                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+                else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -412,9 +423,9 @@ internal class ArcgisMapView(
 
         val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
         val future = mapView.setViewpointAsync(
-            initialViewPort,
-            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+                initialViewPort,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
         )
 
         future.addDoneListener {
@@ -428,8 +439,8 @@ internal class ArcgisMapView(
 
     private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
         val newStyle = gson.fromJson<BasemapStyle>(
-            call.arguments as String,
-            object : TypeToken<BasemapStyle>() {}.type
+                call.arguments as String,
+                object : TypeToken<BasemapStyle>() {}.type
         )
         map.basemap = Basemap(newStyle)
         result.success(true)
@@ -452,6 +463,9 @@ internal class ArcgisMapView(
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
     private fun updateMap() {
+        if (mapView.mapScale.isNaN()) {
+            return
+        }
         mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 
