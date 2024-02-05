@@ -119,12 +119,6 @@ class _ExampleMapState extends State<ExampleMap> {
         layerId: _lineLayerId,
         elevationMode: ElevationMode.onTheGround,
       );
-      _connectTwoPinsWithPolyline(
-        id: 'connecting-polyline-01',
-        name: 'Connecting polyline',
-        start: _firstPinCoordinates,
-        end: _secondPinCoordinates,
-      );
 
       // Create GraphicsLayer with 3D Pins
       await _createGraphicLayer(layerId: _pinLayerId);
@@ -135,6 +129,13 @@ class _ExampleMapState extends State<ExampleMap> {
         _setMouseCursor(isHovered);
       });
     }
+
+    _connectTwoPinsWithPolyline(
+      id: 'connecting-polyline-01',
+      name: 'Connecting polyline',
+      start: _firstPinCoordinates,
+      end: _secondPinCoordinates,
+    );
 
     // Add Polygons to the PolyLayer
     _addPolygon(

@@ -55,7 +55,17 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
         centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
-        AGSArcGISRuntimeEnvironment.apiKey = mapOptions.apiKey
+        if let apiKey = mapOptions.apiKey {
+            AGSArcGISRuntimeEnvironment.apiKey = apiKey
+        }
+        if let licenseKey = mapOptions.licenseKey {
+            do {
+                try AGSArcGISRuntimeEnvironment.setLicenseKey(licenseKey)
+            } catch {
+                print("setLicenseKey failed. \(error)")
+            }
+        }
+        
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
@@ -98,20 +108,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
 
 
-        let viewport = AGSViewpoint(
+        let viewpoint = AGSViewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
                 scale: getMapScale(Int(mapOptions.zoom))
         )
-        mapView.setViewpoint(viewport, duration: 0) { _ in
-        }
-
-        /*
-        map.maxExtent = AGSEnvelope(
-            min: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMin), spatialReference: .wgs84()),
-            max: AGSPoint(x: Double(mapOptions.xMin), y: Double(mapOptions.yMax), spatialReference: .wgs84())
-        )
-        */
+        mapView.setViewpoint(viewpoint)
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
@@ -143,6 +145,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+        
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
@@ -156,6 +163,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+        
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = getZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel - lodFactor
@@ -203,7 +215,14 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
-        let newGraphics = parser.parse(dictionary: call.arguments as! Dictionary<String, Any>)
+        var newGraphics = [AGSGraphic]()
+        do {
+            newGraphics.append(contentsOf: try parser.parse(dictionary: call.arguments as! Dictionary<String, Any>))
+        } catch {
+            result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
+            return
+        }
+        
         
         let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
             let graphic = object as! AGSGraphic
