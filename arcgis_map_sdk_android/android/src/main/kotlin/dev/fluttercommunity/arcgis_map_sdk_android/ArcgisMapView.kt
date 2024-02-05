@@ -42,10 +42,10 @@ import kotlin.math.roundToInt
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-    context: Context,
-    private val viewId: Int,
-    private val mapOptions: ArcgisMapOptions,
-      val binding: FlutterPluginBinding,
+        context: Context,
+        private val viewId: Int,
+        private val mapOptions: ArcgisMapOptions,
+        val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -63,7 +63,9 @@ internal class ArcgisMapView(
     override fun getView(): View = view
 
     init {
-        ArcGISRuntimeEnvironment.setApiKey(mapOptions.apiKey)
+        mapOptions.apiKey?.let(ArcGISRuntimeEnvironment::setApiKey)
+        mapOptions.licenseKey?.let(ArcGISRuntimeEnvironment::setLicense)
+
         mapView = view.findViewById(R.id.mapView)
 
         if (mapOptions.basemap != null) {
@@ -141,6 +143,11 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
@@ -160,6 +167,11 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
@@ -326,6 +338,9 @@ internal class ArcgisMapView(
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
     private fun updateMap() {
+        if (mapView.mapScale.isNaN()) {
+            return
+        }
         mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 

@@ -3,7 +3,8 @@ package dev.fluttercommunity.arcgis_map_sdk_android.model
 import com.esri.arcgisruntime.mapping.BasemapStyle
 
 data class ArcgisMapOptions(
-    val apiKey: String,
+    val apiKey: String?,
+    val licenseKey: String?,
     val basemap: BasemapStyle?,
     val vectorTilesUrls: List<String>,
     val initialCenter: LatLng,

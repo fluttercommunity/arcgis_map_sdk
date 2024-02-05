@@ -10,12 +10,12 @@ import ArcGIS
 
 class GraphicsParser {
     let registrar: FlutterPluginRegistrar
-    
+
     init(registrar: FlutterPluginRegistrar) {
             self.registrar = registrar
         }
-    
-    
+
+
     func parse(dictionary: Dictionary<String, Any>) throws -> [AGSGraphic] {
         let type = dictionary["type"] as! String
 
@@ -63,11 +63,11 @@ class GraphicsParser {
                 }
                 return AGSPoint(x: array[0], y: array[1], spatialReference: .wgs84())
             }
-            
+
             let graphic = AGSGraphic()
             graphic.geometry = AGSPolyline(points: points)
             graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
-            
+
             return graphic
         }
     }
@@ -145,7 +145,7 @@ class GraphicsParser {
             symbol.offsetY = payload.yOffset
             return symbol
         }
-        
+
         let symbol = AGSPictureMarkerSymbol(url: URL(string: payload.assetUri)!)
         symbol.width = payload.width
         symbol.height = payload.height
@@ -154,7 +154,7 @@ class GraphicsParser {
 
         return symbol
     }
-    
+
     private func getFlutterUiImage(_ fileName: String) -> UIImage? {
             let key = registrar.lookupKey(forAsset: fileName)
         let path = Bundle.main.path(forResource: key, ofType: nil)

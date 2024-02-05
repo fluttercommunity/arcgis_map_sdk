@@ -8,7 +8,8 @@
 import Foundation
 
 struct ArcgisMapOptions: Codable {
-    let apiKey: String
+    let apiKey: String?
+    let licenseKey: String?
     let basemap: String?
     let vectorTilesUrls: Array<String>?
     let initialCenter: LatLng;

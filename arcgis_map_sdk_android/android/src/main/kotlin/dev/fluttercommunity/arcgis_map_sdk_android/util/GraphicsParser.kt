@@ -2,6 +2,7 @@ package dev.fluttercommunity.arcgis_map_sdk_android.util
 
 import android.graphics.drawable.BitmapDrawable
 import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polygon
 import com.esri.arcgisruntime.geometry.Polyline
