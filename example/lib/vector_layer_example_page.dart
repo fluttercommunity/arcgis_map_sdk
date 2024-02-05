@@ -10,21 +10,12 @@ class VectorLayerExamplePage extends StatefulWidget {
 }
 
 class _VectorLayerExamplePageState extends State<VectorLayerExamplePage> {
-  ArcgisMapController? _controller;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
-        onPressed: () => _controller?.reload(),
-      ),
       body: ArcgisMap(
         apiKey: arcGisApiKey,
-        onMapCreated: (controller) {
-          _controller = controller;
-        },
         initialCenter: const LatLng(51.16, 10.45),
         zoom: 13,
         vectorTileLayerUrls: const [

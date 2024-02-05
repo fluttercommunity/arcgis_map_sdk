@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:arcgis_example/map_elements.dart';
 import 'package:arcgis_example/vector_layer_example_page.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
+import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -71,6 +72,10 @@ class _ExampleMapState extends State<ExampleMap> {
   final tappedHQ = const LatLng(48.1234963, 11.5910182);
   var _isInteractionEnabled = true;
 
+  VoidCallback? _removeStatusListener;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void dispose() {
     _boundingBoxSubscription?.cancel();
@@ -79,11 +84,16 @@ class _ExampleMapState extends State<ExampleMap> {
     _attributionTextSubscription?.cancel();
     _zoomSubscription?.cancel();
     _isGraphicHoveredSubscription?.cancel();
+    _removeStatusListener?.call();
+
     super.dispose();
   }
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+
+    _removeStatusListener =
+        _controller!.addStatusChangeListener(_onMapStatusChanged);
 
     // TODO: Remove when mobile implementation is complete
     if (kIsWeb) {
@@ -360,6 +370,7 @@ class _ExampleMapState extends State<ExampleMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Stack(
         children: [
           ArcgisMap(
@@ -647,6 +658,10 @@ class _ExampleMapState extends State<ExampleMap> {
                         ),
                         child: const Text('Remove red polygon'),
                       ),
+                      ElevatedButton(
+                        onPressed: () => _controller?.reload(),
+                        child: const Text('Reload map'),
+                      ),
                     ],
                   ),
                 ),
@@ -682,6 +697,18 @@ class _ExampleMapState extends State<ExampleMap> {
   void _routeToVectorLayerMap() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
+
+  void _onMapStatusChanged(MapStatus status) {
+    final scaffoldContext = _scaffoldKey.currentContext;
+    if (scaffoldContext == null) return;
+
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Map status changed to: $status'),
+        duration: const Duration(seconds: 1),
+      ),
     );
   }
 }
