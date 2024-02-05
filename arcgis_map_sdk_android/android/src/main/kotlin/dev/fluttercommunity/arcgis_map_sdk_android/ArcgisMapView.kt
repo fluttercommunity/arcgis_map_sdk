@@ -4,8 +4,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
+import com.esri.arcgisruntime.geometry.Geometry
 import com.esri.arcgisruntime.geometry.GeometryEngine
+import com.esri.arcgisruntime.geometry.Multipoint
 import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.PointCollection
+import com.esri.arcgisruntime.geometry.Polyline
 import com.esri.arcgisruntime.geometry.SpatialReferences
 import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer
 import com.esri.arcgisruntime.mapping.ArcGISMap
@@ -115,6 +119,7 @@ internal class ArcgisMapView(
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
+                "move_camera_to_points" -> onMoveCameraToPoints(call = call, result = result)
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
@@ -275,6 +280,30 @@ internal class ArcgisMapView(
             try {
                 result.success(future.get())
             } catch (e: Throwable) {
+                result.error("Error", e.message, e)
+            }
+        }
+    }
+
+    private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
+        val arguments = call.arguments as Map<String, Any>
+        val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
+                .map { p -> parseToClass<LatLng>(p) }
+
+        val padding = arguments["padding"] as Double?
+
+        val polyline = Polyline(
+                PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
+                SpatialReferences.getWgs84()
+        )
+
+        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+        else mapView.setViewpointGeometryAsync(polyline.extent)
+
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
                 result.error("Error", e.message, e)
             }
         }

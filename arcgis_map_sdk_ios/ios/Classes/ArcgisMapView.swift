@@ -125,11 +125,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "move_camera_to_points": onMoveCameraToPoints(call, result)
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
             default:
-                result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
+                result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
         })
     }
@@ -200,6 +201,23 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { success in
             result(success)
+        }
+    }
+    
+    private func onMoveCameraToPoints(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+    
+        let payload: MoveToPointsPayload = try! JsonUtil.objectOfJson(dict)
+        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
+
+        if(payload.padding != nil) {
+            mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
+                result(success)
+            }
+        } else {
+            mapView.setViewpointGeometry(polyline.extent) { success in
+                result(success)
+            }
         }
     }
 
@@ -459,4 +477,9 @@ extension AGSBasemapStyle {
             return nil
         }
     }
+}
+
+struct MoveToPointsPayload : Codable {
+    let points : [LatLng]
+    let padding : Double?
 }
