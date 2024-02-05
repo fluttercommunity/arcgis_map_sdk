@@ -274,7 +274,7 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
+                if (animationOptionMap.isNullOrEmpty()) null
                 else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
@@ -309,7 +309,7 @@ internal class ArcgisMapView(
     }
 
     private fun onReload(result: MethodChannel.Result) {
-        mapView.map.retryLoadAsync()
+        mapView.map?.retryLoadAsync()
         result.success(true)
     }
 
