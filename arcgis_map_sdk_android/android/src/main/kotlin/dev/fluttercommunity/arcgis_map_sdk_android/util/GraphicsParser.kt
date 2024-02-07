@@ -50,10 +50,11 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         private fun parsePoint(map: Map<String, Any>): List<Graphic> {
             val point = (map["point"] as Map<String, Any>).parseToClass<LatLng>()
+            val symbolMap = map["symbol"] as Map<String, Any>
 
             val pointGraphic = Graphic().apply {
                 geometry = point.toAGSPoint()
-                symbol = parseSymbol(map)
+                symbol = parseSymbol(symbolMap)
             }
 
             return listOf(pointGraphic)
@@ -61,6 +62,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         private fun parsePolyline(map: Map<String, Any>): List<Graphic> {
             val points = parseToClass<List<List<List<Double>>>>(map["paths"]!!)
+            val symbolMap = map["symbol"] as Map<String, Any>
 
             return points.map { subPoints ->
                 Graphic().apply {
@@ -75,26 +77,25 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
                         if (z != null) Point(x, y, z, SpatialReferences.getWgs84())
                         else Point(x, y, SpatialReferences.getWgs84())
                     }))
-                    symbol = parseSymbol(map)
+                    symbol = parseSymbol(symbolMap)
                 }
             }
         }
 
         private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
             val rings = parseToClass<List<List<List<Double>>>>(map["rings"]!!)
+            val symbolMap = map["symbol"] as Map<String, Any>
 
             return rings.map { ring ->
                 Graphic().apply {
                     geometry =
                         Polygon(PointCollection(ring.map { LatLng(it[0], it[1]).toAGSPoint() }))
-                    symbol = parseSymbol(map)
+                    symbol = parseSymbol(symbolMap)
                 }
             }
         }
 
-        private fun parseSymbol(map: Map<String, Any>): Symbol {
-            val symbolMap = map["symbol"] as Map<String, Any>
-
+        fun parseSymbol(symbolMap: Map<String, Any>): Symbol {
             val symbol = when (val type = symbolMap["type"]) {
                 "simple-marker" -> parseSimpleMarkerSymbol(symbolMap)
                 "picture-marker" -> parsePictureMarkerSymbol(symbolMap)

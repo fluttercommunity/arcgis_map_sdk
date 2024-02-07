@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:arcgis_example/location_indicator_example_page.dart';
 import 'package:arcgis_example/map_elements.dart';
 import 'package:arcgis_example/vector_layer_example_page.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
@@ -71,6 +72,10 @@ class _ExampleMapState extends State<ExampleMap> {
   final tappedHQ = const LatLng(48.1234963, 11.5910182);
   var _isInteractionEnabled = true;
 
+  VoidCallback? _removeStatusListener;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void dispose() {
     _boundingBoxSubscription?.cancel();
@@ -79,11 +84,16 @@ class _ExampleMapState extends State<ExampleMap> {
     _attributionTextSubscription?.cancel();
     _zoomSubscription?.cancel();
     _isGraphicHoveredSubscription?.cancel();
+    _removeStatusListener?.call();
+
     super.dispose();
   }
 
   Future<void> _onMapCreated(ArcgisMapController controller) async {
     _controller = controller;
+
+    _removeStatusListener =
+        _controller!.addStatusChangeListener(_onMapStatusChanged);
 
     // TODO: Remove when mobile implementation is complete
     if (kIsWeb) {
@@ -367,6 +377,7 @@ class _ExampleMapState extends State<ExampleMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Stack(
         children: [
           ArcgisMap(
@@ -443,20 +454,21 @@ class _ExampleMapState extends State<ExampleMap> {
                               );
                             },
                           ),
-                          FloatingActionButton(
-                            heroTag: "3d-map-button",
-                            onPressed: () {
-                              setState(() {
-                                show3dMap = !show3dMap;
-                                _controller?.switchMapStyle(
-                                  show3dMap ? MapStyle.threeD : MapStyle.twoD,
-                                );
-                              });
-                            },
-                            backgroundColor:
-                                show3dMap ? Colors.red : Colors.blue,
-                            child: Text(show3dMap ? '3D' : '2D'),
-                          ),
+                          if (kIsWeb)
+                            FloatingActionButton(
+                              heroTag: "3d-map-button",
+                              onPressed: () {
+                                setState(() {
+                                  show3dMap = !show3dMap;
+                                  _controller?.switchMapStyle(
+                                    show3dMap ? MapStyle.threeD : MapStyle.twoD,
+                                  );
+                                });
+                              },
+                              backgroundColor:
+                                  show3dMap ? Colors.red : Colors.blue,
+                              child: Text(show3dMap ? '3D' : '2D'),
+                            ),
                         ],
                       ),
                       ElevatedButton(
@@ -474,10 +486,12 @@ class _ExampleMapState extends State<ExampleMap> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          _routeToVectorLayerMap();
-                        },
+                        onPressed: _routeToVectorLayerMap,
                         child: const Text("Show Vector layer example"),
+                      ),
+                      ElevatedButton(
+                        onPressed: _routeToLocationIndicatorExample,
+                        child: const Text("Location indicator example"),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -582,38 +596,41 @@ class _ExampleMapState extends State<ExampleMap> {
                             ? const Text("Stop pos")
                             : const Text("Sub to pos"),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_subscribedToBounds) {
-                            _unsubscribeFromBounds();
-                          } else {
-                            _subscribeToBounds();
-                          }
-                        },
-                        child: _subscribedToBounds
-                            ? const Text("Stop bounds")
-                            : const Text("Sub to bounds"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_subscribedToGraphicsInView) {
-                            _unSubscribeToGraphicsInView();
-                          } else {
-                            _subscribeToGraphicsInView();
-                          }
-                        },
-                        child: _subscribedToGraphicsInView
-                            ? const Text("Stop printing Graphics")
-                            : const Text("Start printing Graphics"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          final graphicIdsInView =
-                              _controller?.getVisibleGraphicIds();
-                          graphicIdsInView?.forEach(debugPrint);
-                        },
-                        child: const Text("Print visible Graphics"),
-                      ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_subscribedToBounds) {
+                              _unsubscribeFromBounds();
+                            } else {
+                              _subscribeToBounds();
+                            }
+                          },
+                          child: _subscribedToBounds
+                              ? const Text("Stop bounds")
+                              : const Text("Sub to bounds"),
+                        ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_subscribedToGraphicsInView) {
+                              _unSubscribeToGraphicsInView();
+                            } else {
+                              _subscribeToGraphicsInView();
+                            }
+                          },
+                          child: _subscribedToGraphicsInView
+                              ? const Text("Stop printing Graphics")
+                              : const Text("Start printing Graphics"),
+                        ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            final graphicIdsInView =
+                                _controller?.getVisibleGraphicIds();
+                            graphicIdsInView?.forEach(debugPrint);
+                          },
+                          child: const Text("Print visible Graphics"),
+                        ),
                       ElevatedButton(
                         onPressed: () {
                           _addPolygon(
@@ -654,6 +671,20 @@ class _ExampleMapState extends State<ExampleMap> {
                         ),
                         child: const Text('Remove red polygon'),
                       ),
+                      ElevatedButton(
+                        onPressed: () => _controller?.retryLoad(),
+                        child: const Text('Reload map'),
+                      ),
+                      if (!kIsWeb)
+                        ElevatedButton(
+                          onPressed: () => _makePolylineVisible(
+                            points: [
+                              _firstPinCoordinates,
+                              _secondPinCoordinates
+                            ],
+                          ),
+                          child: const Text('Zoom to polyline'),
+                        ),
                     ],
                   ),
                 ),
@@ -702,6 +733,24 @@ class _ExampleMapState extends State<ExampleMap> {
   void _routeToVectorLayerMap() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
+
+  void _onMapStatusChanged(MapStatus status) {
+    final scaffoldContext = _scaffoldKey.currentContext;
+    if (scaffoldContext == null) return;
+
+    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+      SnackBar(
+        content: Text('Map status changed to: $status'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _routeToLocationIndicatorExample() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const LocationIndicatorExamplePage()),
     );
   }
 }

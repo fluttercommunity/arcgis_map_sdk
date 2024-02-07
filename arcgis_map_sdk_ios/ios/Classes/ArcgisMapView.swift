@@ -12,6 +12,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
     private let flutterPluginRegistrar: FlutterPluginRegistrar
 
+    private var mapLoadStatusObservation: NSKeyValueObservation?
+
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
@@ -117,6 +119,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
+
+        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
+                    DispatchQueue.main.async {
+                        let status = map.loadStatus
+                        self?.notifyStatus(status)
+                    }
+                }
     }
 
     private func setupMethodChannel() {
@@ -131,6 +140,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
+            case "retryLoad" : onRetryLoad(call, result)
+            case "location_display_start_data_source" : onStartLocationDisplayDataSource(call, result)
+            case "location_display_stop_data_source" : onStopLocationDisplayDataSource(call, result)
+            case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
+            case "location_display_set_accuracy_symbol": onSetLocationDisplayAccuracySymbol(call, result)
+            case "location_display_set_ping_animation_symbol" : onSetLocationDisplayPingAnimationSymbol(call, result)
+            case "location_display_set_use_course_symbol_on_move" : onSetLocationDisplayUseCourseSymbolOnMove(call, result)
+            case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
+            case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -178,10 +196,10 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
 
         mapView.contentInset = UIEdgeInsets(
-                top: padding.top,
-                left: padding.left,
-                bottom: padding.bottom,
-                right: padding.right
+            top: padding.top,
+            left: padding.left,
+            bottom: padding.bottom,
+            right: padding.right
         )
 
         result(true)
@@ -198,9 +216,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
 
         mapView.setViewpoint(
-                AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-                duration: (animationOptions?.duration ?? 0) / 1000,
-                curve: animationOptions?.arcgisAnimationCurve() ?? .linear
+            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+            duration: (animationOptions?.duration ?? 0) / 1000,
+            curve: animationOptions?.arcgisAnimationCurve() ?? .linear
         ) { success in
             result(success)
         }
@@ -282,7 +300,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         result(true)
     }
-    
+
+    private func onRetryLoad(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+       mapView.map!.retryLoad()
+       result(true)
+    }
+
+    private func notifyStatus(_ status:  AGSLoadStatus) {
+        methodChannel.invokeMethod("onStatusChanged", arguments: status.jsonValue())
+    }
+
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
 
@@ -299,15 +326,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         // don't set "isMagnifierEnabled" since we don't want to use this feature
     }
 
-private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
-    let baseMapStyle = AGSBasemapStyle.allCases.first { enumValue in
-        enumValue.getJsonValue() == string
+    private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
+        let baseMapStyle = AGSBasemapStyle.allCases.first { enumValue in
+            enumValue.getJsonValue() == string
+        }
+        if baseMapStyle == nil {
+            NSLog("Warning: Could not find a base map style matching the input string. Defaulting to .arcGISImageryStandard.")
+        }
+        return baseMapStyle ?? .arcGISImageryStandard
     }
-    if baseMapStyle == nil {
-        NSLog("Warning: Could not find a base map style matching the input string. Defaulting to .arcGISImageryStandard.")
-    }
-    return baseMapStyle ?? .arcGISImageryStandard
-}
 
     /**
      * Convert map scale to zoom level
@@ -324,6 +351,105 @@ private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
      * */
     private func getMapScale(_ zoomLevel: Int) -> Double {
         591657527 * (exp(-0.693 * Double(zoomLevel)))
+    }
+
+
+    private func onStartLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        mapView.locationDisplay.dataSource.start { error in
+            if let error = error {
+                let flutterError = FlutterError(
+                    code: "generic_error",
+                    message: "Failed to start data source: \(error.localizedDescription)",
+                    details: nil
+                )
+                result(flutterError)
+            } else {
+                result(true)
+            }
+        }
+    }
+
+    private func onStopLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        mapView.locationDisplay.dataSource.stop {
+            result(true)
+        }
+    }
+
+    private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.defaultSymbol = $0 }
+    }
+
+    private func onSetLocationDisplayAccuracySymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.accuracySymbol = $0 }
+    }
+
+    private func onSetLocationDisplayPingAnimationSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        operationWithSymbol(call, result) { mapView.locationDisplay.pingAnimationSymbol = $0 }
+    }
+
+
+    private func onSetLocationDisplayUseCourseSymbolOnMove(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let active = call.arguments as? Bool else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
+            return
+        }
+
+        mapView.locationDisplay.useCourseSymbolOnMovement = active
+        result(true)
+    }
+
+    private func onUpdateLocationDisplaySourcePositionManually(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dataSource = mapView.locationDisplay.dataSource
+        guard let source = dataSource as? ManualLocationDataSource else {
+            result(FlutterError(code: "invalid_state", message: "Expected ManualLocationDataSource but got \(dataSource)", details: nil))
+            return
+        }
+
+        guard let dict = call.arguments as? Dictionary<String, Any>, let position: UserPosition = try? JsonUtil.objectOfJson(dict) else {
+            result(FlutterError(code: "missing_data", message: "Expected arguments to contain data of UserPosition.", details: nil))
+            return
+        }
+
+        source.setNewLocation(position)
+        result(true)
+    }
+
+    private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.locationDisplay.dataSource.status == .started) {
+            result(FlutterError(code: "invalid_state", message: "Current data source is running. Make sure to stop it before setting a new data source", details: nil))
+            return
+        }
+
+        guard let type = call.arguments as? String else {
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected a type of data source as string.", details: nil))
+            return
+        }
+
+        switch(type) {
+        case "manual" :
+            mapView.locationDisplay.dataSource = ManualLocationDataSource()
+            result(true)
+        case "system" :
+            mapView.locationDisplay.dataSource = AGSCLLocationDataSource()
+            result(true)
+        default:
+            result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
+        }
+    }
+
+    private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {
+        do {
+            guard let args = call.arguments as? [String: Any] else {
+                result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+                return
+            }
+            let symbol = try GraphicsParser().parseSymbol(args)
+            handler(symbol)
+            result(true)
+        }
+        catch {
+            result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
+        }
     }
 }
 
@@ -477,6 +603,25 @@ extension AGSBasemapStyle {
             return nil
         @unknown default:
             return nil
+        }
+    }
+}
+
+extension AGSLoadStatus {
+    func jsonValue()  -> String {
+        switch self {
+        case .loaded:
+            return "loaded"
+        case .loading:
+            return "loading"
+        case .failedToLoad:
+            return "failedToLoad"
+        case .notLoaded:
+            return "notLoaded"
+        case .unknown:
+            return "unknown"
+        @unknown default:
+            return "unknown"
         }
     }
 }
