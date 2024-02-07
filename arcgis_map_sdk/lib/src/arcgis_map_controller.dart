@@ -1,3 +1,4 @@
+import 'package:arcgis_map_sdk/src/arcgis_location_display.dart';
 import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,7 @@ typedef MapStatusListener = void Function(MapStatus status);
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  }) {
+  }) : _locationDisplay = ArcgisLocationDisplay(mapId: mapId) {
     ArcgisMapPlatform.instance.setMethodCallHandler(
       mapId: mapId,
       onCall: _onCall,
@@ -15,6 +16,10 @@ class ArcgisMapController {
   }
 
   final int mapId;
+
+  late ArcgisLocationDisplay _locationDisplay;
+
+  ArcgisLocationDisplay get locationDisplay => _locationDisplay;
 
   final _listeners = <MapStatusListener>[];
   MapStatus _mapStatus = MapStatus.unknown;
@@ -184,6 +189,7 @@ class ArcgisMapController {
   }
 
   /// Adds a listener that gets notified if the map status changes.
+  /// The listener can be removed by calling the [VoidCallback] returned by this function.
   VoidCallback addStatusChangeListener(MapStatusListener listener) {
     _listeners.add(listener);
     return () => _listeners.removeWhere((l) => l == listener);
@@ -302,5 +308,16 @@ class ArcgisMapController {
 
   List<String> getVisibleGraphicIds() {
     return ArcgisMapPlatform.instance.getVisibleGraphicIds(mapId);
+  }
+
+  Future<void> setLocationDisplay(ArcgisLocationDisplay locationDisplay) {
+    return ArcgisMapPlatform.instance
+        .setLocationDisplay(mapId, locationDisplay.type)
+        .whenComplete(
+      () {
+        _locationDisplay.deattachFromMap();
+        _locationDisplay = locationDisplay..attachToMap(mapId);
+      },
+    );
   }
 }

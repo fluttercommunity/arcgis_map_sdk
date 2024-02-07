@@ -223,4 +223,58 @@ class ArcgisMapPlatform extends PlatformInterface {
       'getVisibleGraphicIds() has not been implemented.',
     );
   }
+
+  Future<void> startLocationDisplayDataSource(int mapId) {
+    throw UnimplementedError(
+      'startLocationDisplayDataSource() has not been implemented.',
+    );
+  }
+
+  Future<void> stopLocationDisplayDataSource(int mapId) {
+    throw UnimplementedError(
+      'stopLocationDisplayDataSource() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
+    throw UnimplementedError(
+      'setLocationDisplayDefaultSymbol() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayAccuracySymbol(int mapId, Symbol symbol) {
+    throw UnimplementedError(
+      'setLocationDisplayAccuracySymbol() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplayPingAnimationSymbol(
+    int mapId,
+    Symbol symbol,
+  ) {
+    throw UnimplementedError(
+      'setLocationDisplayPingAnimationSymbol() has not been implemented.',
+    );
+  }
+
+  Future<void> setUseCourseSymbolOnMovement(int mapId, bool useCourseSymbol) {
+    throw UnimplementedError(
+      'setUseCourseSymbolOnMovement() has not been implemented.',
+    );
+  }
+
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
+    throw UnimplementedError(
+      'updateLocationDisplaySourcePositionManually() has not been implemented.',
+    );
+  }
+
+  Future<void> setLocationDisplay(int mapId, String type) {
+    throw UnimplementedError(
+      'setLocationDisplay() has not been implemented.',
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:arcgis_example/location_indicator_example_page.dart';
 import 'package:arcgis_example/map_elements.dart';
 import 'package:arcgis_example/vector_layer_example_page.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
@@ -485,10 +486,12 @@ class _ExampleMapState extends State<ExampleMap> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          _routeToVectorLayerMap();
-                        },
+                        onPressed: _routeToVectorLayerMap,
                         child: const Text("Show Vector layer example"),
+                      ),
+                      ElevatedButton(
+                        onPressed: _routeToLocationIndicatorExample,
+                        child: const Text("Location indicator example"),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -729,6 +732,12 @@ class _ExampleMapState extends State<ExampleMap> {
         content: Text('Map status changed to: $status'),
         duration: const Duration(seconds: 1),
       ),
+    );
+  }
+
+  void _routeToLocationIndicatorExample() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const LocationIndicatorExamplePage()),
     );
   }
 }
