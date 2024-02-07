@@ -327,6 +327,13 @@ class _ExampleMapState extends State<ExampleMap> {
     _controller?.removeGraphic(layerId: layerId, objectId: objectId);
   }
 
+  void _makePolylineVisible({required List<LatLng> points}) {
+    _controller?.moveCameraToPoints(
+      points: points,
+      padding: 30,
+    );
+  }
+
   void _addPolygon({
     required String layerId,
     required PolygonGraphic graphic,
@@ -665,6 +672,13 @@ class _ExampleMapState extends State<ExampleMap> {
                     ],
                   ),
                 ),
+                if (!kIsWeb)
+                  ElevatedButton(
+                    onPressed: () => _makePolylineVisible(
+                      points: [_firstPinCoordinates, _secondPinCoordinates],
+                    ),
+                    child: const Text('Zoom to polyline'),
+                  ),
                 Row(
                   children: [
                     const Text(

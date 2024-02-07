@@ -12,7 +12,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
 
     private var mapLoadStatusObservation: NSKeyValueObservation?
-    
+
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
@@ -117,7 +117,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
-        
+
         mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
                     DispatchQueue.main.async {
                         let status = map.loadStatus
@@ -134,12 +134,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "move_camera_to_points": onMoveCameraToPoints(call, result)
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
             case "reload" : onReload(call, result)
             default:
-                result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
+                result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
         })
     }
@@ -213,6 +214,23 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
 
+    private func onMoveCameraToPoints(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+
+        let payload: MoveToPointsPayload = try! JsonUtil.objectOfJson(dict)
+        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
+
+        if(payload.padding != nil) {
+            mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
+                result(success)
+            }
+        } else {
+            mapView.setViewpointGeometry(polyline.extent) { success in
+                result(success)
+            }
+        }
+    }
+
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
         var newGraphics = [AGSGraphic]()
@@ -281,7 +299,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func notifyStatus(_ status:  AGSLoadStatus) {
         methodChannel.invokeMethod("onStatusChanged", arguments: status.jsonValue())
     }
-    
+
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
 
@@ -497,4 +515,9 @@ extension AGSLoadStatus {
             return "unknown"
         }
     }
+}
+
+struct MoveToPointsPayload : Codable {
+    let points : [LatLng]
+    let padding : Double?
 }

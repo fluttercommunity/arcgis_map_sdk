@@ -138,6 +138,14 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('moveCamera() has not been implemented.');
   }
 
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    required int mapId,
+    double? padding,
+  }) {
+    throw UnimplementedError('moveCameraToPoints() has not been implemented.');
+  }
+
   Future<bool> zoomIn({
     required int lodFactor,
     required int mapId,

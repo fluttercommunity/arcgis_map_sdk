@@ -108,6 +108,7 @@ Checkout the example app `example/lib/main.dart` for more details.
 | addViewPadding       |  ✅  |  ✅  |    ✅    |
 | toggleBaseMap        |  ✅  |  ✅  |    ✅    |
 | moveCamera           |  ✅  |  ✅  |    ✅    |
+| moveCameraToPoints   |      |  ✅  |    ✅    |
 | zoomIn               |  ✅  |  ✅  |    ✅    |
 | zoomOut              |  ✅  |  ✅  |    ✅    |
 | getZoom              |  ✅  |  ✅  |    ✅    |
