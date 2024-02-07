@@ -443,7 +443,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
                 return
             }
-            let symbol = try GraphicsParser().parseSymbol(args)
+            let symbol = try GraphicsParser(registrar: flutterPluginRegistrar).parseSymbol(args)
             handler(symbol)
             result(true)
         }

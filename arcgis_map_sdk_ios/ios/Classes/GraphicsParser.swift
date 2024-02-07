@@ -12,9 +12,8 @@ class GraphicsParser {
     let registrar: FlutterPluginRegistrar
 
     init(registrar: FlutterPluginRegistrar) {
-            self.registrar = registrar
-        }
-
+        self.registrar = registrar
+    }
 
     func parse(dictionary: Dictionary<String, Any>) throws -> [AGSGraphic] {
         let type = dictionary["type"] as! String
