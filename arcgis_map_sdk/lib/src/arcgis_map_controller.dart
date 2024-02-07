@@ -183,7 +183,7 @@ class ArcgisMapController {
     );
   }
 
-  /// Adds a listener that gets notified if the map status changes
+  /// Adds a listener that gets notified if the map status changes.
   VoidCallback addStatusChangeListener(MapStatusListener listener) {
     _listeners.add(listener);
     return () => _listeners.removeWhere((l) => l == listener);
