@@ -4,9 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
-import com.esri.arcgisruntime.geometry.Geometry
 import com.esri.arcgisruntime.geometry.GeometryEngine
-import com.esri.arcgisruntime.geometry.Multipoint
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polyline
@@ -36,7 +34,6 @@ import dev.fluttercommunity.arcgis_map_sdk_android.model.UserPosition
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -51,10 +48,10 @@ import kotlin.math.roundToInt
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-        private val context: Context,
-        private val viewId: Int,
-        private val mapOptions: ArcgisMapOptions,
-        val binding: FlutterPluginBinding,
+    private val context: Context,
+    private val viewId: Int,
+    private val mapOptions: ArcgisMapOptions,
+    private val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -304,7 +301,7 @@ internal class ArcgisMapView(
     ) {
         try {
             val map = call.arguments as Map<String, Any>
-            val symbol = GraphicsParser.parseSymbol(map)
+            val symbol = graphicsParser.parseSymbol(map)
             function(symbol)
             result.success(true)
         } catch (e: Throwable) {
@@ -320,13 +317,20 @@ internal class ArcgisMapView(
         EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
 
-        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
+        EventChannel(
+            binding.binaryMessenger,
+            "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
+        )
             .setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.mapScale.isNaN()) {
-            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
             return
         }
 
@@ -350,7 +354,11 @@ internal class ArcgisMapView(
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.mapScale.isNaN()) {
-            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
             return
         }
 
@@ -473,30 +481,6 @@ internal class ArcgisMapView(
     private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
         val arguments = call.arguments as Map<String, Any>
         val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
-                .map { p -> parseToClass<LatLng>(p) }
-
-        val padding = arguments["padding"] as Double?
-
-        val polyline = Polyline(
-                PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
-                SpatialReferences.getWgs84()
-        )
-
-        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
-        else mapView.setViewpointGeometryAsync(polyline.extent)
-
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, e)
-            }
-        }
-    }
-
-    private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
-        val arguments = call.arguments as Map<String, Any>
-        val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
             .map { p -> parseToClass<LatLng>(p) }
 
         val padding = arguments["padding"] as Double?
@@ -506,8 +490,9 @@ internal class ArcgisMapView(
             SpatialReferences.getWgs84()
         )
 
-        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
-        else mapView.setViewpointGeometryAsync(polyline.extent)
+        val future =
+            if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+            else mapView.setViewpointGeometryAsync(polyline.extent)
 
         future.addDoneListener {
             try {
