@@ -1,17 +1,30 @@
 import 'package:arcgis_map_sdk/src/arcgis_location_display.dart';
+import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
+
+typedef MapStatusListener = void Function(MapStatus status);
 
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  }) : _locationDisplay = ArcgisLocationDisplay(mapId: mapId);
+  }) : _locationDisplay = ArcgisLocationDisplay(mapId: mapId) {
+    ArcgisMapPlatform.instance.setMethodCallHandler(
+      mapId: mapId,
+      onCall: _onCall,
+    );
+  }
 
   final int mapId;
 
   late ArcgisLocationDisplay _locationDisplay;
 
   ArcgisLocationDisplay get locationDisplay => _locationDisplay;
+
+  final _listeners = <MapStatusListener>[];
+  MapStatus _mapStatus = MapStatus.unknown;
+
+  MapStatus get mapStatus => _mapStatus;
 
   static Future<ArcgisMapController> init(
     int id,
@@ -63,6 +76,16 @@ class ArcgisMapController {
       url: url,
       mapId: mapId,
     );
+  }
+
+  Future<void> _onCall(MethodCall call) async {
+    final method = call.method;
+    switch (method) {
+      case "onStatusChanged":
+        return _notifyStatusChanged(call);
+      default:
+        throw UnimplementedError('Method "$method" not implemented');
+    }
   }
 
   Stream<double> getZoom() {
@@ -152,6 +175,37 @@ class ArcgisMapController {
       threeDTilt: threeDTilt,
       animationOptions: animationOptions,
     );
+  }
+
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+  }) {
+    return ArcgisMapPlatform.instance.moveCameraToPoints(
+      mapId: mapId,
+      points: points,
+      padding: padding,
+    );
+  }
+
+  /// Adds a listener that gets notified if the map status changes.
+  VoidCallback addStatusChangeListener(MapStatusListener listener) {
+    _listeners.add(listener);
+    return () => _listeners.removeWhere((l) => l == listener);
+  }
+
+  /// Calling native `retryLoadAsync` (android) and `retryLoad` (swift)
+  /// https://developers.arcgis.com/kotlin/api-reference/arcgis-maps-kotlin/com.arcgismaps/-loadable/retry-load.html
+  /// This does not trigger `onMapCreated` since it will only try, if there is an error
+  Future<void> retryLoad() {
+    return ArcgisMapPlatform.instance.retryLoad(mapId);
+  }
+
+  void _notifyStatusChanged(MethodCall call) {
+    _mapStatus = MapStatus.values.byName(call.arguments as String);
+    for (final listener in _listeners) {
+      listener(_mapStatus);
+    }
   }
 
   Future<void> setInteraction({required bool isEnabled}) {

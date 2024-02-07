@@ -138,6 +138,21 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    required int mapId,
+    double? padding,
+  }) {
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+      "move_camera_to_points",
+      {
+        "points": points.map((p) => p.toMap()).toList(),
+        "padding": padding,
+      },
+    );
+  }
+
+  @override
   Future<bool> zoomIn({
     required int lodFactor,
     required int mapId,
@@ -159,6 +174,19 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       "zoom_out",
       {"lodFactor": lodFactor},
     ).then((value) => value!);
+  }
+
+  @override
+  Future<void> retryLoad(int mapId) async {
+    return _methodChannelBuilder(mapId).invokeMethod("retryLoad");
+  }
+
+  @override
+  Future<void> setMethodCallHandler({
+    required int mapId,
+    required Future<dynamic> Function(MethodCall) onCall,
+  }) async {
+    return _methodChannelBuilder(mapId).setMethodCallHandler(onCall);
   }
 
   @override

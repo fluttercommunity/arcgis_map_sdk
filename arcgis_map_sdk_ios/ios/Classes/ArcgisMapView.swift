@@ -11,6 +11,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionEventChannel: FlutterEventChannel
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
 
+    private var mapLoadStatusObservation: NSKeyValueObservation?
+
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
@@ -115,6 +117,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
+
+        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
+                    DispatchQueue.main.async {
+                        let status = map.loadStatus
+                        self?.notifyStatus(status)
+                    }
+                }
     }
 
     private func setupMethodChannel() {
@@ -125,9 +134,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
+            case "move_camera_to_points": onMoveCameraToPoints(call, result)
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
+            case "retryLoad" : onRetryLoad(call, result)
             case "location_display_start_data_source" : onStartLocationDisplayDataSource(call, result)
             case "location_display_stop_data_source" : onStopLocationDisplayDataSource(call, result)
             case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
@@ -137,7 +148,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             default:
-                result(FlutterError(code: "Unimplemented", message: "No method matching the name\(call.method)", details: nil))
+                result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
         })
     }
@@ -211,6 +222,23 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
 
+    private func onMoveCameraToPoints(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let dict = call.arguments as! Dictionary<String, Any>
+
+        let payload: MoveToPointsPayload = try! JsonUtil.objectOfJson(dict)
+        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
+
+        if(payload.padding != nil) {
+            mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
+                result(success)
+            }
+        } else {
+            mapView.setViewpointGeometry(polyline.extent) { success in
+                result(success)
+            }
+        }
+    }
+
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser()
         var newGraphics = [AGSGraphic]()
@@ -270,7 +298,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         result(true)
     }
-    
+
+    private func onRetryLoad(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+       mapView.map!.retryLoad()
+       result(true)
+    }
+
+    private func notifyStatus(_ status:  AGSLoadStatus) {
+        methodChannel.invokeMethod("onStatusChanged", arguments: status.jsonValue())
+    }
+
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
 
@@ -566,4 +603,28 @@ extension AGSBasemapStyle {
             return nil
         }
     }
+}
+
+extension AGSLoadStatus {
+    func jsonValue()  -> String {
+        switch self {
+        case .loaded:
+            return "loaded"
+        case .loading:
+            return "loading"
+        case .failedToLoad:
+            return "failedToLoad"
+        case .notLoaded:
+            return "notLoaded"
+        case .unknown:
+            return "unknown"
+        @unknown default:
+            return "unknown"
+        }
+    }
+}
+
+struct MoveToPointsPayload : Codable {
+    let points : [LatLng]
+    let padding : Double?
 }
