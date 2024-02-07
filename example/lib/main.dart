@@ -4,7 +4,6 @@ import 'dart:core';
 import 'package:arcgis_example/map_elements.dart';
 import 'package:arcgis_example/vector_layer_example_page.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
-import 'package:arcgis_map_sdk/src/model/map_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
