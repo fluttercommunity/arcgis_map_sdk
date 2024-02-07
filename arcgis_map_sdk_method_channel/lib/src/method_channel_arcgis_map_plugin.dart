@@ -177,6 +177,19 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> retryLoad(int mapId) async {
+    return _methodChannelBuilder(mapId).invokeMethod("retryLoad");
+  }
+
+  @override
+  Future<void> setMethodCallHandler({
+    required int mapId,
+    required Future<dynamic> Function(MethodCall) onCall,
+  }) async {
+    return _methodChannelBuilder(mapId).setMethodCallHandler(onCall);
+  }
+
+  @override
   Stream<double> getZoom(int mapId) {
     _zoomEventStream ??=
         EventChannel("dev.fluttercommunity.arcgis_map_sdk/$mapId/zoom")
