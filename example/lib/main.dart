@@ -453,20 +453,21 @@ class _ExampleMapState extends State<ExampleMap> {
                               );
                             },
                           ),
-                          FloatingActionButton(
-                            heroTag: "3d-map-button",
-                            onPressed: () {
-                              setState(() {
-                                show3dMap = !show3dMap;
-                                _controller?.switchMapStyle(
-                                  show3dMap ? MapStyle.threeD : MapStyle.twoD,
-                                );
-                              });
-                            },
-                            backgroundColor:
-                                show3dMap ? Colors.red : Colors.blue,
-                            child: Text(show3dMap ? '3D' : '2D'),
-                          ),
+                          if (kIsWeb)
+                            FloatingActionButton(
+                              heroTag: "3d-map-button",
+                              onPressed: () {
+                                setState(() {
+                                  show3dMap = !show3dMap;
+                                  _controller?.switchMapStyle(
+                                    show3dMap ? MapStyle.threeD : MapStyle.twoD,
+                                  );
+                                });
+                              },
+                              backgroundColor:
+                                  show3dMap ? Colors.red : Colors.blue,
+                              child: Text(show3dMap ? '3D' : '2D'),
+                            ),
                         ],
                       ),
                       ElevatedButton(
@@ -592,38 +593,41 @@ class _ExampleMapState extends State<ExampleMap> {
                             ? const Text("Stop pos")
                             : const Text("Sub to pos"),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_subscribedToBounds) {
-                            _unsubscribeFromBounds();
-                          } else {
-                            _subscribeToBounds();
-                          }
-                        },
-                        child: _subscribedToBounds
-                            ? const Text("Stop bounds")
-                            : const Text("Sub to bounds"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_subscribedToGraphicsInView) {
-                            _unSubscribeToGraphicsInView();
-                          } else {
-                            _subscribeToGraphicsInView();
-                          }
-                        },
-                        child: _subscribedToGraphicsInView
-                            ? const Text("Stop printing Graphics")
-                            : const Text("Start printing Graphics"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          final graphicIdsInView =
-                              _controller?.getVisibleGraphicIds();
-                          graphicIdsInView?.forEach(debugPrint);
-                        },
-                        child: const Text("Print visible Graphics"),
-                      ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_subscribedToBounds) {
+                              _unsubscribeFromBounds();
+                            } else {
+                              _subscribeToBounds();
+                            }
+                          },
+                          child: _subscribedToBounds
+                              ? const Text("Stop bounds")
+                              : const Text("Sub to bounds"),
+                        ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_subscribedToGraphicsInView) {
+                              _unSubscribeToGraphicsInView();
+                            } else {
+                              _subscribeToGraphicsInView();
+                            }
+                          },
+                          child: _subscribedToGraphicsInView
+                              ? const Text("Stop printing Graphics")
+                              : const Text("Start printing Graphics"),
+                        ),
+                      if (kIsWeb)
+                        ElevatedButton(
+                          onPressed: () {
+                            final graphicIdsInView =
+                                _controller?.getVisibleGraphicIds();
+                            graphicIdsInView?.forEach(debugPrint);
+                          },
+                          child: const Text("Print visible Graphics"),
+                        ),
                       ElevatedButton(
                         onPressed: () {
                           _addPolygon(
@@ -668,16 +672,19 @@ class _ExampleMapState extends State<ExampleMap> {
                         onPressed: () => _controller?.retryLoad(),
                         child: const Text('Reload map'),
                       ),
+                      if (!kIsWeb)
+                        ElevatedButton(
+                          onPressed: () => _makePolylineVisible(
+                            points: [
+                              _firstPinCoordinates,
+                              _secondPinCoordinates
+                            ],
+                          ),
+                          child: const Text('Zoom to polyline'),
+                        ),
                     ],
                   ),
                 ),
-                if (!kIsWeb)
-                  ElevatedButton(
-                    onPressed: () => _makePolylineVisible(
-                      points: [_firstPinCoordinates, _secondPinCoordinates],
-                    ),
-                    child: const Text('Zoom to polyline'),
-                  ),
                 Row(
                   children: [
                     const Text(
