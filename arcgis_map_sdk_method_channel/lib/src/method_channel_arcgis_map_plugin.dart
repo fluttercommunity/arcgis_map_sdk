@@ -177,8 +177,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> reload(int mapId) async {
-    return _methodChannelBuilder(mapId).invokeMethod("reload");
+  Future<void> retryLoad(int mapId) async {
+    return _methodChannelBuilder(mapId).invokeMethod("retryLoad");
   }
 
   @override

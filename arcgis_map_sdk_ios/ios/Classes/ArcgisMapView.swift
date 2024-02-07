@@ -138,7 +138,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
-            case "reload" : onReload(call, result)
+            case "retryLoad" : onRetryLoad(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -291,7 +291,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         result(true)
     }
 
-    private func onReload(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    private func onRetryLoad(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
        mapView.map!.retryLoad()
        result(true)
     }

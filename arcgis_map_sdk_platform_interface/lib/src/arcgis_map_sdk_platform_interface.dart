@@ -162,7 +162,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('zoomOut() has not been implemented.');
   }
 
-  Future<void> reload(int mapId) {
+  Future<void> retryLoad(int mapId) {
     throw UnimplementedError('reload() has not been implemented.');
   }
 

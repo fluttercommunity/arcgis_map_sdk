@@ -665,7 +665,7 @@ class _ExampleMapState extends State<ExampleMap> {
                         child: const Text('Remove red polygon'),
                       ),
                       ElevatedButton(
-                        onPressed: () => _controller?.reload(),
+                        onPressed: () => _controller?.retryLoad(),
                         child: const Text('Reload map'),
                       ),
                     ],

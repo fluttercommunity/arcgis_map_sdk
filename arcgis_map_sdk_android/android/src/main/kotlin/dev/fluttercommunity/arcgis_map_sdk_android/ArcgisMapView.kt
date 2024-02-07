@@ -141,7 +141,7 @@ internal class ArcgisMapView(
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
-                "reload" -> onReload(result = result)
+                "retryLoad" -> onRetryLoad(result = result)
                 else -> result.notImplemented()
             }
         }
@@ -337,7 +337,7 @@ internal class ArcgisMapView(
         result.success(true)
     }
 
-    private fun onReload(result: MethodChannel.Result) {
+    private fun onRetryLoad(result: MethodChannel.Result) {
         mapView.map?.retryLoadAsync()
         result.success(true)
     }
