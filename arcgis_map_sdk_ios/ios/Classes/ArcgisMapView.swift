@@ -10,6 +10,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let zoomStreamHandler = ZoomStreamHandler()
     private let centerPositionEventChannel: FlutterEventChannel
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
+    private let flutterPluginRegistrar: FlutterPluginRegistrar
 
     private let flutterPluginRegistrar: FlutterPluginRegistrar
 
@@ -19,7 +20,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
     private let initialZoom: Int
-    
+
     private var mapView: AGSMapView
     private let map = AGSMap()
     private let graphicsOverlay = AGSGraphicsOverlay()
@@ -70,7 +71,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 print("setLicenseKey failed. \(error)")
             }
         }
-        
+
         initialZoom = Int(mapOptions.zoom)
 
         mapView = AGSMapView.init(frame: frame)
@@ -114,10 +115,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
 
+
         let viewpoint = AGSViewpoint(
-            latitude: mapOptions.initialCenter.latitude,
-            longitude: mapOptions.initialCenter.longitude,
-            scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
+                latitude: mapOptions.initialCenter.latitude,
+                longitude: mapOptions.initialCenter.longitude,
+                scale: getMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
 
@@ -144,6 +146,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "add_graphic": onAddGraphic(call, result)
             case "remove_graphic": onRemoveGraphic(call, result)
             case "toggle_base_map" : onToggleBaseMap(call, result)
+            case "retryLoad" : onRetryLoad(call, result)
             case "location_display_start_data_source" : onStartLocationDisplayDataSource(call, result)
             case "location_display_stop_data_source" : onStopLocationDisplayDataSource(call, result)
             case "location_display_set_default_symbol": onSetLocationDisplayDefaultSymbol(call, result)
@@ -152,7 +155,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_set_use_course_symbol_on_move" : onSetLocationDisplayUseCourseSymbolOnMove(call, result)
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
-            case "reload" : onReload(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -160,6 +162,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
@@ -173,6 +180,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if(mapView.mapScale.isNaN) {
+            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
+            return
+        }
+
         let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
         let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
         let totalZoomLevel = currentZoomLevel - lodFactor
@@ -213,7 +225,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         } else {
             scale = mapView.mapScale.isNaN ? convertZoomLevelToMapScale(initialZoom) : mapView.mapScale
         }
- 
+
         mapView.setViewpoint(
             AGSViewpoint(center: point.toAGSPoint(), scale: scale),
             duration: (animationOptions?.duration ?? 0) / 1000,
@@ -300,7 +312,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         result(true)
     }
 
-    private func onReload(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    private func onRetryLoad(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
        mapView.map!.retryLoad()
        result(true)
     }
@@ -628,4 +640,9 @@ extension AGSLoadStatus {
             return "unknown"
         }
     }
+}
+
+struct MoveToPointsPayload : Codable {
+    let points : [LatLng]
+    let padding : Double?
 }

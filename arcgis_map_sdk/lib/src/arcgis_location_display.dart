@@ -1,5 +1,15 @@
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
+/// The use case for manual location displays is relevant when the application
+/// has its own location stream obtained from a different source, such as a geolocator,
+/// with specific settings.
+///
+/// Instead of relying on ArcGIS to create a location client that fetches the position
+/// again, this use case involves processing the locations retrieved by the application
+/// and displaying the exact location processed by the application.
+///
+/// This approach is beneficial when the application needs to manage its own location data
+/// independently, without relying on additional calls to fetch the location.
 class ArcgisManualLocationDisplay extends ArcgisLocationDisplay {
   @override
   String get type => "manual";

@@ -8,7 +8,7 @@ import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 import dev.fluttercommunity.arcgis_map_sdk_android.ArcgisMapView
 
-class ArcgisMapViewFactory( private val flutterPluginBinding: FlutterPluginBinding) :
+class ArcgisMapViewFactory(private val flutterPluginBinding: FlutterPluginBinding) :
     PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val optionParams = args as Map<String, Any>

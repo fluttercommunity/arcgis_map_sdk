@@ -54,7 +54,7 @@ internal class ArcgisMapView(
     private val context: Context,
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
-    val binding: FlutterPluginBinding,
+    private val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -151,7 +151,7 @@ internal class ArcgisMapView(
                 "add_graphic" -> onAddGraphic(call = call, result = result)
                 "remove_graphic" -> onRemoveGraphic(call = call, result = result)
                 "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
-                "reload" -> onReload(result = result)
+                "retryLoad" -> onRetryLoad(result = result)
                 "location_display_start_data_source" -> onStartLocationDisplayDataSource(result)
                 "location_display_stop_data_source" -> onStopLocationDisplayDataSource(result)
                 "location_display_set_default_symbol" -> onSetLocationDisplayDefaultSymbol(
@@ -236,36 +236,34 @@ internal class ArcgisMapView(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        val active = call.arguments as? Boolean
-        if (active == null) {
+        try {
+            val active = call.arguments as Boolean
+            mapView.locationDisplay.isUseCourseSymbolOnMovement = active
+            result.success(true)
+        } catch (e: Exception) {
             result.error("missing_data", "Invalid arguments.", null)
-            return
         }
-
-        mapView.locationDisplay.isUseCourseSymbolOnMovement = active
-        result.success(true)
     }
 
     private fun onUpdateLocationDisplaySourcePositionManually(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        val dataSource =
-            mapView.locationDisplay.locationDataSource as? ManualLocationDisplayDataSource
-        if (dataSource == null) {
+        try {
+            val dataSource =
+                mapView.locationDisplay.locationDataSource as ManualLocationDisplayDataSource
+            val optionParams = call.arguments as Map<String, Any>
+            val position = optionParams.parseToClass<UserPosition>()
+
+            dataSource.setNewLocation(position)
+            result.success(true)
+        } catch (e: Exception) {
             result.error(
                 "invalid_state",
-                "Expected ManualLocationDataSource but got $dataSource",
+                "Expected ManualLocationDataSource",
                 null
             )
-            return
         }
-
-        val optionParams = call.arguments as Map<String, Any>
-        val position = optionParams.parseToClass<UserPosition>()
-
-        dataSource.setNewLocation(position)
-        result.success(true)
     }
 
     private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
@@ -278,19 +276,28 @@ internal class ArcgisMapView(
             return
         }
 
-        when (call.arguments as String) {
+        when (call.arguments) {
             "manual" -> {
-                mapView.locationDisplay.locationDataSource = ManualLocationDisplayDataSource()
-                result.success(true)
+                try {
+                    mapView.locationDisplay.locationDataSource = ManualLocationDisplayDataSource()
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("Error", "Setting datasource on mapview failed", null)
+                }
             }
 
             "system" -> {
-                mapView.locationDisplay.locationDataSource = AndroidLocationDataSource(context)
-                result.success(true)
+                try {
+                    mapView.locationDisplay.locationDataSource = AndroidLocationDataSource(context)
+                    result.success(true)
+                } catch (e: Exception) {
+                    result.error("Error", "Setting datasource on mapview failed", null)
+                }
             }
 
             else -> result.error("invalid_data", "Unknown data source type ${call.arguments}", null)
         }
+
     }
 
 
@@ -317,11 +324,23 @@ internal class ArcgisMapView(
         EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
 
-        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
+        EventChannel(
+            binding.binaryMessenger,
+            "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
+        )
             .setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel + lodFactor
@@ -341,6 +360,15 @@ internal class ArcgisMapView(
     }
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+        if (mapView.mapScale.isNaN()) {
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
+            return
+        }
+
         val lodFactor = call.argument<Int>("lodFactor")!!
         val currentZoomLevel = getZoomLevel(mapView)
         val totalZoomLevel = currentZoomLevel - lodFactor
@@ -432,8 +460,8 @@ internal class ArcgisMapView(
         val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
         val animationOptions =
-                if (animationOptionMap == null || animationOptionMap.isEmpty()) null
-                else animationOptionMap.parseToClass<AnimationOptions>()
+            if (animationOptionMap.isNullOrEmpty()) null
+            else animationOptionMap.parseToClass<AnimationOptions>()
 
         val scale = if (zoomLevel != null) {
             getMapScale(zoomLevel)
@@ -462,17 +490,18 @@ internal class ArcgisMapView(
     private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
         val arguments = call.arguments as Map<String, Any>
         val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
-                .map { p -> parseToClass<LatLng>(p) }
+            .map { p -> parseToClass<LatLng>(p) }
 
         val padding = arguments["padding"] as Double?
 
         val polyline = Polyline(
-                PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
-                SpatialReferences.getWgs84()
+            PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
+            SpatialReferences.getWgs84()
         )
 
-        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
-        else mapView.setViewpointGeometryAsync(polyline.extent)
+        val future =
+            if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+            else mapView.setViewpointGeometryAsync(polyline.extent)
 
         future.addDoneListener {
             try {
@@ -492,8 +521,8 @@ internal class ArcgisMapView(
         result.success(true)
     }
 
-    private fun onReload(result: MethodChannel.Result) {
-        mapView.map.retryLoadAsync()
+    private fun onRetryLoad(result: MethodChannel.Result) {
+        mapView.map?.retryLoadAsync()
         result.success(true)
     }
 
@@ -514,6 +543,9 @@ internal class ArcgisMapView(
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
     private fun updateMap() {
+        if (mapView.mapScale.isNaN()) {
+            return
+        }
         mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 

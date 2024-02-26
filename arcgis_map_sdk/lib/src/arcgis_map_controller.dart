@@ -8,12 +8,11 @@ typedef MapStatusListener = void Function(MapStatus status);
 class ArcgisMapController {
   ArcgisMapController._({
     required this.mapId,
-  }) {
+  }) : _locationDisplay = ArcgisLocationDisplay(mapId: mapId) {
     ArcgisMapPlatform.instance.setMethodCallHandler(
       mapId: mapId,
       onCall: _onCall,
     );
-    _locationDisplay = ArcgisLocationDisplay(mapId: mapId);
   }
 
   final int mapId;
@@ -189,13 +188,18 @@ class ArcgisMapController {
     );
   }
 
+  /// Adds a listener that gets notified if the map status changes.
+  /// The listener can be removed by calling the [VoidCallback] returned by this function.
   VoidCallback addStatusChangeListener(MapStatusListener listener) {
     _listeners.add(listener);
     return () => _listeners.removeWhere((l) => l == listener);
   }
 
-  Future<void> reload() {
-    return ArcgisMapPlatform.instance.reload(mapId);
+  /// Calling native `retryLoadAsync` (android) and `retryLoad` (swift)
+  /// https://developers.arcgis.com/kotlin/api-reference/arcgis-maps-kotlin/com.arcgismaps/-loadable/retry-load.html
+  /// This does not trigger `onMapCreated` since it will only try, if there is an error
+  Future<void> retryLoad() {
+    return ArcgisMapPlatform.instance.retryLoad(mapId);
   }
 
   void _notifyStatusChanged(MethodCall call) {
