@@ -47,14 +47,14 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         return graphics
     }
 
-        private fun parsePoint(map: Map<String, Any>): List<Graphic> {
-            val point = (map["point"] as Map<String, Any>).parseToClass<LatLng>()
-            val symbolMap = map["symbol"] as Map<String, Any>
+    private fun parsePoint(map: Map<String, Any>): List<Graphic> {
+        val point = (map["point"] as Map<String, Any>).parseToClass<LatLng>()
+        val symbolMap = map["symbol"] as Map<String, Any>
 
-            val pointGraphic = Graphic().apply {
-                geometry = point.toAGSPoint()
-                symbol = parseSymbol(symbolMap)
-            }
+        val pointGraphic = Graphic().apply {
+            geometry = point.toAGSPoint()
+            symbol = parseSymbol(symbolMap)
+        }
 
         return listOf(pointGraphic)
     }
@@ -63,23 +63,23 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         val points = parseToClass<List<List<List<Double>>>>(map["paths"]!!)
         val symbolMap = map["symbol"] as Map<String, Any>
 
-            return points.map { subPoints ->
-                Graphic().apply {
-                    geometry = Polyline(PointCollection(subPoints.map { coordinateArray ->
-                        val x = coordinateArray.elementAtOrNull(0)
-                        val y = coordinateArray.elementAtOrNull(1)
-                        val z = coordinateArray.elementAtOrNull(2)
-                        if (x == null || y == null) {
-                            throw Exception("Coordinate array needs at least 2 doubles. Got $coordinateArray")
-                        }
+        return points.map { subPoints ->
+            Graphic().apply {
+                geometry = Polyline(PointCollection(subPoints.map { coordinateArray ->
+                    val x = coordinateArray.elementAtOrNull(0)
+                    val y = coordinateArray.elementAtOrNull(1)
+                    val z = coordinateArray.elementAtOrNull(2)
+                    if (x == null || y == null) {
+                        throw Exception("Coordinate array needs at least 2 doubles. Got $coordinateArray")
+                    }
 
-                        if (z != null) Point(x, y, z, SpatialReferences.getWgs84())
-                        else Point(x, y, SpatialReferences.getWgs84())
-                    }))
-                    symbol = parseSymbol(symbolMap)
-                }
+                    if (z != null) Point(x, y, z, SpatialReferences.getWgs84())
+                    else Point(x, y, SpatialReferences.getWgs84())
+                }))
+                symbol = parseSymbol(symbolMap)
             }
         }
+
     }
 
     private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
@@ -124,17 +124,9 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
     private fun parsePictureMarkerSymbol(map: Map<String, Any>): Symbol {
         val payload = map.parseToClass<PictureMarkerSymbolPayload>()
 
-            // return local asset in case its a local path
-            if(!payload.assetUri.isWebUrl()) {
-                return PictureMarkerSymbol(getBitmapFromAssetPath(payload.assetUri)).apply {
-                    width = payload.width.toFloat()
-                    height = payload.height.toFloat()
-                    offsetX = payload.xOffset.toFloat()
-                    offsetY = payload.yOffset.toFloat()
-                }
-            }
-
-            return PictureMarkerSymbol(payload.assetUri).apply {
+        // return local asset in case its a local path
+        if (!payload.assetUri.isWebUrl()) {
+            return PictureMarkerSymbol(getBitmapFromAssetPath(payload.assetUri)).apply {
                 width = payload.width.toFloat()
                 height = payload.height.toFloat()
                 offsetX = payload.xOffset.toFloat()
@@ -150,24 +142,24 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         }
     }
 
-        private fun getBitmapFromAssetPath(asset:String): BitmapDrawable? {
-            val assetPath: String = binding
-                    .flutterAssets
-                    .getAssetFilePathBySubpath(asset)
+    private fun getBitmapFromAssetPath(asset: String): BitmapDrawable? {
+        val assetPath: String = binding
+            .flutterAssets
+            .getAssetFilePathBySubpath(asset)
 
-            var inputStream: InputStream? = null
-            val drawable: BitmapDrawable?
-            try {
-                inputStream = binding.applicationContext.assets.open(assetPath)
-                drawable =  BitmapDrawable.createFromStream(inputStream,assetPath) as BitmapDrawable
-            } finally {
-                inputStream?.close()
-            }
-            return drawable
+        var inputStream: InputStream? = null
+        val drawable: BitmapDrawable?
+        try {
+            inputStream = binding.applicationContext.assets.open(assetPath)
+            drawable = BitmapDrawable.createFromStream(inputStream, assetPath) as BitmapDrawable
+        } finally {
+            inputStream?.close()
         }
+        return drawable
+    }
 
-        private fun parseSimpleFillSymbol(map: Map<String, Any>): Symbol {
-            val payload = map.parseToClass<SimpleFillSymbolPayload>()
+    private fun parseSimpleFillSymbol(map: Map<String, Any>): Symbol {
+        val payload = map.parseToClass<SimpleFillSymbolPayload>()
 
         return SimpleFillSymbol().apply {
             color = payload.fillColor.toHexInt()
