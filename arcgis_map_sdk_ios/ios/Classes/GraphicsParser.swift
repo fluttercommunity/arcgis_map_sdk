@@ -9,6 +9,12 @@ import Foundation
 import ArcGIS
 
 class GraphicsParser {
+    let registrar: FlutterPluginRegistrar
+
+    init(registrar: FlutterPluginRegistrar) {
+        self.registrar = registrar
+    }
+
     func parse(dictionary: Dictionary<String, Any>) throws -> [AGSGraphic] {
         let type = dictionary["type"] as! String
 
@@ -129,13 +135,29 @@ class GraphicsParser {
     private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
         let payload: PictureMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        let symbol = AGSPictureMarkerSymbol(url: URL(string: payload.url)!)
+        if(!payload.assetUri.isWebUrl()) {
+            let uiImage = getFlutterUiImage(payload.assetUri)
+            let symbol = AGSPictureMarkerSymbol(image: uiImage!)
+            symbol.width = payload.width
+            symbol.height = payload.height
+            symbol.offsetX = payload.xOffset
+            symbol.offsetY = payload.yOffset
+            return symbol
+        }
+
+        let symbol = AGSPictureMarkerSymbol(url: URL(string: payload.assetUri)!)
         symbol.width = payload.width
         symbol.height = payload.height
         symbol.offsetX = payload.xOffset
         symbol.offsetY = payload.yOffset
 
         return symbol
+    }
+
+    private func getFlutterUiImage(_ fileName: String) -> UIImage? {
+            let key = registrar.lookupKey(forAsset: fileName)
+        let path = Bundle.main.path(forResource: key, ofType: nil)
+        return UIImage(named: path!)
     }
 
     private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
@@ -165,4 +187,10 @@ private struct PathPayload: Codable {
 
 private struct PolygonPayload: Codable {
     let rings: [[[Double]]]
+}
+
+extension String {
+    func isWebUrl()-> Bool {
+        return starts(with: "https://") || starts(with: "http://")
+    }
 }

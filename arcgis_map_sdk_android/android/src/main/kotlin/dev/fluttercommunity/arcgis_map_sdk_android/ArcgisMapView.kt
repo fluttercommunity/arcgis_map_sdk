@@ -4,9 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
-import com.esri.arcgisruntime.geometry.Geometry
 import com.esri.arcgisruntime.geometry.GeometryEngine
-import com.esri.arcgisruntime.geometry.Multipoint
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polyline
@@ -35,7 +33,7 @@ import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
 import dev.fluttercommunity.arcgis_map_sdk_android.model.UserPosition
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
-import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -52,20 +50,21 @@ import kotlin.math.roundToInt
 internal class ArcgisMapView(
     private val context: Context,
     private val viewId: Int,
-    private val binaryMessenger: BinaryMessenger,
     private val mapOptions: ArcgisMapOptions,
+    private val binding: FlutterPluginBinding,
 ) : PlatformView {
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
     private val map = ArcGISMap()
     private val defaultGraphicsOverlay = GraphicsOverlay()
+    private val graphicsParser = GraphicsParser(binding)
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
 
     private val methodChannel =
-        MethodChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
+        MethodChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
 
     override fun getView(): View = view
 
@@ -302,7 +301,7 @@ internal class ArcgisMapView(
     ) {
         try {
             val map = call.arguments as Map<String, Any>
-            val symbol = GraphicsParser.parseSymbol(map)
+            val symbol = graphicsParser.parseSymbol(map)
             function(symbol)
             result.success(true)
         } catch (e: Throwable) {
@@ -315,16 +314,23 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
+        EventChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom")
             .setStreamHandler(zoomStreamHandler)
 
-        EventChannel(binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition")
+        EventChannel(
+            binding.binaryMessenger,
+            "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
+        )
             .setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.mapScale.isNaN()) {
-            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
             return
         }
 
@@ -348,7 +354,11 @@ internal class ArcgisMapView(
 
     private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.mapScale.isNaN()) {
-            result.error("Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null)
+            result.error(
+                "Error",
+                "MapView.mapScale is NaN. Maybe the map is not completely loaded.",
+                null
+            )
             return
         }
 
@@ -396,7 +406,7 @@ internal class ArcgisMapView(
         val graphicArguments = call.arguments as Map<String, Any>
         lateinit var newGraphic: List<Graphic>
         try {
-            newGraphic = GraphicsParser.parse(graphicArguments)
+            newGraphic = graphicsParser.parse(graphicArguments)
         } catch (e: Throwable) {
             result.error("unknown_error", "Error while adding graphic. $e)", null)
             return
@@ -480,8 +490,9 @@ internal class ArcgisMapView(
             SpatialReferences.getWgs84()
         )
 
-        val future = if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
-        else mapView.setViewpointGeometryAsync(polyline.extent)
+        val future =
+            if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+            else mapView.setViewpointGeometryAsync(polyline.extent)
 
         future.addDoneListener {
             try {

@@ -5,7 +5,7 @@
 import Foundation
 
 struct PictureMarkerSymbolPayload: Codable {
-    let url: String
+    let assetUri: String
     let width: Double
     let height: Double
     let xOffset: Double
