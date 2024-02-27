@@ -641,8 +641,3 @@ extension AGSLoadStatus {
         }
     }
 }
-
-struct MoveToPointsPayload : Codable {
-    let points : [LatLng]
-    let padding : Double?
-}
