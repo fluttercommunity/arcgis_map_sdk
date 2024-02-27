@@ -12,8 +12,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
     private let flutterPluginRegistrar: FlutterPluginRegistrar
 
-    private let flutterPluginRegistrar: FlutterPluginRegistrar
-
     private var mapLoadStatusObservation: NSKeyValueObservation?
 
     private var mapScaleObservation: NSKeyValueObservation?
@@ -119,7 +117,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let viewpoint = AGSViewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
-                scale: getMapScale(Int(mapOptions.zoom))
+                scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
 
