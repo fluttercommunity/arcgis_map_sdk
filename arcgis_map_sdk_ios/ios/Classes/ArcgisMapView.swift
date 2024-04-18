@@ -241,7 +241,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         do {
-            let point: LatLng = try JsonUtil.objectOfJson(args)
+            let point: LatLng = try JsonUtil.objectOfJson(args["point"] as! Dictionary<String, Any>)
             let zoomLevel = args["zoomLevel"] as? Int
             let animationDict = args["animationOptions"] as? Dictionary<String, Any>
             let animationOptions: AnimationOptions? = animationDict == nil ? nil : try JsonUtil.objectOfJson(animationDict!)
