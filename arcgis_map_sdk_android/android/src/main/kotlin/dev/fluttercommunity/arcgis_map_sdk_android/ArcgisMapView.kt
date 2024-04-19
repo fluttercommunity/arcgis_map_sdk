@@ -190,36 +190,40 @@ internal class ArcgisMapView(
     }
 
     private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
-        val future = mapView.locationDisplay.locationDataSource.startAsync()
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, null)
-            }
+        try {
+            val future = mapView.locationDisplay.locationDataSource.startAsync()
+            future.addDoneListener { result.success(future.get()) }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
-        val future = mapView.locationDisplay.locationDataSource.stopAsync()
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, null)
-            }
+        try {
+            val future = mapView.locationDisplay.locationDataSource.stopAsync()
+            result.success(future.get())
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {
-        operationWithSymbol(call, result) { symbol ->
-            mapView.locationDisplay.defaultSymbol = symbol
+        try {
+            operationWithSymbol(call, result) { symbol ->
+                mapView.locationDisplay.defaultSymbol = symbol
+            }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onSetLocationDisplayAccuracySymbol(call: MethodCall, result: MethodChannel.Result) {
-        operationWithSymbol(call, result) { symbol ->
-            mapView.locationDisplay.accuracySymbol = symbol
+        try {
+            operationWithSymbol(call, result) { symbol ->
+                mapView.locationDisplay.accuracySymbol = symbol
+            }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
@@ -227,8 +231,12 @@ internal class ArcgisMapView(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        operationWithSymbol(call, result) { symbol ->
-            mapView.locationDisplay.pingAnimationSymbol = symbol
+        try {
+            operationWithSymbol(call, result) { symbol ->
+                mapView.locationDisplay.pingAnimationSymbol = symbol
+            }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
@@ -341,21 +349,18 @@ internal class ArcgisMapView(
             return
         }
 
-        val lodFactor = call.argument<Int>("lodFactor")!!
-        val currentZoomLevel = getZoomLevel(mapView)
-        val totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel > mapOptions.maxZoom) {
-            return
-        }
-        val newScale = getMapScale(totalZoomLevel)
-        val future = mapView.setViewpointScaleAsync(newScale)
-        future.addDoneListener {
-            try {
-                val isSuccessful = future.get()
-                result.success(isSuccessful)
-            } catch (e: Exception) {
-                result.error("Error", e.message, null)
+        try {
+            val lodFactor = call.argument<Int>("lodFactor")!!
+            val currentZoomLevel = getZoomLevel(mapView)
+            val totalZoomLevel = currentZoomLevel + lodFactor
+            if (totalZoomLevel > mapOptions.maxZoom) {
+                return
             }
+            val newScale = getMapScale(totalZoomLevel)
+            val future = mapView.setViewpointScaleAsync(newScale)
+            future.addDoneListener { result.success(future.get()) }
+        } catch (e: Exception) {
+            result.error("Error", e.message, null)
         }
     }
 
@@ -369,161 +374,180 @@ internal class ArcgisMapView(
             return
         }
 
-        val lodFactor = call.argument<Int>("lodFactor")!!
-        val currentZoomLevel = getZoomLevel(mapView)
-        val totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel < mapOptions.minZoom) {
-            return
-        }
-        val newScale = getMapScale(totalZoomLevel)
-        val future = mapView.setViewpointScaleAsync(newScale)
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, e)
+        try {
+            val lodFactor = call.argument<Int>("lodFactor")!!
+            val currentZoomLevel = getZoomLevel(mapView)
+            val totalZoomLevel = currentZoomLevel - lodFactor
+            if (totalZoomLevel < mapOptions.minZoom) {
+                return
             }
+            val newScale = getMapScale(totalZoomLevel)
+            val future = mapView.setViewpointScaleAsync(newScale)
+            future.addDoneListener { result.success(future.get()) }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onAddViewPadding(call: MethodCall, result: MethodChannel.Result) {
-        val optionParams = call.arguments as Map<String, Any>
-        val viewPadding = optionParams.parseToClass<ViewPadding>()
+        try {
+            val optionParams = call.arguments as Map<String, Any>
+            val viewPadding = optionParams.parseToClass<ViewPadding>()
 
-        // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
-        mapView.setViewInsets(
-            viewPadding.left,
-            viewPadding.top,
-            viewPadding.right,
-            viewPadding.bottom
-        )
+            // https://developers.arcgis.com/android/api-reference/reference/com/esri/arcgisruntime/mapping/view/MapView.html#setViewInsets(double,double,double,double)
+            mapView.setViewInsets(
+                viewPadding.left,
+                viewPadding.top,
+                viewPadding.right,
+                viewPadding.bottom
+            )
 
-        result.success(true)
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
+        }
     }
 
     private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
-        val enabled = call.argument<Boolean>("enabled")!!
+        try {
+            val enabled = call.argument<Boolean>("enabled")!!
 
-        setMapInteraction(enabled = enabled)
+            setMapInteraction(enabled = enabled)
 
-        result.success(true)
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
+        }
     }
 
     private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
-        val graphicArguments = call.arguments as Map<String, Any>
-        lateinit var newGraphic: List<Graphic>
         try {
+            val graphicArguments = call.arguments as Map<String, Any>
+            lateinit var newGraphic: List<Graphic>
             newGraphic = graphicsParser.parse(graphicArguments)
-        } catch (e: Throwable) {
-            result.error("unknown_error", "Error while adding graphic. $e)", null)
-            return
+            val existingIds =
+                defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
+            val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
+            if (existingIds.any(newIds::contains)) {
+                result.success(false)
+                return
+            }
+
+            defaultGraphicsOverlay.graphics.addAll(newGraphic)
+
+            updateMap()
+
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("unknown_error", "Error while adding graphic.", e)
         }
-
-        val existingIds =
-            defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
-        val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
-
-        if (existingIds.any(newIds::contains)) {
-            result.success(false)
-            return
-        }
-
-        defaultGraphicsOverlay.graphics.addAll(newGraphic)
-
-        updateMap()
-
-        result.success(true)
     }
 
     private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
-        val graphicId = call.arguments as String
+        try {
+            val graphicId = call.arguments as String
 
 
-        val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
-            val id = graphic.attributes["id"] as? String
-            graphicId == id
+            val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
+                val id = graphic.attributes["id"] as? String
+                graphicId == id
+            }
+
+            // Don't use removeAll because this will not trigger a redraw.
+            graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
+
+            updateMap()
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("unknown_error", "Error while removing graphic.", e)
         }
-
-        // Don't use removeAll because this will not trigger a redraw.
-        graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
-
-        updateMap()
-        result.success(true)
     }
 
     private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
-        val arguments = call.arguments as Map<String, Any>
-        val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
+        try {
+            val arguments = call.arguments as Map<String, Any>
+            val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
 
-        val zoomLevel = call.argument<Int>("zoomLevel")
+            val zoomLevel = call.argument<Int>("zoomLevel")
 
-        val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
+            val animationOptionMap = (arguments["animationOptions"] as Map<String, Any>?)
 
-        val animationOptions =
-            if (animationOptionMap.isNullOrEmpty()) null
-            else animationOptionMap.parseToClass<AnimationOptions>()
+            val animationOptions =
+                if (animationOptionMap.isNullOrEmpty()) null
+                else animationOptionMap.parseToClass<AnimationOptions>()
 
-        val scale = if (zoomLevel != null) {
-            getMapScale(zoomLevel)
-        } else if (!mapView.mapScale.isNaN()) {
-            mapView.mapScale
-        } else {
-            getMapScale(initialZoom)
-        }
-
-        val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
-        val future = mapView.setViewpointAsync(
-            initialViewPort,
-            (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-            animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
-        )
-
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Throwable) {
-                result.error("Error", e.message, e)
+            val scale = if (zoomLevel != null) {
+                getMapScale(zoomLevel)
+            } else if (!mapView.mapScale.isNaN()) {
+                mapView.mapScale
+            } else {
+                getMapScale(initialZoom)
             }
+
+            val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
+            val future = mapView.setViewpointAsync(
+                initialViewPort,
+                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+            )
+            future.addDoneListener {
+                result.success(future.get())
+            }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
-        val arguments = call.arguments as Map<String, Any>
-        val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
-            .map { p -> parseToClass<LatLng>(p) }
+        try {
+            val arguments = call.arguments as Map<String, Any>
+            val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>)
+                .map { p -> parseToClass<LatLng>(p) }
 
-        val padding = arguments["padding"] as Double?
+            val padding = arguments["padding"] as Double?
 
-        val polyline = Polyline(
-            PointCollection(latLongs.map { latLng -> Point(latLng.longitude, latLng.latitude) }),
-            SpatialReferences.getWgs84()
-        )
+            val polyline = Polyline(
+                PointCollection(latLongs.map { latLng ->
+                    Point(
+                        latLng.longitude,
+                        latLng.latitude
+                    )
+                }),
+                SpatialReferences.getWgs84()
+            )
 
-        val future =
-            if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
-            else mapView.setViewpointGeometryAsync(polyline.extent)
+            val future =
+                if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
+                else mapView.setViewpointGeometryAsync(polyline.extent)
 
-        future.addDoneListener {
-            try {
+            future.addDoneListener {
                 result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, e)
             }
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
         }
     }
 
     private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
-        val newStyle = gson.fromJson<BasemapStyle>(
-            call.arguments as String,
-            object : TypeToken<BasemapStyle>() {}.type
-        )
-        map.basemap = Basemap(newStyle)
-        result.success(true)
+        try {
+            val newStyle = gson.fromJson<BasemapStyle>(
+                call.arguments as String,
+                object : TypeToken<BasemapStyle>() {}.type
+            )
+            map.basemap = Basemap(newStyle)
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
+        }
     }
 
     private fun onRetryLoad(result: MethodChannel.Result) {
-        mapView.map?.retryLoadAsync()
-        result.success(true)
+        try {
+            mapView.map?.retryLoadAsync()
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("Error", e.message, e)
+        }
     }
 
     /**
