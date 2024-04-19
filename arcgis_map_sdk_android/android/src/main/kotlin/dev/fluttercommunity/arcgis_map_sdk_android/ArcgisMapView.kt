@@ -4,9 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
-import com.esri.arcgisruntime.geometry.Geometry
+import com.esri.arcgisruntime.concurrent.ListenableFuture
 import com.esri.arcgisruntime.geometry.GeometryEngine
-import com.esri.arcgisruntime.geometry.Multipoint
 import com.esri.arcgisruntime.geometry.Point
 import com.esri.arcgisruntime.geometry.PointCollection
 import com.esri.arcgisruntime.geometry.Polyline
@@ -36,7 +35,6 @@ import dev.fluttercommunity.arcgis_map_sdk_android.model.UserPosition
 import dev.fluttercommunity.arcgis_map_sdk_android.model.ViewPadding
 import dev.fluttercommunity.arcgis_map_sdk_android.util.GraphicsParser
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -190,45 +188,22 @@ internal class ArcgisMapView(
     }
 
     private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
-        val future = mapView.locationDisplay.locationDataSource.startAsync()
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, e)
-            }
-        }
+        result.finishWithFuture { mapView.locationDisplay.locationDataSource.startAsync() }
     }
 
     private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
-        val future = mapView.locationDisplay.locationDataSource.stopAsync()
-        future.addDoneListener {
-            try {
-                result.success(future.get())
-            } catch (e: Exception) {
-                result.error("Error", e.message, e)
-
-            }
-        }
+        result.finishWithFuture { mapView.locationDisplay.locationDataSource.stopAsync() }
     }
 
     private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {
-        try {
-            operationWithSymbol(call, result) { symbol ->
-                mapView.locationDisplay.defaultSymbol = symbol
-            }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        finishOperationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.defaultSymbol = symbol
         }
     }
 
     private fun onSetLocationDisplayAccuracySymbol(call: MethodCall, result: MethodChannel.Result) {
-        try {
-            operationWithSymbol(call, result) { symbol ->
-                mapView.locationDisplay.accuracySymbol = symbol
-            }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        finishOperationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.accuracySymbol = symbol
         }
     }
 
@@ -236,12 +211,8 @@ internal class ArcgisMapView(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        try {
-            operationWithSymbol(call, result) { symbol ->
-                mapView.locationDisplay.pingAnimationSymbol = symbol
-            }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        finishOperationWithSymbol(call, result) { symbol ->
+            mapView.locationDisplay.pingAnimationSymbol = symbol
         }
     }
 
@@ -253,8 +224,8 @@ internal class ArcgisMapView(
             val active = call.arguments as Boolean
             mapView.locationDisplay.isUseCourseSymbolOnMovement = active
             result.success(true)
-        } catch (e: Exception) {
-            result.error("missing_data", "Invalid arguments.", null)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -270,12 +241,8 @@ internal class ArcgisMapView(
 
             dataSource.setNewLocation(position)
             result.success(true)
-        } catch (e: Exception) {
-            result.error(
-                "invalid_state",
-                "Expected ManualLocationDataSource",
-                null
-            )
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -294,8 +261,8 @@ internal class ArcgisMapView(
                 try {
                     mapView.locationDisplay.locationDataSource = ManualLocationDisplayDataSource()
                     result.success(true)
-                } catch (e: Exception) {
-                    result.error("Error", "Setting datasource on mapview failed", null)
+                } catch (e: Throwable) {
+                    result.finishWithError(e, info = "Setting datasource on mapview failed")
                 }
             }
 
@@ -303,8 +270,8 @@ internal class ArcgisMapView(
                 try {
                     mapView.locationDisplay.locationDataSource = AndroidLocationDataSource(context)
                     result.success(true)
-                } catch (e: Exception) {
-                    result.error("Error", "Setting datasource on mapview failed", null)
+                } catch (e: Throwable) {
+                    result.finishWithError(e, "Setting datasource on mapview failed")
                 }
             }
 
@@ -313,22 +280,6 @@ internal class ArcgisMapView(
 
     }
 
-
-    private fun operationWithSymbol(
-        call: MethodCall,
-        result: MethodChannel.Result,
-        function: (Symbol) -> Unit
-    ) {
-        try {
-            val map = call.arguments as Map<String, Any>
-            val symbol = graphicsParser.parseSymbol(map)
-            function(symbol)
-            result.success(true)
-        } catch (e: Throwable) {
-            result.error("unknown_error", "Error while adding graphic. $e)", null)
-            return
-        }
-    }
 
     private fun setupEventChannel() {
         zoomStreamHandler = ZoomStreamHandler()
@@ -362,16 +313,9 @@ internal class ArcgisMapView(
                 return
             }
             val newScale = getMapScale(totalZoomLevel)
-            val future = mapView.setViewpointScaleAsync(newScale)
-            future.addDoneListener {
-                try {
-                    result.success(future.get())
-                } catch (e: Exception) {
-                    result.error("Error", e.message, null)
-                }
-            }
-        } catch (e: Exception) {
-            result.error("Error", e.message, null)
+            result.finishWithFuture { mapView.setViewpointScaleAsync(newScale) }
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -393,16 +337,9 @@ internal class ArcgisMapView(
                 return
             }
             val newScale = getMapScale(totalZoomLevel)
-            val future = mapView.setViewpointScaleAsync(newScale)
-            future.addDoneListener {
-                try {
-                    result.success(future.get())
-                } catch (e: Exception) {
-                    result.error("Error", e.message, e)
-                }
-            }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+            result.finishWithFuture { mapView.setViewpointScaleAsync(newScale) }
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -420,28 +357,26 @@ internal class ArcgisMapView(
             )
 
             result.success(true)
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
     private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
         try {
             val enabled = call.argument<Boolean>("enabled")!!
-
             setMapInteraction(enabled = enabled)
 
             result.success(true)
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
     private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
         try {
             val graphicArguments = call.arguments as Map<String, Any>
-            lateinit var newGraphic: List<Graphic>
-            newGraphic = graphicsParser.parse(graphicArguments)
+            val newGraphic: List<Graphic> = graphicsParser.parse(graphicArguments)
             val existingIds =
                 defaultGraphicsOverlay.graphics.mapNotNull { it.attributes["id"] as? String }
             val newIds = newGraphic.mapNotNull { it.attributes["id"] as? String }
@@ -452,11 +387,13 @@ internal class ArcgisMapView(
 
             defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
-            updateMap()
 
-            result.success(true)
-        } catch (e: Exception) {
-            result.error("unknown_error", "Error while adding graphic.", e)
+            when (val future = updateMap()) {
+                null -> result.success(false)
+                else -> result.finishWithFuture { future }
+            }
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -475,8 +412,8 @@ internal class ArcgisMapView(
 
             updateMap()
             result.success(true)
-        } catch (e: Exception) {
-            result.error("unknown_error", "Error while removing graphic.", e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -502,20 +439,15 @@ internal class ArcgisMapView(
             }
 
             val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
-            val future = mapView.setViewpointAsync(
-                initialViewPort,
-                (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
-                animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
-            )
-            future.addDoneListener {
-                try {
-                    result.success(future.get())
-                } catch (e: Exception) {
-                    result.error("Error", e.message, e)
-                }
+            result.finishWithFuture {
+                mapView.setViewpointAsync(
+                    initialViewPort,
+                    (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
+                    animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
+                )
             }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -537,19 +469,12 @@ internal class ArcgisMapView(
                 SpatialReferences.getWgs84()
             )
 
-            val future =
+            result.finishWithFuture {
                 if (padding != null) mapView.setViewpointGeometryAsync(polyline.extent, padding)
                 else mapView.setViewpointGeometryAsync(polyline.extent)
-
-            future.addDoneListener {
-                try {
-                    result.success(future.get())
-                } catch (e: Exception) {
-                    result.error("Error", e.message, e)
-                }
             }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -561,8 +486,8 @@ internal class ArcgisMapView(
             )
             map.basemap = Basemap(newStyle)
             result.success(true)
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        } catch (e: Throwable) {
+            result.finishWithError(e)
         }
     }
 
@@ -571,7 +496,7 @@ internal class ArcgisMapView(
             mapView.map?.retryLoadAsync()
             result.success(true)
         } catch (e: Exception) {
-            result.error("Error", e.message, e)
+            result.finishWithError(e)
         }
     }
 
@@ -591,11 +516,11 @@ internal class ArcgisMapView(
      * The corresponding issue in the esri forum can be found here:
      * https://community.esri.com/t5/arcgis-runtime-sdk-for-android-questions/mapview-graphicsoverlays-add-does-not-update-the/m-p/1240825#M5931
      */
-    private fun updateMap() {
+    private fun updateMap(): ListenableFuture<Boolean>? {
         if (mapView.mapScale.isNaN()) {
-            return
+            return null
         }
-        mapView.setViewpointScaleAsync(mapView.mapScale)
+        return mapView.setViewpointScaleAsync(mapView.mapScale)
     }
 
     /**
@@ -614,6 +539,48 @@ internal class ArcgisMapView(
             isRotateEnabled = enabled
             isZoomEnabled = enabled
             isEnabled = enabled
+        }
+    }
+
+    // region helper methods
+
+    private fun MethodChannel.Result.finishWithFuture(function: () -> ListenableFuture<*>) {
+        try {
+            val future = function()
+            future.addDoneListener {
+                try {
+                    future.get()
+                    success(true)
+                } catch (e: Throwable) {
+                    finishWithError(e)
+                }
+            }
+        } catch (e: Throwable) {
+            finishWithError(e)
+        }
+    }
+
+    private fun MethodChannel.Result.finishWithError(e: Throwable, info: String? = null) {
+        val msg = StringBuilder().apply {
+            if (info != null) append(info)
+            append(e.localizedMessage ?: e.message ?: "$e")
+        }.toString()
+        error("unknown_error", msg, null)
+    }
+
+
+    private fun finishOperationWithSymbol(
+        call: MethodCall,
+        result: MethodChannel.Result,
+        function: (Symbol) -> Unit
+    ) {
+        try {
+            val map = call.arguments as Map<String, Any>
+            val symbol = graphicsParser.parseSymbol(map)
+            function(symbol)
+            result.success(true)
+        } catch (e: Throwable) {
+            result.finishWithError(e, info = "Error while adding graphic.")
         }
     }
 
