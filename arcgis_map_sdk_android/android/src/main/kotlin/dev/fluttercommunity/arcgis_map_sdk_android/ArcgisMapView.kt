@@ -190,20 +190,25 @@ internal class ArcgisMapView(
     }
 
     private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
-        try {
-            val future = mapView.locationDisplay.locationDataSource.startAsync()
-            future.addDoneListener { result.success(future.get()) }
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        val future = mapView.locationDisplay.locationDataSource.startAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, e)
+            }
         }
     }
 
     private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
-        try {
-            val future = mapView.locationDisplay.locationDataSource.stopAsync()
-            result.success(future.get())
-        } catch (e: Exception) {
-            result.error("Error", e.message, e)
+        val future = mapView.locationDisplay.locationDataSource.stopAsync()
+        future.addDoneListener {
+            try {
+                result.success(future.get())
+            } catch (e: Exception) {
+                result.error("Error", e.message, e)
+
+            }
         }
     }
 
@@ -358,7 +363,13 @@ internal class ArcgisMapView(
             }
             val newScale = getMapScale(totalZoomLevel)
             val future = mapView.setViewpointScaleAsync(newScale)
-            future.addDoneListener { result.success(future.get()) }
+            future.addDoneListener {
+                try {
+                    result.success(future.get())
+                } catch (e: Exception) {
+                    result.error("Error", e.message, null)
+                }
+            }
         } catch (e: Exception) {
             result.error("Error", e.message, null)
         }
@@ -383,7 +394,13 @@ internal class ArcgisMapView(
             }
             val newScale = getMapScale(totalZoomLevel)
             val future = mapView.setViewpointScaleAsync(newScale)
-            future.addDoneListener { result.success(future.get()) }
+            future.addDoneListener {
+                try {
+                    result.success(future.get())
+                } catch (e: Exception) {
+                    result.error("Error", e.message, e)
+                }
+            }
         } catch (e: Exception) {
             result.error("Error", e.message, e)
         }
@@ -491,7 +508,11 @@ internal class ArcgisMapView(
                 animationOptions?.animationCurve ?: AnimationCurve.LINEAR,
             )
             future.addDoneListener {
-                result.success(future.get())
+                try {
+                    result.success(future.get())
+                } catch (e: Exception) {
+                    result.error("Error", e.message, e)
+                }
             }
         } catch (e: Exception) {
             result.error("Error", e.message, e)
@@ -521,7 +542,11 @@ internal class ArcgisMapView(
                 else mapView.setViewpointGeometryAsync(polyline.extent)
 
             future.addDoneListener {
-                result.success(future.get())
+                try {
+                    result.success(future.get())
+                } catch (e: Exception) {
+                    result.error("Error", e.message, e)
+                }
             }
         } catch (e: Exception) {
             result.error("Error", e.message, e)
