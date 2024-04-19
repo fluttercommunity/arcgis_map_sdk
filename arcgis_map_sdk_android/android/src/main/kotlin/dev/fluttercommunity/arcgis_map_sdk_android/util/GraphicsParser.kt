@@ -79,7 +79,6 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
                 symbol = parseSymbol(symbolMap)
             }
         }
-
     }
 
     private fun parsePolygon(map: Map<String, Any>): List<Graphic> {
