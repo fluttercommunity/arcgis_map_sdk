@@ -6,6 +6,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+import dev.fluttercommunity.arcgis_map_sdk_android.ArcgisMapView
 
 class ArcgisMapViewFactory(private val flutterPluginBinding: FlutterPluginBinding) :
     PlatformViewFactory(StandardMessageCodec.INSTANCE) {

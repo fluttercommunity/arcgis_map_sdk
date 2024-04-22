@@ -17,6 +17,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
 
+    private let initialZoom: Int
+
     private var mapView: AGSMapView
     private let map = AGSMap()
     private let graphicsOverlay = AGSGraphicsOverlay()
@@ -68,6 +70,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
 
+        initialZoom = Int(mapOptions.zoom)
+
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
@@ -81,8 +85,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
         }
 
-        map.minScale = getMapScale(mapOptions.minZoom)
-        map.maxScale = getMapScale(mapOptions.maxZoom)
+        map.minScale = convertZoomLevelToMapScale(mapOptions.minZoom)
+        map.maxScale = convertZoomLevelToMapScale(mapOptions.maxZoom)
 
         mapView.map = map
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
@@ -92,7 +96,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 guard let self = self else {
                     return
                 }
-                let newZoom = self.getZoomLevel(self.mapView.mapScale)
+                let newZoom = self.convertScaleToZoomLevel(self.mapView.mapScale)
                 self.zoomStreamHandler.addZoom(zoom: newZoom)
             }
         }
@@ -113,7 +117,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         let viewpoint = AGSViewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
-                scale: getMapScale(Int(mapOptions.zoom))
+                scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
 
@@ -161,13 +165,22 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
-        let currentZoomLevel = getZoomLevel(mapView.mapScale)
-        let totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel > getZoomLevel(map.maxScale)) {
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        let newScale = getMapScale(totalZoomLevel)
+        
+        guard let lodFactor = args["lodFactor"] as? Int else {
+            result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
+            return
+        }
+        
+        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel + lodFactor
+        if (totalZoomLevel > convertScaleToZoomLevel(map.maxScale)) {
+            return
+        }
+        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
         mapView.setViewpointScale(newScale) { _ in
             result(true)
         }
@@ -179,65 +192,101 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-        let lodFactor = (call.arguments! as! Dictionary<String, Any>)["lodFactor"]! as! Int
-        let currentZoomLevel = getZoomLevel(mapView.mapScale)
-        let totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel < getZoomLevel(map.minScale)) {
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        let newScale = getMapScale(totalZoomLevel)
+        
+        guard let lodFactor = args["lodFactor"] as? Int else {
+            result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
+            return
+        }
+        
+        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
+        let totalZoomLevel = currentZoomLevel - lodFactor
+        if (totalZoomLevel < convertScaleToZoomLevel(map.minScale)) {
+            return
+        }
+        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
         mapView.setViewpointScale(newScale) { success in
             result(success)
         }
     }
 
     private func onAddViewPadding(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dict = call.arguments as! Dictionary<String, Any>
-        let padding: ViewPadding = try! JsonUtil.objectOfJson(dict)
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
+        
+        do {
+            let padding: ViewPadding = try JsonUtil.objectOfJson(args)
 
-        mapView.contentInset = UIEdgeInsets(
-            top: padding.top,
-            left: padding.left,
-            bottom: padding.bottom,
-            right: padding.right
-        )
+            mapView.contentInset = UIEdgeInsets(
+                top: padding.top,
+                left: padding.left,
+                bottom: padding.bottom,
+                right: padding.right
+            )
 
-        result(true)
+            result(true)
+        } catch {
+            result(FlutterError(code: "error", message: "Parsing data failed. Provided: \(args)", details: nil))
+        }
     }
 
     private func onMoveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dict = call.arguments as! Dictionary<String, Any>
-        let point: LatLng = try! JsonUtil.objectOfJson(dict["point"] as! Dictionary<String, Any>)
-        let zoomLevel = dict["zoomLevel"] as? Int
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
+        do {
+            let point: LatLng = try JsonUtil.objectOfJson(args["point"] as! Dictionary<String, Any>)
+            let zoomLevel = args["zoomLevel"] as? Int
+            let animationDict = args["animationOptions"] as? Dictionary<String, Any>
+            let animationOptions: AnimationOptions? = animationDict == nil ? nil : try JsonUtil.objectOfJson(animationDict!)
 
-        let animationDict = dict["animationOptions"] as? Dictionary<String, Any>
-        let animationOptions: AnimationOptions? = animationDict == nil ? nil : try? JsonUtil.objectOfJson(animationDict!)
+            let scale: Double
+            
+            if let zoomLevel = zoomLevel {
+                scale = convertZoomLevelToMapScale(zoomLevel)
+            } else {
+                scale = mapView.mapScale.isNaN ? convertZoomLevelToMapScale(initialZoom) : mapView.mapScale
+            }
 
-        let scale = zoomLevel != nil ? getMapScale(zoomLevel!) : mapView.mapScale
-
-        mapView.setViewpoint(
-            AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-            duration: (animationOptions?.duration ?? 0) / 1000,
-            curve: animationOptions?.arcgisAnimationCurve() ?? .linear
-        ) { success in
-            result(success)
+            mapView.setViewpoint(
+                AGSViewpoint(center: point.toAGSPoint(), scale: scale),
+                duration: (animationOptions?.duration ?? 0) / 1000,
+                curve: animationOptions?.arcgisAnimationCurve() ?? .linear
+            ) { success in
+                result(success)
+            }
+        } catch {
+            result(FlutterError(code: "error", message: "Error onMoveCamera. Provided: \(args)", details: nil))
         }
     }
 
     private func onMoveCameraToPoints(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dict = call.arguments as! Dictionary<String, Any>
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
 
-        let payload: MoveToPointsPayload = try! JsonUtil.objectOfJson(dict)
-        let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
+        do {
+            let payload: MoveToPointsPayload = try JsonUtil.objectOfJson(args)
+            let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
 
-        if(payload.padding != nil) {
-            mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
-                result(success)
+            if(payload.padding != nil) {
+                mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
+                    result(success)
+                }
+            } else {
+                mapView.setViewpointGeometry(polyline.extent) { success in
+                    result(success)
+                }
             }
-        } else {
-            mapView.setViewpointGeometry(polyline.extent) { success in
-                result(success)
-            }
+        } catch {
+            result(FlutterError(code: "error", message: "Error onMoveCameraToPoints. Provided: \(args)", details: nil))
         }
     }
 
@@ -281,7 +330,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onRemoveGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let graphicId = call.arguments as! String
+        guard let graphicId = call.arguments as? String else {
+            result(FlutterError(code: "missing_data", message: "graphicId not provided", details: nil))
+            return
+        }
+        
         let newGraphics = defaultGraphicsOverlay.graphics.filter({ element in
             let graphic = element as! AGSGraphic
             let id = graphic.attributes["id"] as? String
@@ -295,7 +348,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onToggleBaseMap(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let baseMapString = call.arguments as! String
+        guard let baseMapString = call.arguments as? String else {
+            result(FlutterError(code: "missing_data", message: "baseMapString not provided", details: nil))
+            return
+        }
+        
         map.basemap = AGSBasemap(style: parseBaseMapStyle(baseMapString))
         
         result(true)
@@ -311,8 +368,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onSetInteraction(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let enabled = (call.arguments! as! Dictionary<String, Any>)["enabled"]! as! Bool
-
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
+        
+        guard let enabled = args["enabled"] as? Bool else {
+            result(FlutterError(code: "missing_data", message: "enabled arguments", details: nil))
+            return
+        }
+        
         setMapInteractive(enabled)
         result(true)
     }
@@ -340,7 +405,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      * Convert map scale to zoom level
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
-    private func getZoomLevel(_ scale: Double) -> Int {
+    private func convertScaleToZoomLevel(_ scale: Double) -> Int {
         let result = -1.443 * log(scale) + 29.14
         return Int(result.rounded())
     }
@@ -349,7 +414,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      *  Convert zoom level to map scale
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
-    private func getMapScale(_ zoomLevel: Int) -> Double {
+    private func convertZoomLevelToMapScale(_ zoomLevel: Int) -> Double {
         591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 
@@ -607,6 +672,11 @@ extension AGSBasemapStyle {
     }
 }
 
+struct MoveToPointsPayload : Codable {
+    let points : [LatLng]
+    let padding : Double?
+}
+
 extension AGSLoadStatus {
     func jsonValue()  -> String {
         switch self {
@@ -624,9 +694,4 @@ extension AGSLoadStatus {
             return "unknown"
         }
     }
-}
-
-struct MoveToPointsPayload : Codable {
-    let points : [LatLng]
-    let padding : Double?
 }
