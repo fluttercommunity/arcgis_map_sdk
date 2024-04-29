@@ -42,7 +42,10 @@ class _ExampleMapState extends State<ExampleMap> {
   final LatLng _firstPinCoordinates = const LatLng(52.9, 13.2);
   static const String _pinId2 = '456';
   final LatLng _secondPinCoordinates = const LatLng(51, 11);
+  static const String _pinFeatureId = '789';
+  final LatLng _pinFeatureCoordinates = const LatLng(50.945, 6.965);
   static const String _pinLayerId = 'PinLayer';
+  static const String _featureLayerId = 'FeatureLayer';
   static const String _polygon1 = 'polygon1';
   static const String _polygon2 = 'polygon2';
   static const String _polyLayerId = 'PolygonLayer';
@@ -61,6 +64,7 @@ class _ExampleMapState extends State<ExampleMap> {
   bool _subscribedToBounds = false;
   bool _isFirstPinInView = false;
   bool _isSecondPinInView = false;
+  bool _isFeatureInView = false;
   bool _subscribedToCenterPosition = false;
   bool _subscribedToGraphicsInView = false;
   bool _subscribedToZoom = false;
@@ -122,6 +126,10 @@ class _ExampleMapState extends State<ExampleMap> {
       await _createGraphicLayer(
         layerId: _polyLayerId,
         elevationMode: ElevationMode.onTheGround,
+      );
+
+      await _createFeatureLayer(
+        layerId: _featureLayerId,
       );
 
       // Create GraphicsLayer with Lines
@@ -325,6 +333,24 @@ class _ExampleMapState extends State<ExampleMap> {
     required String objectId,
   }) {
     _controller?.removeGraphic(layerId: layerId, objectId: objectId);
+  }
+
+  Future<FeatureLayer?> _createFeatureLayer({
+    required String layerId,
+  }) async {
+    final layer = await _controller?.addFeatureLayer(
+      layerId: layerId,
+      options: FeatureLayerOptions(
+        fields: <Field>[
+          Field(name: 'oid', type: 'oid'),
+          Field(name: 'id', type: 'string'),
+          Field(name: 'family', type: 'string'),
+          Field(name: 'name', type: 'string'),
+        ],
+        symbol: _markerSymbol,
+      ),
+    );
+    return layer;
   }
 
   void _makePolylineVisible({required List<LatLng> points}) {
@@ -568,9 +594,36 @@ class _ExampleMapState extends State<ExampleMap> {
                             });
                           }
                         },
-                        child: _isSecondPinInView
-                            ? const Text('Remove second Pin')
-                            : const Text('Add second Pin'),
+                        child: _isSecondPinInView ? const Text('Remove second Pin') : const Text('Add second Pin'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_isFeatureInView) {
+                            _removeGraphic(
+                              layerId: _featureLayerId,
+                              objectId: _pinFeatureId,
+                            );
+                            setState(() {
+                              _isFeatureInView = false;
+                            });
+                          } else {
+                            _addPin(
+                              layerId: _featureLayerId,
+                              objectId: _pinFeatureId,
+                              location: _pinFeatureCoordinates,
+                            );
+                            _controller?.moveCamera(
+                              point: _pinFeatureCoordinates,
+                              zoomLevel: 15,
+                            );
+                            setState(() {
+                              _isFeatureInView = true;
+                            });
+                          }
+                        },
+                        child: _isFeatureInView
+                            ? const Text('Remove FeatureLayer Pin')
+                            : const Text('Add FeatureLayer Pin'),
                       ),
                       ElevatedButton(
                         onPressed: () {
