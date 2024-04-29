@@ -594,7 +594,9 @@ class _ExampleMapState extends State<ExampleMap> {
                             });
                           }
                         },
-                        child: _isSecondPinInView ? const Text('Remove second Pin') : const Text('Add second Pin'),
+                        child: _isSecondPinInView
+                            ? const Text('Remove second Pin')
+                            : const Text('Add second Pin'),
                       ),
                       ElevatedButton(
                         onPressed: () {
