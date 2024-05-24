@@ -40,6 +40,7 @@ class ArcgisMap extends StatefulWidget {
     this.yMax = 66,
     this.onMapCreated,
     this.vectorTileLayerUrls,
+    this.isAttributionTextVisible,
     super.key,
   }) : assert(
           basemap != null ||
@@ -70,6 +71,7 @@ class ArcgisMap extends StatefulWidget {
   final double xMax;
   final double yMin;
   final double yMax;
+  final bool? isAttributionTextVisible;
 
   /// Adds vector tile layers to the map. You can add more than one.
   /// When the [vectorTileLayerUrls] is not empty, the [basemap] field
@@ -110,6 +112,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
     yMin: widget.yMin,
     yMax: widget.yMax,
     vectorTilesUrls: widget.vectorTileLayerUrls,
+    isAttributionTextVisible: widget.isAttributionTextVisible,
   );
 
   Future<void> onPlatformViewCreated(int id) async {
@@ -161,6 +164,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       yMax: widget.yMax,
       vectorTilesUrls: widget.vectorTileLayerUrls,
       defaultUiList: widget.defaultUiList,
+      isAttributionTextVisible: widget.isAttributionTextVisible,
     );
   }
 

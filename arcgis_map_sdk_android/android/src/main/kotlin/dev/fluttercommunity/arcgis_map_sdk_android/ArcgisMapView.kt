@@ -79,8 +79,9 @@ internal class ArcgisMapView(
 
         mapView = view.findViewById(R.id.mapView)
 
-        map.apply {
+        mapOptions.isAttributionTextVisible?.let { mapView.isAttributionTextVisible = it }
 
+        map.apply {
             basemap = if (mapOptions.basemap != null) {
                 Basemap(mapOptions.basemap)
             } else {
