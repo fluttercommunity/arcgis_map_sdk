@@ -75,6 +75,10 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
+        
+        if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
+            mapView.isAttributionTextVisible = isAttributionTextVisible
+        }
 
         if mapOptions.basemap != nil {
             map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
