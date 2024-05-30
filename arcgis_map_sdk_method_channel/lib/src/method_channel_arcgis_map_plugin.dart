@@ -304,4 +304,15 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
       type,
     );
   }
+
+  @override
+  Future<void> updateIsAttributionTextVisible(
+    int mapId,
+    bool isAttributionTextVisible,
+  ) {
+    return _methodChannelBuilder(mapId).invokeMethod(
+      "update_is_attribution_text_visible",
+      isAttributionTextVisible,
+    );
+  }
 }

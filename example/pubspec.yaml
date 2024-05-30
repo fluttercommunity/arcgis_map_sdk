@@ -29,3 +29,17 @@ flutter:
   assets:
     - assets/
   uses-material-design: true
+
+dependency_overrides:
+  arcgis_map_sdk:
+    path: ../arcgis_map_sdk
+  arcgis_map_sdk_android:
+    path: ../arcgis_map_sdk_android
+  arcgis_map_sdk_ios:
+    path: ../arcgis_map_sdk_ios
+  arcgis_map_sdk_method_channel:
+    path: ../arcgis_map_sdk_method_channel
+  arcgis_map_sdk_platform_interface:
+    path: ../arcgis_map_sdk_platform_interface
+  arcgis_map_sdk_web:
+    path: ../arcgis_map_sdk_web

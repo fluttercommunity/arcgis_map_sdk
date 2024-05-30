@@ -75,6 +75,10 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
+        
+        if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
+            mapView.isAttributionTextVisible = isAttributionTextVisible
+        }
 
         if mapOptions.basemap != nil {
             map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
@@ -153,6 +157,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_set_use_course_symbol_on_move" : onSetLocationDisplayUseCourseSymbolOnMove(call, result)
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
+            case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -500,6 +505,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         default:
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
+    }
+    
+    private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let isVisible = call.arguments as? Bool else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
+        
+        mapView.isAttributionTextVisible = isVisible
+        result(true)
     }
 
     private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {

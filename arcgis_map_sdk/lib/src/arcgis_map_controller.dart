@@ -320,4 +320,9 @@ class ArcgisMapController {
       },
     );
   }
+
+  Future<void> updateIsAttributionTextVisible(bool isAttributionTextVisible) {
+    return ArcgisMapPlatform.instance
+        .updateIsAttributionTextVisible(mapId, isAttributionTextVisible);
+  }
 }

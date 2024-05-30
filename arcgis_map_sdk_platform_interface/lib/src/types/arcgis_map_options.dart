@@ -6,8 +6,7 @@ import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interf
 ///
 /// [xMin], [xMax], [yMin] and [yMax] are the coordinates of an extent envelope that constrains the panning in the map.
 ///
-/// Warning!! If [hideAttribution] is set to true,
-/// an attribution must still be provided, according to following layout and design guidelines from Esri
+/// [isAttributionTextVisible] will hide the map attribution (e.g. the logo). Review the guidelines before disabling the attribution:
 /// https://developers.arcgis.com/documentation/mapping-apis-and-services/deployment/basemap-attribution/#layout-and-design-guidelines
 class ArcgisMapOptions {
   final String? apiKey;
@@ -33,6 +32,7 @@ class ArcgisMapOptions {
   final List<String>? vectorTilesUrls;
   final List<DefaultWidget> defaultUiList;
   final bool isPopupEnabled;
+  final bool? isAttributionTextVisible;
 
   const ArcgisMapOptions({
     required this.apiKey,
@@ -58,11 +58,12 @@ class ArcgisMapOptions {
     this.ground,
     this.vectorTilesUrls,
     this.isPopupEnabled = false,
+    this.isAttributionTextVisible,
   });
 
   @override
   String toString() {
-    return 'ArcgisMapOptions{apiKey: $apiKey, licenseKey: $licenseKey, mapStyle: $mapStyle, initialCenter: $initialCenter, showLabelsBeneathGraphics: $showLabelsBeneathGraphics, isInteractive: $isInteractive, zoom: $zoom, tilt: $tilt, initialHeight: $initialHeight, heading: $heading, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, ground: $ground, vectorTilesUrls: $vectorTilesUrls, defaultUiList: $defaultUiList, isPopupEnabled: $isPopupEnabled}';
+    return 'ArcgisMapOptions{apiKey: $apiKey, licenseKey: $licenseKey, mapStyle: $mapStyle, initialCenter: $initialCenter, showLabelsBeneathGraphics: $showLabelsBeneathGraphics, isInteractive: $isInteractive, zoom: $zoom, tilt: $tilt, initialHeight: $initialHeight, heading: $heading, padding: $padding, rotationEnabled: $rotationEnabled, minZoom: $minZoom, maxZoom: $maxZoom, xMin: $xMin, xMax: $xMax, yMin: $yMin, yMax: $yMax, basemap: $basemap, ground: $ground, vectorTilesUrls: $vectorTilesUrls, defaultUiList: $defaultUiList, isPopupEnabled: $isPopupEnabled, isAttributionTextVisible: $isAttributionTextVisible}';
   }
 }
 
