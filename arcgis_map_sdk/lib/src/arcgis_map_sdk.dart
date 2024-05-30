@@ -141,6 +141,12 @@ class _ArcgisMapState extends State<ArcgisMap> {
     if ((widget.basemap != null) && oldWidget.basemap != widget.basemap) {
       controller.toggleBaseMap(baseMap: widget.basemap!);
     }
+    if (widget.isAttributionTextVisible != null &&
+        widget.isAttributionTextVisible != oldWidget.isAttributionTextVisible) {
+      controller.updateIsAttributionTextVisible(
+        widget.isAttributionTextVisible!,
+      );
+    }
     _arcgisMapOptions = ArcgisMapOptions(
       apiKey: widget.apiKey,
       licenseKey: widget.licenseKey,

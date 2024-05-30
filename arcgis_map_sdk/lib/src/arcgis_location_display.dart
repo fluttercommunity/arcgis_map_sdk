@@ -32,6 +32,7 @@ class ArcgisLocationDisplay {
 
   ArcgisLocationDisplay({int? mapId}) : _mapId = mapId;
 
+  // ignore: use_setters_to_change_properties
   void attachToMap(int mapId) => _mapId = mapId;
 
   void deattachFromMap() => _mapId = null;

@@ -422,7 +422,6 @@ class _ExampleMapState extends State<ExampleMap> {
                 position: WidgetPosition.topRight,
               ),
             ],
-            isAttributionTextVisible: false,
           ),
           Positioned(
             bottom: 40,
