@@ -20,4 +20,5 @@ data class ArcgisMapOptions(
     val xMax: Double,
     val yMin: Double,
     val yMax: Double,
+    val isAttributionTextVisible: Boolean?,
 )
