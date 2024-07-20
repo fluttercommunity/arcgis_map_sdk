@@ -47,6 +47,12 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+
+        main {
+            // The libs directory contains prebuilt libraries that are used by the
+            // app's library defined in CMakeLists.txt via an IMPORTED target.
+            jniLibs.srcDirs = ['libs']
+        }
     }
 
     defaultConfig {
