@@ -277,4 +277,13 @@ class ArcgisMapPlatform extends PlatformInterface {
       'setLocationDisplay() has not been implemented.',
     );
   }
+
+  Future<void> updateIsAttributionTextVisible(
+    int mapId,
+    bool isAttributionTextVisible,
+  ) {
+    throw UnimplementedError(
+      'updateIsAttributionTextVisible() has not been implemented.',
+    );
+  }
 }

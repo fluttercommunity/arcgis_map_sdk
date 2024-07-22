@@ -47,6 +47,7 @@ extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
       'xMax': xMax,
       'yMin': yMin,
       'yMax': yMax,
+      'isAttributionTextVisible': isAttributionTextVisible,
     };
   }
 }

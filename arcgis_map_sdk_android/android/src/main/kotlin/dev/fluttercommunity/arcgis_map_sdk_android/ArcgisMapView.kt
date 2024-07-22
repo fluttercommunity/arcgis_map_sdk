@@ -79,8 +79,9 @@ internal class ArcgisMapView(
 
         mapView = view.findViewById(R.id.mapView)
 
-        map.apply {
+        mapOptions.isAttributionTextVisible?.let { mapView.isAttributionTextVisible = it }
 
+        map.apply {
             basemap = if (mapOptions.basemap != null) {
                 Basemap(mapOptions.basemap)
             } else {
@@ -182,9 +183,25 @@ internal class ArcgisMapView(
                     result
                 )
 
+                "update_is_attribution_text_visible" -> onUpdateIsAttributionTextVisible(
+                    call,
+                    result
+                )
+
                 else -> result.notImplemented()
             }
         }
+    }
+
+    private fun onUpdateIsAttributionTextVisible(call: MethodCall, result: MethodChannel.Result) {
+        val isVisible = call.arguments as? Boolean
+        if (isVisible == null) {
+            result.error("invalid_argument", "isAttributionTextVisible must be a boolean", null)
+            return
+        }
+
+        mapView.isAttributionTextVisible = isVisible
+        result.success(true)
     }
 
     private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
