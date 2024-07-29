@@ -52,6 +52,10 @@ class ArcgisMapController {
     );
   }
 
+  Future<Uint8List> exportImage() {
+    return ArcgisMapPlatform.instance.exportImage(mapId);
+  }
+
   Future<GraphicsLayer> addGraphicsLayer({
     required String layerId,
     required GraphicsLayerOptions options,
