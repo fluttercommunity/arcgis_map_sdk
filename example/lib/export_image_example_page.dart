@@ -114,7 +114,10 @@ class _ExportImageExamplePageState extends State<ExportImageExamplePage> {
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Image.memory(_imageBytes!),
+                    child: ClipRRect(
+                      child: Image.memory(_imageBytes!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
           ),
           SizedBox(height: MediaQuery.paddingOf(context).bottom),

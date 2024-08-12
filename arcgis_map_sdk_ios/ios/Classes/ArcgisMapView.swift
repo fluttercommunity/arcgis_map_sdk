@@ -16,6 +16,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private var mapScaleObservation: NSKeyValueObservation?
     private var mapVisibleAreaObservation: NSKeyValueObservation?
+    private var layerObservations = Dictionary<String, NSKeyValueObservation>()
 
     private let initialZoom: Int
 
@@ -87,7 +88,22 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 AGSArcGISVectorTiledLayer(url: URL(string: url)!)
             }
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+            layers.forEach { layer in
+                guard let url = layer.url?.absoluteString else {
+                    return
+                }
+                layerObservations.removeValue(forKey: url)
+                
+                layerObservations[url] = layer.observe(\.loadStatus) { [weak self] (layer, notifier) in
+                    guard let self = self else {
+                        return
+                    }
+                    let mapStatus = layer.loadStatus
+                    print("Load status for map: \(layer.url) \(layer.loadStatus)")
+                }
+            }
         }
+        
 
         map.minScale = convertZoomLevelToMapScale(mapOptions.minZoom)
         map.maxScale = convertZoomLevelToMapScale(mapOptions.maxZoom)
