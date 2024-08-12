@@ -75,7 +75,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapView = AGSMapView.init(frame: frame)
 
         super.init()
-        
+
         if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
             mapView.isAttributionTextVisible = isAttributionTextVisible
         }
@@ -88,6 +88,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
             map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
         }
+
 
         map.minScale = convertZoomLevelToMapScale(mapOptions.minZoom)
         map.maxScale = convertZoomLevelToMapScale(mapOptions.maxZoom)
@@ -158,6 +159,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
+            case "export_image" : onExportImage(result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -506,15 +508,30 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
     }
-    
+
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let isVisible = call.arguments as? Bool else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        
+
         mapView.isAttributionTextVisible = isVisible
         result(true)
+    }
+
+    private func onExportImage(_ result: @escaping FlutterResult) {
+        mapView.exportImage { image, error in
+            if let error = error {
+                result(FlutterError(code: "export_error", message: error.localizedDescription, details: nil))
+                return
+            }
+
+            if let image = image, let imageData = image.pngData() {
+                result(FlutterStandardTypedData(bytes: imageData))
+            } else {
+                result(FlutterError(code: "conversion_error", message: "Failed to convert image to PNG data", details: nil))
+            }
+        }
     }
 
     private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {

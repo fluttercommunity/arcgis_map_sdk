@@ -109,6 +109,7 @@ Checkout the example app `example/lib/main.dart` for more details.
 | toggleBaseMap        |  ✅  |  ✅  |    ✅    |
 | moveCamera           |  ✅  |  ✅  |    ✅    |
 | moveCameraToPoints   |      |  ✅  |    ✅    |
+| exportImage          |      |  ✅  |    ✅    |
 | zoomIn               |  ✅  |  ✅  |    ✅    |
 | zoomOut              |  ✅  |  ✅  |    ✅    |
 | getZoom              |  ✅  |  ✅  |    ✅    |

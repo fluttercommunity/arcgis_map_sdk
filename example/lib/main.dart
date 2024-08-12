@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:arcgis_example/export_image_example_page.dart';
 import 'package:arcgis_example/location_indicator_example_page.dart';
 import 'package:arcgis_example/map_elements.dart';
 import 'package:arcgis_example/vector_layer_example_page.dart';
@@ -516,6 +517,10 @@ class _ExampleMapState extends State<ExampleMap> {
                         child: const Text("Show Vector layer example"),
                       ),
                       ElevatedButton(
+                        onPressed: _routeToExportImageExample,
+                        child: const Text("Show export image example"),
+                      ),
+                      ElevatedButton(
                         onPressed: _routeToLocationIndicatorExample,
                         child: const Text("Location indicator example"),
                       ),
@@ -806,6 +811,12 @@ class _ExampleMapState extends State<ExampleMap> {
   void _routeToLocationIndicatorExample() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const LocationIndicatorExamplePage()),
+    );
+  }
+
+  void _routeToExportImageExample() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ExportImageExamplePage()),
     );
   }
 }
