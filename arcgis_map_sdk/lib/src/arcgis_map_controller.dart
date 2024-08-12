@@ -52,6 +52,8 @@ class ArcgisMapController {
     );
   }
 
+  /// Exports an image of the currently visible map view containing all
+  /// layers of that view.
   Future<Uint8List> exportImage() {
     return ArcgisMapPlatform.instance.exportImage(mapId);
   }
