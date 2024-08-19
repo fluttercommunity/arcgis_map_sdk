@@ -192,6 +192,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        mapView.locationDisplay.autoPanMode = .off
+        
         if(mapView.mapScale.isNaN) {
             result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
             return
@@ -457,7 +459,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         operationWithSymbol(call, result) { mapView.locationDisplay.pingAnimationSymbol = $0 }
     }
 
-
+// TODO use this
     private func onSetLocationDisplayUseCourseSymbolOnMove(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let active = call.arguments as? Bool else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
@@ -483,6 +485,22 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         source.setNewLocation(position)
         result(true)
     }
+    
+    private func setAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let mode = call.arguments as? String else {
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected a type of data source as string.", details: nil))
+            return
+        }
+        
+        mapView.locationDisplay.autoPanMode = .recenter
+        guard let active = call.arguments as? Bool else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
+            return
+        }
+
+        mapView.locationDisplay.useCourseSymbolOnMovement = active
+        result(true)
+    }
 
     private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         if(mapView.locationDisplay.dataSource.status == .started) {
@@ -505,6 +523,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         default:
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
+        mapView.locationDisplay.autoPanMode = .recenter
     }
     
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
