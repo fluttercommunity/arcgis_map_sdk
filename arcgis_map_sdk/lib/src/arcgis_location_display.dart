@@ -1,3 +1,4 @@
+import 'package:arcgis_map_sdk/src/model/auto_pan_mode.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 /// The use case for manual location displays is relevant when the application
@@ -45,6 +46,11 @@ class ArcgisLocationDisplay {
   Future<void> stopSource() {
     _assertAttached();
     return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(_mapId!);
+  }
+
+  void setAutoPanMode(AutoPanMode autoPanMode) {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
   }
 
   Future<void> setDefaultSymbol(Symbol symbol) {

@@ -35,6 +35,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  void setAutoPanMode(String autoPanMode, int mapId) {
+    _methodChannelBuilder(mapId).invokeMethod("set_auto_pan_mode", autoPanMode);
+  }
+
+  @override
   void updateGraphicSymbol({
     required int mapId,
     required String layerId,

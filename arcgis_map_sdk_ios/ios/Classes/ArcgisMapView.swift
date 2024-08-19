@@ -158,6 +158,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
+            case "set_auto_pan_mode": onSetAutoPanMode(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -486,19 +487,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         result(true)
     }
     
-    private func setAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    private func onSetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let mode = call.arguments as? String else {
-            result(FlutterError(code: "missing_data", message: "Invalid argument, expected a type of data source as string.", details: nil))
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an autoPanMode as string.", details: nil))
             return
         }
         
-        mapView.locationDisplay.autoPanMode = .recenter
-        guard let active = call.arguments as? Bool else {
-            result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
+        guard let autoPanMode = mode.autoPanModefromString() else {
+            result(FlutterError(code: "invalid_data", message: "Invalid argument, expected an autoPanMode but got \(mode).", details: nil))
             return
         }
-
-        mapView.locationDisplay.useCourseSymbolOnMovement = active
+        
+        mapView.locationDisplay.autoPanMode = autoPanMode
         result(true)
     }
 
@@ -523,7 +523,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         default:
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
-        mapView.locationDisplay.autoPanMode = .compassNavigation
     }
     
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -726,6 +725,23 @@ extension AGSLoadStatus {
             return "unknown"
         @unknown default:
             return "unknown"
+        }
+    }
+}
+
+extension String {
+    func autoPanModefromString() -> AGSLocationDisplayAutoPanMode? {
+        switch self {
+        case "compassNavigation":
+            return .compassNavigation
+        case "navigation":
+            return .navigation
+        case "recenter":
+            return .recenter
+        case "off":
+            return .off
+        default:
+            return nil
         }
     }
 }
