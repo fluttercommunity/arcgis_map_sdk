@@ -523,7 +523,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         default:
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
-        mapView.locationDisplay.autoPanMode = .recenter
+        mapView.locationDisplay.autoPanMode = .compassNavigation
     }
     
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
