@@ -25,6 +25,7 @@ import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
+import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.Symbol
 import com.google.gson.reflect.TypeToken
@@ -158,6 +159,7 @@ internal class ArcgisMapView(
                     result
                 )
 
+                "set_auto_pan_mode" -> onSetAutoPanMode(call = call, result = result)
                 "location_display_set_accuracy_symbol" -> onSetLocationDisplayAccuracySymbol(
                     call,
                     result
@@ -263,6 +265,36 @@ internal class ArcgisMapView(
         }
     }
 
+    private fun onSetAutoPanMode(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        try {
+            val mode = call.arguments as String?
+            if (mode == null) {
+                result.error(
+                    "missing_data",
+                    "Invalid argument, expected an autoPanMode as string",
+                    null,
+                )
+                return
+            }
+            val autoPanMode = mode.autoPanModeFromString()
+            if (autoPanMode != null) {
+                mapView.locationDisplay.autoPanMode = autoPanMode
+                result.success(true)
+            } else {
+                result.error(
+                    "invalid_data",
+                    "Invalid argument, expected an autoPanMode but got $mode",
+                    null,
+                )
+            }
+        } catch (e: Throwable) {
+            result.finishWithError(e, "Setting auto pan mode failed.")
+        }
+    }
+
     private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.locationDisplay.locationDataSource.status == LocationDataSource.Status.STARTED) {
             result.error(
@@ -292,7 +324,11 @@ internal class ArcgisMapView(
                 }
             }
 
-            else -> result.error("invalid_data", "Unknown data source type ${call.arguments}", null)
+            else -> result.error(
+                "invalid_data",
+                "Unknown data source type ${call.arguments}",
+                null,
+            )
         }
 
     }
@@ -612,3 +648,10 @@ private fun LoadStatusChangedEvent.jsonValue() = when (newLoadStatus) {
     else -> "unknown"
 }
 
+private fun String.autoPanModeFromString() = when (this) {
+    "compassNavigation" -> AutoPanMode.COMPASS_NAVIGATION
+    "navigation" -> AutoPanMode.NAVIGATION
+    "recenter" -> AutoPanMode.RECENTER
+    "off" -> AutoPanMode.OFF
+    else -> null
+}

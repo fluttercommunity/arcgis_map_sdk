@@ -491,7 +491,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         
-        guard let autoPanMode = mode.autoPanModefromString() else {
+        guard let autoPanMode = mode.autoPanModeFromString() else {
             result(FlutterError(code: "invalid_data", message: "Invalid argument, expected an autoPanMode but got \(mode).", details: nil))
             return
         }
@@ -728,7 +728,7 @@ extension AGSLoadStatus {
 }
 
 extension String {
-    func autoPanModefromString() -> AGSLocationDisplayAutoPanMode? {
+    func autoPanModeFromString() -> AGSLocationDisplayAutoPanMode? {
         switch self {
         case "compassNavigation":
             return .compassNavigation
