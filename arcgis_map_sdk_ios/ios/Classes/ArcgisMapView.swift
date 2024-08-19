@@ -193,8 +193,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        mapView.locationDisplay.autoPanMode = .off
-        
         if(mapView.mapScale.isNaN) {
             result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
             return
