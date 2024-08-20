@@ -33,6 +33,7 @@ class ArcgisMapOptions {
   final List<DefaultWidget> defaultUiList;
   final bool isPopupEnabled;
   final bool? isAttributionTextVisible;
+  final AutoPanMode autoPanMode;
 
   const ArcgisMapOptions({
     required this.apiKey,
@@ -54,6 +55,7 @@ class ArcgisMapOptions {
     required this.yMin,
     required this.yMax,
     required this.defaultUiList,
+    this.autoPanMode = AutoPanMode.off,
     this.basemap,
     this.ground,
     this.vectorTilesUrls,

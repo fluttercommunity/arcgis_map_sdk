@@ -41,6 +41,7 @@ class ArcgisMap extends StatefulWidget {
     this.onMapCreated,
     this.vectorTileLayerUrls,
     this.isAttributionTextVisible,
+    this.autoPanMode = AutoPanMode.off,
     super.key,
   }) : assert(
           basemap != null ||
@@ -72,6 +73,7 @@ class ArcgisMap extends StatefulWidget {
   final double yMin;
   final double yMax;
   final bool? isAttributionTextVisible;
+  final AutoPanMode autoPanMode;
 
   /// Adds vector tile layers to the map. You can add more than one.
   /// When the [vectorTileLayerUrls] is not empty, the [basemap] field
@@ -171,6 +173,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
       vectorTilesUrls: widget.vectorTileLayerUrls,
       defaultUiList: widget.defaultUiList,
       isAttributionTextVisible: widget.isAttributionTextVisible,
+      autoPanMode: widget.autoPanMode,
     );
   }
 

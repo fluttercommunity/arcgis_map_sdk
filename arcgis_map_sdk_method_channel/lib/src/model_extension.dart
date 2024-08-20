@@ -48,6 +48,7 @@ extension ArcgisMapOptionsJsonExtension on ArcgisMapOptions {
       'yMin': yMin,
       'yMax': yMax,
       'isAttributionTextVisible': isAttributionTextVisible,
+      'autoPanMode': autoPanMode.name,
     };
   }
 }

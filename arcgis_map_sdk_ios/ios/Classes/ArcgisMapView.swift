@@ -124,6 +124,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
+        
+        mapView.locationDisplay.autoPanMode = mapOptions.autoPanMode.toArcGisAutoPanMode()
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
@@ -730,16 +732,31 @@ extension AGSLoadStatus {
 extension String {
     func autoPanModeFromString() -> AGSLocationDisplayAutoPanMode? {
         switch self {
-        case "compassNavigation":
-            return .compassNavigation
-        case "navigation":
-            return .navigation
-        case "recenter":
-            return .recenter
-        case "off":
-            return .off
-        default:
-            return nil
+            case "compassNavigation":
+                return .compassNavigation
+            case "navigation":
+                return .navigation
+            case "recenter":
+                return .recenter
+            case "off":
+                return .off
+            default:
+                return nil
         }
+    }
+}
+
+extension AutoPanMode {
+    func toArcGisAutoPanMode() -> AGSLocationDisplayAutoPanMode {
+        switch self {
+        case .navigation:
+                return .navigation
+        case .recenter:
+                return .recenter
+        case .off:
+                return .off
+        case .compassNavigation:
+                return .compassNavigation
+            }
     }
 }

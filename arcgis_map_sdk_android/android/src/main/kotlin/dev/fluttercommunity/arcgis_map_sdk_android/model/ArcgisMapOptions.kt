@@ -1,6 +1,7 @@
 package dev.fluttercommunity.arcgis_map_sdk_android.model
 
 import com.esri.arcgisruntime.mapping.BasemapStyle
+import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode
 
 data class ArcgisMapOptions(
     val apiKey: String?,
@@ -21,4 +22,5 @@ data class ArcgisMapOptions(
     val yMin: Double,
     val yMax: Double,
     val isAttributionTextVisible: Boolean?,
+    val autoPanMode: AutoPanMode,
 )
