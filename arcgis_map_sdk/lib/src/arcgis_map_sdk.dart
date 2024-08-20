@@ -173,7 +173,6 @@ class _ArcgisMapState extends State<ArcgisMap> {
       vectorTilesUrls: widget.vectorTileLayerUrls,
       defaultUiList: widget.defaultUiList,
       isAttributionTextVisible: widget.isAttributionTextVisible,
-      autoPanMode: widget.autoPanMode,
     );
   }
 

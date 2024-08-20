@@ -124,8 +124,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
         )
         mapView.setViewpoint(viewpoint)
-        
-        mapView.locationDisplay.autoPanMode = mapOptions.autoPanMode.toArcGisAutoPanMode()
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
@@ -460,7 +458,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         operationWithSymbol(call, result) { mapView.locationDisplay.pingAnimationSymbol = $0 }
     }
 
-// TODO use this
     private func onSetLocationDisplayUseCourseSymbolOnMove(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let active = call.arguments as? Bool else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments.", details: nil))
@@ -743,20 +740,5 @@ extension String {
             default:
                 return nil
         }
-    }
-}
-
-extension AutoPanMode {
-    func toArcGisAutoPanMode() -> AGSLocationDisplayAutoPanMode {
-        switch self {
-        case .navigation:
-                return .navigation
-        case .recenter:
-                return .recenter
-        case .off:
-                return .off
-        case .compassNavigation:
-                return .compassNavigation
-            }
     }
 }

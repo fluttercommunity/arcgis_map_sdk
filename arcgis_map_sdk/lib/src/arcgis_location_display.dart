@@ -1,4 +1,3 @@
-import 'package:arcgis_map_sdk_platform_interface/src/types/auto_pan_mode.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 /// The use case for manual location displays is relevant when the application

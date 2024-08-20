@@ -24,13 +24,5 @@ struct ArcgisMapOptions: Codable {
     let yMin: Int
     let yMax: Int
     let isAttributionTextVisible: Bool?
-    let autoPanMode: AutoPanMode
 }
 
-// Use this helper class because AGSLocationDisplayAutoPanMode is not Codable
-enum AutoPanMode: String, Codable {
-    case off
-    case compassNavigation
-    case navigation
-    case recenter
-}

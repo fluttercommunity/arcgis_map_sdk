@@ -22,5 +22,4 @@ data class ArcgisMapOptions(
     val yMin: Double,
     val yMax: Double,
     val isAttributionTextVisible: Boolean?,
-    val autoPanMode: AutoPanMode,
 )
