@@ -312,7 +312,7 @@ internal class ArcgisMapView(
         result: MethodChannel.Result
     ) {
         try {
-            val factor = call.arguments as Float?
+            val factor = call.arguments as Double?
             if (factor == null) {
                 result.error(
                     "missing_data",
@@ -321,7 +321,7 @@ internal class ArcgisMapView(
                 )
                 return
             }
-            mapView.locationDisplay.wanderExtentFactor = factor
+            mapView.locationDisplay.wanderExtentFactor = factor.toFloat()
             result.success(true)
         } catch (e: Throwable) {
             result.finishWithError(e, "Setting WanderExtentFactor failed.")

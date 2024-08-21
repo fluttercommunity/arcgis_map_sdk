@@ -509,12 +509,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
     
     private func onSetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let factor = call.arguments as? Float else {
-            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an WanderExtentFactor as Float.", details: nil))
+        guard let factor = call.arguments as? Double else {
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an WanderExtentFactor as Double.", details: nil))
             return
         }
         
-        mapView.locationDisplay.wanderExtentFactor = factor
+        mapView.locationDisplay.wanderExtentFactor = Float(factor)
         result(true)
     }
     
