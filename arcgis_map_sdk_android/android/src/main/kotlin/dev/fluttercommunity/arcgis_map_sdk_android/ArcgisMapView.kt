@@ -302,7 +302,11 @@ internal class ArcgisMapView(
         call: MethodCall,
         result: MethodChannel.Result
     ) {
-        return result.success(mapView.locationDisplay.autoPanMode.name)
+        try {
+            return result.success(mapView.locationDisplay.autoPanMode.name)
+        } catch (e: Throwable) {
+            result.finishWithError(e, "Getting AutoPanMode failed.")
+        }
     }
 
     private fun onSetWanderExtentFactor(

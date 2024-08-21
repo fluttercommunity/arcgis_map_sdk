@@ -43,10 +43,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   Future<AutoPanMode> getAutoPanMode(int mapId) {
     return _methodChannelBuilder(mapId)
         .invokeMethod<String>("get_auto_pan_mode")
-        .then(
-          (value) =>
-              AutoPanMode.values.firstWhere((element) => element.name == value),
-        );
+        .then((value) => AutoPanMode.values.byName(value!));
   }
 
   @override

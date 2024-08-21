@@ -505,7 +505,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func onGetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         // autoPanMode.rawValue is any of [0; 3]:
         // https://developers.arcgis.com/ios/api-reference/_a_g_s_location_display_8h.html
-        return result(mapView.locationDisplay.autoPanMode.toName())
+        guard let stringName = mapView.locationDisplay.autoPanMode.toName() else {
+            result(FlutterError(code: "invalid_data", message: "AutoPanMode has invalid state", details: nil))
+            return
+        }
+        return result(stringName)
     }
     
     private func onSetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -767,7 +771,7 @@ extension String {
 }
 
 extension AGSLocationDisplayAutoPanMode {
-    func toName() -> String {
+    func toName() -> String? {
         switch self {
         case .off:
             return "off"
@@ -778,7 +782,7 @@ extension AGSLocationDisplayAutoPanMode {
         case .compassNavigation:
             return "compassNavigation"
         @unknown default:
-            return "unknown"
+            return nil
         }
     }
 }
