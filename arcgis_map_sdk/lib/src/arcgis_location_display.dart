@@ -49,7 +49,22 @@ class ArcgisLocationDisplay {
 
   void setAutoPanMode(AutoPanMode autoPanMode) {
     _assertAttached();
-    return ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
+    ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
+  }
+
+  Future<AutoPanMode> getAutoPanMode() {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.getAutoPanMode(_mapId!);
+  }
+
+  void setWanderExtentFactor(double factor) {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.setWanderExtentFactor(factor, _mapId!);
+  }
+
+  Future<double> getWanderExtentFactor() {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.getWanderExtentFactor(_mapId!);
   }
 
   Future<void> setDefaultSymbol(Symbol symbol) {
