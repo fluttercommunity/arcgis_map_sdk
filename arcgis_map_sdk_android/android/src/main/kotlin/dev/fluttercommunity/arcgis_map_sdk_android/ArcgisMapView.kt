@@ -121,8 +121,6 @@ internal class ArcgisMapView(
         )
         mapView.setViewpoint(viewPoint)
 
-        mapView.locationDisplay.autoPanMode = mapOptions.autoPanMode
-
         setMapInteraction(enabled = mapOptions.isInteractive)
 
         setupMethodChannel()
