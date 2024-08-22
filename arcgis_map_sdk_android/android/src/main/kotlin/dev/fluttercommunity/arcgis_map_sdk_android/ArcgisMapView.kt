@@ -197,13 +197,6 @@ internal class ArcgisMapView(
 
                 "export_image" -> onExportImage(result)
 
-                "update_is_attribution_text_visible" -> onUpdateIsAttributionTextVisible(
-                    call,
-                    result
-                )
-
-                "export_image" -> onExportImage(result)
-
                 else -> result.notImplemented()
             }
         }
