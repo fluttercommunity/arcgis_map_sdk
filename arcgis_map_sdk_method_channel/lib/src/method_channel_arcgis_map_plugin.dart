@@ -42,6 +42,33 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  void setAutoPanMode(String autoPanMode, int mapId) {
+    _methodChannelBuilder(mapId).invokeMethod("set_auto_pan_mode", autoPanMode);
+  }
+
+  @override
+  Future<AutoPanMode> getAutoPanMode(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<String>("get_auto_pan_mode")
+        .then((value) => AutoPanMode.values.byName(value!));
+  }
+
+  @override
+  void setWanderExtentFactor(double factor, int mapId) {
+    _methodChannelBuilder(mapId).invokeMethod(
+      "set_wander_extent_factor",
+      factor,
+    );
+  }
+
+  @override
+  Future<double> getWanderExtentFactor(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<double>("get_wander_extent_factor")
+        .then((value) => value!);
+  }
+
+  @override
   void updateGraphicSymbol({
     required int mapId,
     required String layerId,

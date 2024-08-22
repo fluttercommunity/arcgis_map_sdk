@@ -26,6 +26,7 @@ import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
+import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.Symbol
 import com.google.gson.reflect.TypeToken
@@ -160,6 +161,10 @@ internal class ArcgisMapView(
                     result
                 )
 
+                "set_auto_pan_mode" -> onSetAutoPanMode(call = call, result = result)
+                "get_auto_pan_mode" -> onGetAutoPanMode(call = call, result = result)
+                "set_wander_extent_factor" -> onSetWanderExtentFactor(call = call, result = result)
+                "get_wander_extent_factor" -> onGetWanderExtentFactor(call = call, result = result)
                 "location_display_set_accuracy_symbol" -> onSetLocationDisplayAccuracySymbol(
                     call,
                     result
@@ -267,6 +272,75 @@ internal class ArcgisMapView(
         }
     }
 
+    private fun onSetAutoPanMode(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        try {
+            val mode = call.arguments as String?
+            if (mode == null) {
+                result.error(
+                    "missing_data",
+                    "Invalid argument, expected an autoPanMode as string",
+                    null,
+                )
+                return
+            }
+            val autoPanMode = mode.autoPanModeFromString()
+            if (autoPanMode != null) {
+                mapView.locationDisplay.autoPanMode = autoPanMode
+                result.success(true)
+            } else {
+                result.error(
+                    "invalid_data",
+                    "Invalid argument, expected an AutoPanMode but got $mode",
+                    null,
+                )
+            }
+        } catch (e: Throwable) {
+            result.finishWithError(e, "Setting AutoPanMode failed.")
+        }
+    }
+
+    private fun onGetAutoPanMode(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        try {
+            return result.success(mapView.locationDisplay.autoPanMode.name)
+        } catch (e: Throwable) {
+            result.finishWithError(e, "Getting AutoPanMode failed.")
+        }
+    }
+
+    private fun onSetWanderExtentFactor(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        try {
+            val factor = call.arguments as Double?
+            if (factor == null) {
+                result.error(
+                    "missing_data",
+                    "Invalid argument, expected an WanderExtentFactor as Float",
+                    null,
+                )
+                return
+            }
+            mapView.locationDisplay.wanderExtentFactor = factor.toFloat()
+            result.success(true)
+        } catch (e: Throwable) {
+            result.finishWithError(e, "Setting WanderExtentFactor failed.")
+        }
+    }
+
+    private fun onGetWanderExtentFactor(
+        call: MethodCall,
+        result: MethodChannel.Result
+    ) {
+        return result.success(mapView.locationDisplay.wanderExtentFactor)
+    }
+
     private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
         if (mapView.locationDisplay.locationDataSource.status == LocationDataSource.Status.STARTED) {
             result.error(
@@ -296,7 +370,11 @@ internal class ArcgisMapView(
                 }
             }
 
-            else -> result.error("invalid_data", "Unknown data source type ${call.arguments}", null)
+            else -> result.error(
+                "invalid_data",
+                "Unknown data source type ${call.arguments}",
+                null,
+            )
         }
 
     }
@@ -640,3 +718,10 @@ private fun LoadStatusChangedEvent.jsonValue() = when (newLoadStatus) {
     else -> "unknown"
 }
 
+private fun String.autoPanModeFromString() = when (this) {
+    "compassNavigation" -> AutoPanMode.COMPASS_NAVIGATION
+    "navigation" -> AutoPanMode.NAVIGATION
+    "recenter" -> AutoPanMode.RECENTER
+    "off" -> AutoPanMode.OFF
+    else -> null
+}
