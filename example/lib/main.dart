@@ -103,7 +103,7 @@ class _ExampleMapState extends State<ExampleMap> {
     // TODO: Remove when mobile implementation is complete
     if (kIsWeb) {
       _controller?.onClickListener().listen((Attributes? attributes) {
-        if (attributes == null) return;
+        if (attributes == null || !mounted) return;
         final snackBar = SnackBar(
           content:
               Text('Attributes Id after on Click: ${attributes.data['name']}'),

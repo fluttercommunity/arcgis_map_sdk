@@ -241,9 +241,8 @@ class _LocationIndicatorExamplePageState
       _activeAutoPanMode = newSetAutoPanMode;
       _controller?.locationDisplay.setAutoPanMode(newSetAutoPanMode);
     }
-    if (newSetWanderExtentFactor != null &&
-        _activeAutoPanMode == AutoPanMode.recenter) {
-      _wanderExtentFactor = newSetWanderExtentFactor!;
+    if (_activeAutoPanMode == AutoPanMode.recenter) {
+      _wanderExtentFactor = newSetWanderExtentFactor;
       _controller?.locationDisplay.setWanderExtentFactor(_wanderExtentFactor);
     }
   }
