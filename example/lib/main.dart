@@ -748,13 +748,6 @@ class _ExampleMapState extends State<ExampleMap> {
                     ],
                   ),
                 ),
-                if (!kIsWeb)
-                  ElevatedButton(
-                    onPressed: () => _makePolylineVisible(
-                      points: [_firstPinCoordinates, _secondPinCoordinates],
-                    ),
-                    child: const Text('Zoom to polyline'),
-                  ),
                 Row(
                   children: [
                     const Text(

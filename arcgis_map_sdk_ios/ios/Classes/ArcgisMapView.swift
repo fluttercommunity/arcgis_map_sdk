@@ -160,6 +160,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
             case "export_image" : onExportImage(result)
             case "set_auto_pan_mode": onSetAutoPanMode(call, result)
+            case  "get_auto_pan_mode": onGetAutoPanMode(call,  result)
+            case "set_wander_extent_factor": onSetWanderExtentFactor( call,  result)
+            case "get_wander_extent_factor": onGetWanderExtentFactor( call,  result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -487,17 +490,41 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
     private func onSetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let mode = call.arguments as? String else {
-            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an autoPanMode as string.", details: nil))
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an AutoPanMode as string.", details: nil))
             return
         }
 
         guard let autoPanMode = mode.autoPanModeFromString() else {
-            result(FlutterError(code: "invalid_data", message: "Invalid argument, expected an autoPanMode but got \(mode).", details: nil))
+            result(FlutterError(code: "invalid_data", message: "Invalid argument, expected an AutoPanMode but got \(mode).", details: nil))
             return
         }
 
         mapView.locationDisplay.autoPanMode = autoPanMode
         result(true)
+    }
+    
+    private func onGetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        // autoPanMode.rawValue is any of [0; 3]:
+        // https://developers.arcgis.com/ios/api-reference/_a_g_s_location_display_8h.html
+        guard let stringName = mapView.locationDisplay.autoPanMode.toName() else {
+            result(FlutterError(code: "invalid_data", message: "AutoPanMode has invalid state", details: nil))
+            return
+        }
+        return result(stringName)
+    }
+    
+    private func onSetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let factor = call.arguments as? Double else {
+            result(FlutterError(code: "missing_data", message: "Invalid argument, expected an WanderExtentFactor as Double.", details: nil))
+            return
+        }
+        
+        mapView.locationDisplay.wanderExtentFactor = Float(factor)
+        result(true)
+    }
+    
+    private func onGetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        return result(mapView.locationDisplay.wanderExtentFactor)
     }
 
     private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -755,6 +782,23 @@ extension String {
                 return .off
             default:
                 return nil
+        }
+    }
+}
+
+extension AGSLocationDisplayAutoPanMode {
+    func toName() -> String? {
+        switch self {
+        case .off:
+            return "off"
+        case .recenter:
+            return "recenter"
+        case .navigation:
+            return "navigation"
+        case .compassNavigation:
+            return "compassNavigation"
+        @unknown default:
+            return nil
         }
     }
 }
