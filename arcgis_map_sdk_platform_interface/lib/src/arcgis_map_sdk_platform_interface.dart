@@ -22,7 +22,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('init() has not been implemented.');
   }
 
-  Future<Uint8List> exportImage(int mapId)  {
+  Future<Uint8List> exportImage(int mapId) {
     throw UnimplementedError('exportImage() has not been implemented.');
   }
 
