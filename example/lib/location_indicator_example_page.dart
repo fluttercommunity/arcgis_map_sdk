@@ -31,6 +31,9 @@ class _LocationIndicatorExamplePageState
   bool _useCourseSymbolForMovement = false;
   bool _isManualLocationSource = false;
 
+  var _activeAutoPanMode = AutoPanMode.off;
+  var _wanderExtentFactor = 0.5;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,6 +112,10 @@ class _LocationIndicatorExamplePageState
                   : "Enable course indicator",
             ),
           ),
+          ElevatedButton(
+            onPressed: _openAutoPanModeSelection,
+            child: Text("Change AutoPanMode-Selection"),
+          ),
           SizedBox(height: MediaQuery.paddingOf(context).bottom),
         ],
       ),
@@ -169,7 +176,9 @@ class _LocationIndicatorExamplePageState
   Future<void> _simulateLocationChange() async {
     final display = _controller!.locationDisplay as ArcgisManualLocationDisplay;
 
-    await _controller!.moveCamera(point: _mockLocations.first);
+    if (_activeAutoPanMode == AutoPanMode.off) {
+      await _controller!.moveCamera(point: _mockLocations.first);
+    }
     for (final latLng in _mockLocations) {
       if (!mounted) break;
       if (!_isManualLocationSource) break;
@@ -179,9 +188,63 @@ class _LocationIndicatorExamplePageState
           latLng: latLng,
           accuracy: Random().nextInt(100).toDouble(),
           velocity: Random().nextInt(100).toDouble(),
+          heading: Random().nextInt(100).toDouble(),
         ),
       );
       await Future<void>.delayed(const Duration(milliseconds: 600));
+    }
+  }
+
+  Future<void> _openAutoPanModeSelection() async {
+    var newSetWanderExtentFactor = _wanderExtentFactor;
+    final newSetAutoPanMode = await showModalBottomSheet<AutoPanMode>(
+      context: context,
+      builder: (context) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: Column(
+            children: [
+              ...AutoPanMode.values.map(
+                (e) => CheckboxListTile(
+                  title: Text(e.name),
+                  value: e == _activeAutoPanMode,
+                  onChanged: (active) {
+                    // always pop the tapped value to trigger enabling
+                    Navigator.of(context).pop(e);
+                  },
+                ),
+              ),
+              if (_activeAutoPanMode == AutoPanMode.recenter)
+                StatefulBuilder(builder: (context, setState) {
+                  return Column(
+                    children: [
+                      Slider(
+                          divisions: 10,
+                          value: newSetWanderExtentFactor,
+                          onChanged: (newValue) {
+                            setState(() {
+                              newSetWanderExtentFactor = newValue;
+                            });
+                          }),
+                      Text("$newSetWanderExtentFactor"),
+                    ],
+                  );
+                })
+            ],
+          ),
+        );
+      },
+    );
+
+    if (newSetAutoPanMode != null) {
+      // No need to use setState
+      _activeAutoPanMode = newSetAutoPanMode;
+      _controller?.locationDisplay.setAutoPanMode(newSetAutoPanMode);
+    }
+    if (newSetWanderExtentFactor != null &&
+        _activeAutoPanMode == AutoPanMode.recenter) {
+      _wanderExtentFactor = newSetWanderExtentFactor!;
+      _controller?.locationDisplay.setWanderExtentFactor(_wanderExtentFactor);
     }
   }
 }

@@ -47,6 +47,26 @@ class ArcgisLocationDisplay {
     return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(_mapId!);
   }
 
+  void setAutoPanMode(AutoPanMode autoPanMode) {
+    _assertAttached();
+    ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
+  }
+
+  Future<AutoPanMode> getAutoPanMode() {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.getAutoPanMode(_mapId!);
+  }
+
+  void setWanderExtentFactor(double factor) {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.setWanderExtentFactor(factor, _mapId!);
+  }
+
+  Future<double> getWanderExtentFactor() {
+    _assertAttached();
+    return ArcgisMapPlatform.instance.getWanderExtentFactor(_mapId!);
+  }
+
   Future<void> setDefaultSymbol(Symbol symbol) {
     _assertAttached();
     return ArcgisMapPlatform.instance

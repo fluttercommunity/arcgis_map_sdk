@@ -68,6 +68,26 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('setMouseCursor() has not been implemented');
   }
 
+  void setAutoPanMode(String autoPanMode, int mapId) {
+    throw UnimplementedError('setAutoPanMode() has not been implemented');
+  }
+
+  Future<AutoPanMode> getAutoPanMode(int mapId) {
+    throw UnimplementedError('getAutoPanMode() has not been implemented');
+  }
+
+  void setWanderExtentFactor(double factor, int mapId) {
+    throw UnimplementedError(
+      'setWanderExtentFactor() has not been implemented',
+    );
+  }
+
+  Future<double> getWanderExtentFactor(int mapId) {
+    throw UnimplementedError(
+      'getWanderExtentFactor() has not been implemented',
+    );
+  }
+
   void updateGraphicSymbol({
     required int mapId,
     required String layerId,

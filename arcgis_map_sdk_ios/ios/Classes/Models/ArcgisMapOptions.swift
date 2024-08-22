@@ -25,3 +25,4 @@ struct ArcgisMapOptions: Codable {
     let yMax: Int
     let isAttributionTextVisible: Bool?
 }
+
