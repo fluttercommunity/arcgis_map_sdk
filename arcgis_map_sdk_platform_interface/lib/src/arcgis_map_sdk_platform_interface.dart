@@ -22,6 +22,10 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('init() has not been implemented.');
   }
 
+  Future<Uint8List> exportImage(int mapId)  {
+    throw UnimplementedError('exportImage() has not been implemented.');
+  }
+
   Future<FeatureLayer> addFeatureLayer(
     FeatureLayerOptions options,
     List<Graphic>? data,

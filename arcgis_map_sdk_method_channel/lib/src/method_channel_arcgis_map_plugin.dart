@@ -30,6 +30,13 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
+  Future<Uint8List> exportImage(int mapId) {
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<Uint8List>("export_image")
+        .then((value) => value!);
+  }
+
+  @override
   void setMouseCursor(SystemMouseCursor cursor, int mapId) {
     throw UnimplementedError('setMouseCursor() has not been implemented');
   }

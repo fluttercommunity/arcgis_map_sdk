@@ -1,6 +1,7 @@
 package dev.fluttercommunity.arcgis_map_sdk_android
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment
@@ -40,6 +41,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import java.io.ByteArrayOutputStream
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
@@ -191,6 +193,8 @@ internal class ArcgisMapView(
                     call,
                     result
                 )
+
+                "export_image" -> onExportImage(result)
 
                 else -> result.notImplemented()
             }
@@ -555,6 +559,20 @@ internal class ArcgisMapView(
         }
     }
 
+    private fun onExportImage(result: MethodChannel.Result) {
+        result.finishWithFuture(
+            mapResult = { bitmap ->
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                val byteArray = stream.toByteArray()
+                bitmap.recycle()
+                byteArray
+            },
+            getFuture = { mapView.exportImageAsync() }
+        )
+
+    }
+
     /**
      * Convert map scale to zoom level
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
@@ -599,13 +617,23 @@ internal class ArcgisMapView(
 
     // region helper methods
 
-    private fun MethodChannel.Result.finishWithFuture(function: () -> ListenableFuture<*>) {
+    /**
+     * Safely awaits the provide future and respond to the MethodChannel with the result
+     * or an error.
+     *
+     * @param mapResult optional transformation of the returned value of the future. If null will default to Boolean true.
+     * @param getFuture A callback that returns the future that will be awaited. This invocation is also caught.
+     */
+    private fun <T> MethodChannel.Result.finishWithFuture(
+        mapResult: (T) -> Any = { _ -> true },
+        getFuture: () -> ListenableFuture<T>
+    ) {
         try {
-            val future = function()
+            val future = getFuture()
             future.addDoneListener {
                 try {
-                    future.get()
-                    success(true)
+                    val result = future.get()
+                    success(mapResult(result))
                 } catch (e: Throwable) {
                     finishWithError(e)
                 }

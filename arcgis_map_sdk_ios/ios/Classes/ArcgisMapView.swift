@@ -158,6 +158,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "location_display_update_display_source_position_manually" : onUpdateLocationDisplaySourcePositionManually(call, result)
             case "location_display_set_data_source_type" : onSetLocationDisplayDataSourceType(call, result)
             case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
+            case "export_image" : onExportImage(result)
             case "set_auto_pan_mode": onSetAutoPanMode(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
@@ -483,18 +484,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         source.setNewLocation(position)
         result(true)
     }
-    
+
     private func onSetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let mode = call.arguments as? String else {
             result(FlutterError(code: "missing_data", message: "Invalid argument, expected an autoPanMode as string.", details: nil))
             return
         }
-        
+
         guard let autoPanMode = mode.autoPanModeFromString() else {
             result(FlutterError(code: "invalid_data", message: "Invalid argument, expected an autoPanMode but got \(mode).", details: nil))
             return
         }
-        
+
         mapView.locationDisplay.autoPanMode = autoPanMode
         result(true)
     }
@@ -530,6 +531,21 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         
         mapView.isAttributionTextVisible = isVisible
         result(true)
+    }
+
+    private func onExportImage(_ result: @escaping FlutterResult) {
+        mapView.exportImage { image, error in
+            if let error = error {
+                result(FlutterError(code: "export_error", message: error.localizedDescription, details: nil))
+                return
+            }
+
+            if let image = image, let imageData = image.pngData() {
+                result(FlutterStandardTypedData(bytes: imageData))
+            } else {
+                result(FlutterError(code: "conversion_error", message: "Failed to convert image to PNG data", details: nil))
+            }
+        }
     }
 
     private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {
