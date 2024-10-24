@@ -101,20 +101,24 @@ internal class ArcgisMapView(
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
         mapView.addMapScaleChangedListener {
-            val zoomLevel = getZoomLevel(mapView)
+            if(mapView.mapScale.isNaN()) return@addMapScaleChangedListener
 
+            val zoomLevel = getZoomLevel(mapView)
             zoomStreamHandler.addZoom(zoomLevel)
         }
+
         mapView.addViewpointChangedListener {
-            val center = mapView.visibleArea.extent.center
-            val wgs84Center =
-                GeometryEngine.project(center, SpatialReferences.getWgs84()) as Point
-            centerPositionStreamHandler.add(
-                LatLng(
-                    longitude = wgs84Center.x,
-                    latitude = wgs84Center.y
-                )
-            )
+            // The viewpoint listener is executed async which means that the map
+            // can be altered when this is called. If we reload the map or dispose the map
+            // we don't have a visibleArea or an extent which would throw null pointer in this case.
+            val center = mapView.visibleArea?.extent?.center ?: return@addViewpointChangedListener
+            val wgs84Center = GeometryEngine.project(center, SpatialReferences.getWgs84()) as? Point
+
+            val latLng = wgs84Center?.let {
+                LatLng(longitude = it.x,latitude = it.y)
+            } ?: return@addViewpointChangedListener
+
+            centerPositionStreamHandler.add(latLng)
         }
 
         val viewPoint = Viewpoint(
