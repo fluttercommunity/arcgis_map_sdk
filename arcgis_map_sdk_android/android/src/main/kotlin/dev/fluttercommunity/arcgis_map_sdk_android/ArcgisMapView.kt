@@ -26,7 +26,6 @@ import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
-import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode
 import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode.*
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.Symbol
@@ -153,6 +152,7 @@ internal class ArcgisMapView(
             when (call.method) {
                 "zoom_in" -> onZoomIn(call = call, result = result)
                 "zoom_out" -> onZoomOut(call = call, result = result)
+                "rotate" -> onRotate(call = call, result = result)
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
@@ -454,6 +454,11 @@ internal class ArcgisMapView(
         } catch (e: Throwable) {
             result.finishWithError(e)
         }
+    }
+
+    private fun onRotate(call: MethodCall, result: MethodChannel.Result) {
+        val angleDegrees = call.arguments as Double
+        result.finishWithFuture { mapView.setViewpointRotationAsync(angleDegrees) }
     }
 
     private fun onAddViewPadding(call: MethodCall, result: MethodChannel.Result) {
