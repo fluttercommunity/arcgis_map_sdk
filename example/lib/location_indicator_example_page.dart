@@ -238,8 +238,7 @@ class _LocationIndicatorExamplePageState extends State<LocationIndicatorExampleP
     );
 
     if (newSetAutoPanMode != null) {
-      // No need to use setState
-      _activeAutoPanMode = newSetAutoPanMode;
+      setState(() => _activeAutoPanMode = newSetAutoPanMode);
       _controller?.locationDisplay.setAutoPanMode(newSetAutoPanMode);
     }
     if (_activeAutoPanMode == AutoPanMode.recenter) {
