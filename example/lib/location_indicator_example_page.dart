@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:arcgis_example/main.dart';
@@ -9,12 +10,10 @@ class LocationIndicatorExamplePage extends StatefulWidget {
   const LocationIndicatorExamplePage({super.key});
 
   @override
-  State<LocationIndicatorExamplePage> createState() =>
-      _LocationIndicatorExamplePageState();
+  State<LocationIndicatorExamplePage> createState() => _LocationIndicatorExamplePageState();
 }
 
-class _LocationIndicatorExamplePageState
-    extends State<LocationIndicatorExamplePage> {
+class _LocationIndicatorExamplePageState extends State<LocationIndicatorExamplePage> {
   final _mockLocations = [
     LatLng(48.1234963, 11.5910182),
     LatLng(48.1239241, 11.45897063),
@@ -34,6 +33,8 @@ class _LocationIndicatorExamplePageState
   var _activeAutoPanMode = AutoPanMode.off;
   var _wanderExtentFactor = 0.5;
 
+  StreamSubscription? _panUpdateSubscription;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,8 +49,7 @@ class _LocationIndicatorExamplePageState
                 : await _controller!.locationDisplay.startSource();
           } catch (e, stack) {
             if (!mounted) return;
-            ScaffoldMessenger.of(_snackBarKey.currentContext!)
-                .showSnackBar(SnackBar(content: Text("$e")));
+            ScaffoldMessenger.of(_snackBarKey.currentContext!).showSnackBar(SnackBar(content: Text("$e")));
             debugPrint("$e");
             debugPrintStack(stackTrace: stack);
           }
@@ -71,16 +71,18 @@ class _LocationIndicatorExamplePageState
                 _controller = controller;
                 _requestLocationPermission();
                 _configureLocationDisplay(Colors.blue);
+
+                _panUpdateSubscription?.cancel();
+                _panUpdateSubscription = controller.centerPosition().listen((_) => _refreshAutoPanMode());
               },
             ),
           ),
           const SizedBox(height: 16),
+          Text("Current auto pan mode: ${_activeAutoPanMode.name}"),
           ElevatedButton(
             onPressed: _switchLocationSource,
             child: Text(
-              _isManualLocationSource
-                  ? "Use auto location source"
-                  : "Use manual location source",
+              _isManualLocationSource ? "Use auto location source" : "Use manual location source",
             ),
           ),
           if (_isManualLocationSource) ...[
@@ -101,15 +103,12 @@ class _LocationIndicatorExamplePageState
           ElevatedButton(
             onPressed: () {
               setState(
-                () =>
-                    _useCourseSymbolForMovement = !_useCourseSymbolForMovement,
+                () => _useCourseSymbolForMovement = !_useCourseSymbolForMovement,
               );
               _configureLocationDisplay(Colors.red);
             },
             child: Text(
-              _useCourseSymbolForMovement
-                  ? "Disable course indicator"
-                  : "Enable course indicator",
+              _useCourseSymbolForMovement ? "Disable course indicator" : "Enable course indicator",
             ),
           ),
           ElevatedButton(
@@ -158,9 +157,7 @@ class _LocationIndicatorExamplePageState
   Future<void> _switchLocationSource() async {
     await _controller!.locationDisplay.stopSource();
     await _controller!.setLocationDisplay(
-      _isManualLocationSource
-          ? ArcgisLocationDisplay()
-          : ArcgisManualLocationDisplay(),
+      _isManualLocationSource ? ArcgisLocationDisplay() : ArcgisManualLocationDisplay(),
     );
     setState(() => _isManualLocationSource = !_isManualLocationSource);
 
@@ -237,13 +234,30 @@ class _LocationIndicatorExamplePageState
     );
 
     if (newSetAutoPanMode != null) {
-      // No need to use setState
-      _activeAutoPanMode = newSetAutoPanMode;
+      setState(() => _activeAutoPanMode = newSetAutoPanMode);
       _controller?.locationDisplay.setAutoPanMode(newSetAutoPanMode);
     }
     if (_activeAutoPanMode == AutoPanMode.recenter) {
       _wanderExtentFactor = newSetWanderExtentFactor;
       _controller?.locationDisplay.setWanderExtentFactor(_wanderExtentFactor);
     }
+  }
+
+  @override
+  void dispose() {
+    _panUpdateSubscription?.cancel();
+    _refreshAutoPanModeTimer?.cancel();
+    super.dispose();
+  }
+
+  Timer? _refreshAutoPanModeTimer;
+
+  Future<void> _refreshAutoPanMode() async {
+    _refreshAutoPanModeTimer?.cancel();
+    _refreshAutoPanModeTimer = Timer(const Duration(milliseconds: 50), () async {
+      final panMode = await _controller!.locationDisplay.getAutoPanMode();
+      if (!mounted) return;
+      setState(() => _activeAutoPanMode = panMode);
+    });
   }
 }

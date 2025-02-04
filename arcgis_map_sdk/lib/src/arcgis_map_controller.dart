@@ -242,6 +242,10 @@ class ArcgisMapController {
     );
   }
 
+  Future<void> setRotation(double angleDegrees) {
+    return ArcgisMapPlatform.instance.setRotation(angleDegrees, mapId);
+  }
+
   Future<void> addGraphic({required String layerId, required Graphic graphic}) {
     return ArcgisMapPlatform.instance.addGraphic(mapId, layerId, graphic);
   }

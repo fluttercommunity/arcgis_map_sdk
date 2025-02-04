@@ -30,10 +30,10 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   ArcGIS-Runtime-SDK-iOS: 6ab51d28f8831ac73c00d34998cff3a555fe304f
   ArcGIS-Runtime-Toolkit-iOS: e30bb45bd0bd0152bcb1ec73f9b99022a5c7d02d
-  arcgis_map_sdk_ios: ee1d8dee42e0c11c95cd26afa2a8cb0e7a69cb23
+  arcgis_map_sdk_ios: deb0d9d2dfedca86984c0aa81e6245eed03c8344
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
+  geolocator_apple: d981750b9f47dbdb02427e1476d9a04397beb8d9
 
 PODFILE CHECKSUM: cc1f88378b4bfcf93a6ce00d2c587857c6008d3b
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

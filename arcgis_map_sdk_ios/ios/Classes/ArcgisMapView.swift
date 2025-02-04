@@ -141,6 +141,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             switch (call.method) {
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
+            case "rotate" : onRotate(call, result)
             case "add_view_padding": onAddViewPadding(call, result)
             case "set_interaction": onSetInteraction(call, result)
             case "move_camera": onMoveCamera(call, result)
@@ -160,7 +161,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "update_is_attribution_text_visible": onUpdateIsAttributionTextVisible(call, result)
             case "export_image" : onExportImage(result)
             case "set_auto_pan_mode": onSetAutoPanMode(call, result)
-            case  "get_auto_pan_mode": onGetAutoPanMode(call,  result)
+            case "get_auto_pan_mode": onGetAutoPanMode(call,  result)
             case "set_wander_extent_factor": onSetWanderExtentFactor( call,  result)
             case "get_wander_extent_factor": onGetWanderExtentFactor( call,  result)
             default:
@@ -219,6 +220,17 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
         let newScale = convertZoomLevelToMapScale(totalZoomLevel)
         mapView.setViewpointScale(newScale) { success in
+            result(success)
+        }
+    }
+    
+    private func onRotate(_ call: FlutterMethodCall, _ result:@escaping FlutterResult) {
+        guard let angleDouble = call.arguments as? Double else {
+            result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
+            return
+        }
+        
+        mapView.setViewpointRotation(angleDouble) { success in
             result(success)
         }
     }
