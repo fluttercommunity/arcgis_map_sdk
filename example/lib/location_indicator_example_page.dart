@@ -5,7 +5,6 @@ import 'package:arcgis_example/main.dart';
 import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:rxdart/rxdart.dart';
 
 class LocationIndicatorExamplePage extends StatefulWidget {
   const LocationIndicatorExamplePage({super.key});
