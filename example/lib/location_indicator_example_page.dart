@@ -74,10 +74,7 @@ class _LocationIndicatorExamplePageState extends State<LocationIndicatorExampleP
                 _configureLocationDisplay(Colors.blue);
 
                 _panUpdateSubscription?.cancel();
-                _panUpdateSubscription = controller
-                    .centerPosition()
-                    .debounceTime(const Duration(milliseconds: 50))
-                    .listen((_) => _refreshAutoPanMode());
+                _panUpdateSubscription = controller.centerPosition().listen((_) => _refreshAutoPanMode());
               },
             ),
           ),
@@ -250,12 +247,18 @@ class _LocationIndicatorExamplePageState extends State<LocationIndicatorExampleP
   @override
   void dispose() {
     _panUpdateSubscription?.cancel();
+    _refreshAutoPanModeTimer?.cancel();
     super.dispose();
   }
 
+  Timer? _refreshAutoPanModeTimer;
+
   Future<void> _refreshAutoPanMode() async {
-    final panMode = await _controller!.locationDisplay.getAutoPanMode();
-    if (!mounted) return;
-    setState(() => _activeAutoPanMode = panMode);
+    _refreshAutoPanModeTimer?.cancel();
+    _refreshAutoPanModeTimer = Timer(const Duration(milliseconds: 50), () async {
+      final panMode = await _controller!.locationDisplay.getAutoPanMode();
+      if (!mounted) return;
+      setState(() => _activeAutoPanMode = panMode);
+    });
   }
 }
