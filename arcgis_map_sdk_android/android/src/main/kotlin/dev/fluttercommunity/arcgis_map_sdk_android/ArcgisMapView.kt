@@ -26,7 +26,7 @@ import com.esri.arcgisruntime.mapping.Viewpoint
 import com.esri.arcgisruntime.mapping.view.AnimationCurve
 import com.esri.arcgisruntime.mapping.view.Graphic
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
-import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode
+import com.esri.arcgisruntime.mapping.view.LocationDisplay.AutoPanMode.*
 import com.esri.arcgisruntime.mapping.view.MapView
 import com.esri.arcgisruntime.symbology.Symbol
 import com.google.gson.reflect.TypeToken
@@ -101,7 +101,7 @@ internal class ArcgisMapView(
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
         mapView.addMapScaleChangedListener {
-            if(mapView.mapScale.isNaN()) return@addMapScaleChangedListener
+            if (mapView.mapScale.isNaN()) return@addMapScaleChangedListener
 
             val zoomLevel = getZoomLevel(mapView)
             zoomStreamHandler.addZoom(zoomLevel)
@@ -114,9 +114,11 @@ internal class ArcgisMapView(
             val center = mapView.visibleArea?.extent?.center ?: return@addViewpointChangedListener
             val wgs84Center = GeometryEngine.project(center, SpatialReferences.getWgs84()) as? Point
 
-            val latLng = wgs84Center?.let {
-                LatLng(longitude = it.x,latitude = it.y)
-            } ?: return@addViewpointChangedListener
+            if (wgs84Center == null || wgs84Center.x.isNaN() || wgs84Center.y.isNaN()) {
+                return@addViewpointChangedListener
+            }
+
+            val latLng = LatLng(longitude = wgs84Center.x, latitude = wgs84Center.y)
 
             centerPositionStreamHandler.add(latLng)
         }
@@ -150,6 +152,7 @@ internal class ArcgisMapView(
             when (call.method) {
                 "zoom_in" -> onZoomIn(call = call, result = result)
                 "zoom_out" -> onZoomOut(call = call, result = result)
+                "rotate" -> onRotate(call = call, result = result)
                 "add_view_padding" -> onAddViewPadding(call = call, result = result)
                 "set_interaction" -> onSetInteraction(call = call, result = result)
                 "move_camera" -> onMoveCamera(call = call, result = result)
@@ -311,7 +314,14 @@ internal class ArcgisMapView(
         result: MethodChannel.Result
     ) {
         try {
-            return result.success(mapView.locationDisplay.autoPanMode.name)
+            return result.success(
+                when (mapView.locationDisplay.autoPanMode) {
+                    OFF -> "off"
+                    RECENTER -> "recenter"
+                    NAVIGATION -> "navigation"
+                    COMPASS_NAVIGATION -> "compassNavigation"
+                }
+            )
         } catch (e: Throwable) {
             result.finishWithError(e, "Getting AutoPanMode failed.")
         }
@@ -444,6 +454,11 @@ internal class ArcgisMapView(
         } catch (e: Throwable) {
             result.finishWithError(e)
         }
+    }
+
+    private fun onRotate(call: MethodCall, result: MethodChannel.Result) {
+        val angleDegrees = call.arguments as Double
+        result.finishWithFuture { mapView.setViewpointRotationAsync(angleDegrees) }
     }
 
     private fun onAddViewPadding(call: MethodCall, result: MethodChannel.Result) {
@@ -723,9 +738,9 @@ private fun LoadStatusChangedEvent.jsonValue() = when (newLoadStatus) {
 }
 
 private fun String.autoPanModeFromString() = when (this) {
-    "compassNavigation" -> AutoPanMode.COMPASS_NAVIGATION
-    "navigation" -> AutoPanMode.NAVIGATION
-    "recenter" -> AutoPanMode.RECENTER
-    "off" -> AutoPanMode.OFF
+    "compassNavigation" -> COMPASS_NAVIGATION
+    "navigation" -> NAVIGATION
+    "recenter" -> RECENTER
+    "off" -> OFF
     else -> null
 }

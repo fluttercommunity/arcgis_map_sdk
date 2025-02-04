@@ -47,9 +47,9 @@ class ArcgisLocationDisplay {
     return ArcgisMapPlatform.instance.stopLocationDisplayDataSource(_mapId!);
   }
 
-  void setAutoPanMode(AutoPanMode autoPanMode) {
+  Future<void> setAutoPanMode(AutoPanMode autoPanMode) {
     _assertAttached();
-    ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
+    return ArcgisMapPlatform.instance.setAutoPanMode(autoPanMode.name, _mapId!);
   }
 
   Future<AutoPanMode> getAutoPanMode() {

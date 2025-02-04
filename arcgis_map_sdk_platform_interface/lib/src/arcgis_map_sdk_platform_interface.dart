@@ -68,8 +68,12 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('setMouseCursor() has not been implemented');
   }
 
-  void setAutoPanMode(String autoPanMode, int mapId) {
+  Future<void> setAutoPanMode(String autoPanMode, int mapId)  {
     throw UnimplementedError('setAutoPanMode() has not been implemented');
+  }
+
+  Future<void> setRotation(double angleDegrees, int mapId) {
+    throw UnimplementedError('setRotation() has not been implemented');
   }
 
   Future<AutoPanMode> getAutoPanMode(int mapId) {
