@@ -43,6 +43,14 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> setMethodCallHandler({
+    required int mapId,
+    required Future<dynamic> Function(MethodCall) onCall,
+  }) async {
+    // No-Op
+  }
+
+  @override
   Future<void> init(int mapId) async {
     await _hasScriptLoaded.future;
     _map(mapId).init();
