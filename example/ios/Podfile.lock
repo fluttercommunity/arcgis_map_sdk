@@ -1,36 +1,19 @@
 PODS:
-  - ArcGIS-Runtime-SDK-iOS (100.14.1)
-  - ArcGIS-Runtime-Toolkit-iOS (100.14.0):
-    - ArcGIS-Runtime-SDK-iOS (~> 100.14.0)
-  - arcgis_map_sdk_ios (0.0.1):
-    - ArcGIS-Runtime-Toolkit-iOS
-    - Flutter
   - Flutter (1.0.0)
   - geolocator_apple (1.2.0):
     - Flutter
 
 DEPENDENCIES:
-  - arcgis_map_sdk_ios (from `.symlinks/plugins/arcgis_map_sdk_ios/ios`)
   - Flutter (from `Flutter`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
 
-SPEC REPOS:
-  trunk:
-    - ArcGIS-Runtime-SDK-iOS
-    - ArcGIS-Runtime-Toolkit-iOS
-
 EXTERNAL SOURCES:
-  arcgis_map_sdk_ios:
-    :path: ".symlinks/plugins/arcgis_map_sdk_ios/ios"
   Flutter:
     :path: Flutter
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
 
 SPEC CHECKSUMS:
-  ArcGIS-Runtime-SDK-iOS: 6ab51d28f8831ac73c00d34998cff3a555fe304f
-  ArcGIS-Runtime-Toolkit-iOS: e30bb45bd0bd0152bcb1ec73f9b99022a5c7d02d
-  arcgis_map_sdk_ios: deb0d9d2dfedca86984c0aa81e6245eed03c8344
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   geolocator_apple: d981750b9f47dbdb02427e1476d9a04397beb8d9
 

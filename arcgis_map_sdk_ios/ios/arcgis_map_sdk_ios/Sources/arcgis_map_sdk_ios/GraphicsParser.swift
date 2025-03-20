@@ -7,6 +7,7 @@
 
 import Foundation
 import ArcGIS
+import Flutter
 
 class GraphicsParser {
     let registrar: FlutterPluginRegistrar

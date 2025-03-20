@@ -12,7 +12,7 @@ A new Flutter project.
   s.homepage         = 'http://example.com'
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'arcgis_map_sdk_ios/Sources/**/*'
   s.dependency 'Flutter'
   s.dependency 'ArcGIS-Runtime-Toolkit-iOS'
   s.platform = :ios, '13.0'

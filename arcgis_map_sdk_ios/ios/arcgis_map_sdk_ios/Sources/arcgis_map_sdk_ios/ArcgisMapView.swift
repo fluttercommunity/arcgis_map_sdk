@@ -1,5 +1,6 @@
 import ArcGIS
 import Foundation
+import Flutter
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
 
