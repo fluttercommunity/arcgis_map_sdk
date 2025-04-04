@@ -856,7 +856,7 @@ class LayerController {
         'ymax': maxLat,
         'spatialReference': {'wkid': 4326},
       }),
-    ).expand(1.5);
+    );
 
     final target = {
       'target': extentMap,
