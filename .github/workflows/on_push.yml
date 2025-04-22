@@ -22,9 +22,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Check version
       - run: dart --version
-      - name: Check formatting
       - run: find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' | xargs dart format --set-exit-if-changed
 
   format:
