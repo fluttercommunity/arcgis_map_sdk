@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 extension AnimationOptionsJsonExtension on AnimationOptions {
@@ -103,7 +105,12 @@ extension on MeshSymbol3D {
           {
             'type': 'fill',
             'material': {
-              'color': [color.r, color.g, color.b, colorOpacity],
+              'color': [
+                color.red255,
+                color.green255,
+                color.blue255,
+                colorOpacity
+              ],
             },
           },
         ],
@@ -113,13 +120,13 @@ extension on MeshSymbol3D {
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
-        'color': [color.r, color.g, color.b, colorOpacity],
+        'color': [color.red255, color.green255, color.blue255, colorOpacity],
         'size': radius,
         'outline': <String, dynamic>{
           'color': [
-            outlineColor.r,
-            outlineColor.g,
-            outlineColor.b,
+            outlineColor.red255,
+            outlineColor.green255,
+            outlineColor.blue255,
             outlineColorOpacity,
           ],
           'width': outlineWidth,
@@ -141,12 +148,17 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.r, fillColor.g, fillColor.b, opacity],
+        'color': [
+          fillColor.red255,
+          fillColor.green255,
+          fillColor.blue255,
+          opacity
+        ],
         'outline': {
           'color': [
-            outlineColor.r,
-            outlineColor.g,
-            outlineColor.b,
+            outlineColor.red255,
+            outlineColor.green255,
+            outlineColor.blue255,
           ], // White
           'width': outlineWidth,
         },
@@ -156,7 +168,7 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.r, color?.g, color?.b, colorOpacity],
+        'color': [color?.red255, color?.green255, color?.blue255, colorOpacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
@@ -169,7 +181,7 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.r, color?.g, color?.b, colorOpacity],
+        'color': [color?.red255, color?.green255, color?.blue255, colorOpacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,
@@ -236,6 +248,14 @@ extension GroundExt on Ground {
   };
 
   String get value => values[this]!;
+}
+
+extension ColorExt on Color {
+  int get red255 => (r * 255).round();
+
+  int get blue255 => (b * 255).round();
+
+  int get green255 => (g * 255).round();
 }
 
 // endregion

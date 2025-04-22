@@ -174,10 +174,10 @@ Map<String, Object?>? _colorToJson(Color? color) {
   if (color == null) return null;
 
   return {
-    'red': color.r,
-    'green': color.g,
-    'blue': color.b,
-    'opacity': color.a / 255,
+    'red': (color.r * 255).round(),
+    'green': (color.g * 255).round(),
+    'blue': (color.b * 255).round(),
+    'opacity': color.a,
   };
 }
 
