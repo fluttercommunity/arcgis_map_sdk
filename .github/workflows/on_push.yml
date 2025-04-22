@@ -3,16 +3,6 @@ name: CI
 on: [push]
 
 jobs:
-  version:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-      - run: ./am flutter --version
-
   analyze:
     timeout-minutes: 10
     runs-on: ubuntu-latest
