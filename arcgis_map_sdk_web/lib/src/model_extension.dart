@@ -103,7 +103,7 @@ extension on MeshSymbol3D {
           {
             'type': 'fill',
             'material': {
-              'color': [color.red, color.green, color.blue, colorOpacity],
+              'color': [color.r, color.g, color.b, colorOpacity],
             },
           },
         ],
@@ -113,13 +113,13 @@ extension on MeshSymbol3D {
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
+        'color': [color.r, color.g, color.b, colorOpacity],
         'size': radius,
         'outline': <String, dynamic>{
           'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
+            outlineColor.r,
+            outlineColor.g,
+            outlineColor.b,
             outlineColorOpacity,
           ],
           'width': outlineWidth,
@@ -141,12 +141,12 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
+        'color': [fillColor.r, fillColor.g, fillColor.b, opacity],
         'outline': {
           'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
+            outlineColor.r,
+            outlineColor.g,
+            outlineColor.b,
           ], // White
           'width': outlineWidth,
         },
@@ -156,7 +156,7 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.r, color?.g, color?.b, colorOpacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
@@ -169,7 +169,7 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.r, color?.g, color?.b, colorOpacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,

@@ -6,8 +6,8 @@ maintainer: Matthaios Saitakis (@MatthaiosSait), Stefan Schaller (@stefanschalle
   Pascal Welsch (@passsy), Max Peters (@maxpeters)
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   arcgis_map_sdk_android: ^0.8.0

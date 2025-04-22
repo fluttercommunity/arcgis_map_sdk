@@ -1,10 +1,8 @@
 @JS()
-library arcgis_map_sdk_web;
-
 import 'dart:async';
-import 'dart:js_util';
-
 import 'package:js/js.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 export 'package:arcgis_map_sdk_web/src/arcgis_map_sdk_web.dart';
 
@@ -420,12 +418,8 @@ class JsHandle {
 @JS()
 class Popup {}
 
-@JS()
-@staticInterop
-class WebGLRenderingContext {}
-
 extension WebGLRenderingContextExtension on WebGLRenderingContext {
-  external WebglLoseContext? getExtension(String something);
+  external WebglLoseContext? getCustomExtension(String something);
 }
 
 @JS()
