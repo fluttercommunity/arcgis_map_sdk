@@ -20,7 +20,7 @@ dependencies:
   web: ^1.1.1
 
 dev_dependencies:
-  lint: ^2.0.0
+  lint: ^2.8.0
 
 flutter:
   plugin:

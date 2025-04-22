@@ -17,6 +17,6 @@ dependencies:
   plugin_platform_interface: ^2.1.3
 
 dev_dependencies:
-  lint: ^2.0.0
+  lint: ^2.8.0
 
 flutter:

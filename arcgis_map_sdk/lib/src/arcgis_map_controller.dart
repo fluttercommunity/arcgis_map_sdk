@@ -40,7 +40,7 @@ class ArcgisMapController {
     void Function(dynamic)? onPressed,
     String? url,
     void Function(double)? getZoom,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addFeatureLayer(
       options,
       data,
@@ -62,7 +62,7 @@ class ArcgisMapController {
     required String layerId,
     required GraphicsLayerOptions options,
     void Function(dynamic)? onPressed,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addGraphicsLayer(
       options,
       mapId,
@@ -75,7 +75,7 @@ class ArcgisMapController {
     required String layerId,
     required String url,
     required SceneLayerOptions options,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addSceneLayer(
       options: options,
       layerId: layerId,
@@ -300,7 +300,7 @@ class ArcgisMapController {
     ArcgisMapPlatform.instance.addViewPadding(mapId, padding);
   }
 
-  Future<void> toggleBaseMap({required BaseMap baseMap}) async {
+  Future<void> toggleBaseMap({required BaseMap baseMap}) {
     return ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
   }
 
