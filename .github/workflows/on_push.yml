@@ -14,19 +14,6 @@ jobs:
       - run: ./am deps
       - run: ./am analyze --fatal-warnings --fatal-infos
 
-  format-with-default-dart:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-      - run: ./am deps
-      - run: ls -a
-      - run: dart --version
-      - run: find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' ! -path '*/build/*' | xargs dart format --set-exit-if-changed
-
   format:
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -35,7 +22,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: ./am dart --version
+      - run: ./am deps
       - run: ./am format --verify
 
   test:
