@@ -22,8 +22,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - run: ./am deps
+      - run: ls -a
       - run: dart --version
-      - run: find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' | xargs dart format --set-exit-if-changed
+      - run: find . -name "*.dart" ! -name "*.g.dart" ! -name "*.freezed.dart" ! -path '*/generated/*' ! -path '*/gen/*' ! -path '*/build/*' | xargs dart format --set-exit-if-changed
 
   format:
     timeout-minutes: 10
