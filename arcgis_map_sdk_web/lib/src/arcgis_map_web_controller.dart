@@ -22,11 +22,10 @@ class ArcgisMapWebController {
   final Completer<bool> _baseMapLoaded = Completer();
   ViewPadding? _activePadding;
 
+  //TODO CHECK
   late JsEsriMap? _map = const EsriMap().init(
     basemap: _mapOptions.basemap?.value,
-    ground: _mapOptions.mapStyle == MapStyle.threeD
-        ? _mapOptions.ground?.value
-        : null,
+    ground: _mapOptions.mapStyle == MapStyle.threeD ? _mapOptions.ground?.value : null,
     vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
   );
 
@@ -126,12 +125,10 @@ class ArcgisMapWebController {
     }
 
     if (!_mapOptions.isInteractive) {
-      _preventInteractionHandle =
-          _layerController!.preventInteraction(_activeView!);
+      _preventInteractionHandle = _layerController!.preventInteraction(_activeView!);
     }
 
-    _pointerMoveHandle = _layerController!
-        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+    _pointerMoveHandle = _layerController!.registerGlobalPointerMoveEventHandler(_map!, _activeView!);
 
     _layerController!.initializeStreams();
   }
@@ -262,16 +259,12 @@ class ArcgisMapWebController {
     final webgl2 = canvasElement?.getContext('webgl2');
 
     if (webgl != null) {
-      (webgl as WebGLRenderingContext)
-          .getCustomExtension('WEBGL_lose_context')
-          ?.loseContext();
+      (webgl as WebGLRenderingContext).getCustomExtension('WEBGL_lose_context')?.loseContext();
       webgl.getCustomExtension('WEBGL_lose_context')?.restoreContext();
     }
 
     if (webgl2 != null) {
-      (webgl2 as WebGLRenderingContext)
-          .getCustomExtension('WEBGL_lose_context')
-          ?.loseContext();
+      (webgl2 as WebGLRenderingContext).getCustomExtension('WEBGL_lose_context')?.loseContext();
       webgl2.getCustomExtension('WEBGL_lose_context')?.restoreContext();
     }
   }
@@ -340,8 +333,7 @@ class ArcgisMapWebController {
       _connectStreamsToNewActiveView();
     }
 
-    _pointerMoveHandle = _layerController!
-        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+    _pointerMoveHandle = _layerController!.registerGlobalPointerMoveEventHandler(_map!, _activeView!);
   }
 
   void _connectStreamsToNewActiveView() {
@@ -503,6 +495,5 @@ class ArcgisMapWebController {
 
   List<Graphic> get graphicsInView => _layerController!.graphicsInView;
 
-  Stream<bool> get isGraphicHoveredStream =>
-      _layerController!.isGraphicHoveredStreamController.stream;
+  Stream<bool> get isGraphicHoveredStream => _layerController!.isGraphicHoveredStreamController.stream;
 }

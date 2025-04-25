@@ -1,1 +1,1 @@
-{"widgetLabel":"로케이트","title":"내 위치 찾기","currentLocation":"현재 위치","timestamp":"타임스탬프","latitude":"위도","longitude":"경도","accuracy":"정확도","altitude":"고도","altitudeAccuracy":"고도 정확도","heading":"방향","speed":"속도"}
+{"widgetLabel":"로케이트","title":"내 위치 찾기","currentLocation":"현재 위치","timestamp":"타임스탬프","latitude":"위도","longitude":"경도","accuracy":"정확도","altitude":"고도","altitudeAccuracy":"고도 정확도","heading":"방향","speed":"속도","permissionError":"오류가 발생했습니다. 사용 중인 브라우저와 운영 체제에서 위치 권한을 확인하세요.","timeoutError":"위치를 검색할 수 없습니다. 다시 시도하세요.","positionUnavailable":"위치를 검색할 수 없습니다. 기기를 확인하세요."}
