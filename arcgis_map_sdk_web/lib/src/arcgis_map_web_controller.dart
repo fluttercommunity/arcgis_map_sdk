@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:js_interop';
-import 'dart:ui' as ui;
+import 'dart:ui_web';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -22,7 +21,6 @@ class ArcgisMapWebController {
   final Completer<bool> _baseMapLoaded = Completer();
   ViewPadding? _activePadding;
 
-  //TODO CHECK
   late JsEsriMap? _map = const EsriMap().init(
     basemap: _mapOptions.basemap?.value,
     ground: _mapOptions.mapStyle == MapStyle.threeD ? _mapOptions.ground?.value : null,
@@ -77,8 +75,9 @@ class ArcgisMapWebController {
   })  : _mapId = mapId,
         _streamController = streamController,
         _mapOptions = mapOptions {
+    final PlatformViewRegistry platformViewRegistry = PlatformViewRegistry();
     // ignore: avoid_dynamic_calls
-    ui.platformViewRegistry.registerViewFactory(
+    platformViewRegistry.registerViewFactory(
       _getViewType(_mapId),
       (int viewId) => _div,
     );
