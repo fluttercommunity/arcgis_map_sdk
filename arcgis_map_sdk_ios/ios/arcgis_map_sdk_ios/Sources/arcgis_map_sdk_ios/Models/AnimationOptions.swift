@@ -14,18 +14,18 @@ struct AnimationOptions: Codable {
 }
 
 extension AnimationOptions {
-    func arcgisAnimationCurve() -> AGSAnimationCurve {
-        switch animationCurve {
-        case "linear":
-            return .linear
-        case "easeIn":
-            return .easeInCirc
-        case "easeOut":
-            return .easeOutCirc
-        case "easeInOut":
-            return .easeInOutCirc
-        default:
-            return .linear
-        }
-    }
+//    func arcgisAnimationCurve() -> AGSAnimationCurve {
+//        switch animationCurve {
+//        case "linear":
+//            return .linear
+//        case "easeIn":
+//            return .easeInCirc
+//        case "easeOut":
+//            return .easeOutCirc
+//        case "easeInOut":
+//            return .easeInOutCirc
+//        default:
+//            return .linear
+//        }
+//    }
 }
