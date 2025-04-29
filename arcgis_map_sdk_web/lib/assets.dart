@@ -1797,6 +1797,9 @@ class Assets {
   static const String assets_arcgis_js_api_custom_build_6888_js =
       'assets/arcgis_js_api_custom_build/6888.js';
 
+  static const String assets_arcgis_js_api_custom_build_69011_js =
+      'assets/arcgis_js_api_custom_build/69011.js';
+
   static const String assets_arcgis_js_api_custom_build_691_js =
       'assets/arcgis_js_api_custom_build/691.js';
 

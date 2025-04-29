@@ -23,7 +23,9 @@ class ArcgisMapWebController {
 
   late JsEsriMap? _map = const EsriMap().init(
     basemap: _mapOptions.basemap?.value,
-    ground: _mapOptions.mapStyle == MapStyle.threeD ? _mapOptions.ground?.value : null,
+    ground: _mapOptions.mapStyle == MapStyle.threeD
+        ? _mapOptions.ground?.value
+        : null,
     vectorTileLayerUrls: _mapOptions.vectorTilesUrls,
   );
 
@@ -105,10 +107,12 @@ class ArcgisMapWebController {
 
     // Notifies the controller that the map is ready to be used and [moveBaseMapLabelsToBackground]
     // can be called.
-    _map!.basemap.watch(
-      'loaded',
-      allowInterop((loaded, _, __, ___) {
-        _baseMapLoaded.complete(loaded as bool);
+    watch(
+      allowInterop(() => _map!.basemap.loaded),
+      allowInterop((loaded, _) {
+        if (loaded as bool && !_baseMapLoaded.isCompleted) {
+          _baseMapLoaded.complete(true);
+        }
       }),
     );
 
@@ -124,10 +128,12 @@ class ArcgisMapWebController {
     }
 
     if (!_mapOptions.isInteractive) {
-      _preventInteractionHandle = _layerController!.preventInteraction(_activeView!);
+      _preventInteractionHandle =
+          _layerController!.preventInteraction(_activeView!);
     }
 
-    _pointerMoveHandle = _layerController!.registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+    _pointerMoveHandle = _layerController!
+        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
 
     _layerController!.initializeStreams();
   }
@@ -332,7 +338,8 @@ class ArcgisMapWebController {
       _connectStreamsToNewActiveView();
     }
 
-    _pointerMoveHandle = _layerController!.registerGlobalPointerMoveEventHandler(_map!, _activeView!);
+    _pointerMoveHandle = _layerController!
+        .registerGlobalPointerMoveEventHandler(_map!, _activeView!);
   }
 
   void _connectStreamsToNewActiveView() {
@@ -494,5 +501,6 @@ class ArcgisMapWebController {
 
   List<Graphic> get graphicsInView => _layerController!.graphicsInView;
 
-  Stream<bool> get isGraphicHoveredStream => _layerController!.isGraphicHoveredStreamController.stream;
+  Stream<bool> get isGraphicHoveredStream =>
+      _layerController!.isGraphicHoveredStreamController.stream;
 }

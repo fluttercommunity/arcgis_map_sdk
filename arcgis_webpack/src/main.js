@@ -13,6 +13,7 @@ import VectorTileLayer from "@arcgis/core/layers/VectorTileLayer";
 import Basemap from "@arcgis/core/Basemap";
 import SceneLayer from "@arcgis/core/layers/SceneLayer";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
+import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
 
 window.esri = {
   'core': {
@@ -38,7 +39,8 @@ window.esri = {
       GraphicsLayer: GraphicsLayer,
     },
     'Basemap': Basemap,
-    'intl': intl
+    'intl': intl,
+    'reactiveUtils': reactiveUtils
   },
 }
 
