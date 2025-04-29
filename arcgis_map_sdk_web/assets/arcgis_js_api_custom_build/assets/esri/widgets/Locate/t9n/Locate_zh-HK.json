@@ -1,1 +1,1 @@
-{"widgetLabel":"定位","title":"查詢我的位置","currentLocation":"目前位置","timestamp":"時間籤記","latitude":"緯度","longitude":"經度","accuracy":"精確度","altitude":"高度","altitudeAccuracy":"高度精確度","heading":"標題","speed":"速度"}
+{"widgetLabel":"定位","title":"查詢我的位置","currentLocation":"目前位置","timestamp":"時間籤記","latitude":"緯度","longitude":"經度","accuracy":"精確度","altitude":"高度","altitudeAccuracy":"高度精確度","heading":"標題","speed":"速度","permissionError":"發生一個錯誤。 請檢查您的瀏覽器和作業系統的位置權限。","timeoutError":"無法擷取您的位置。 請再試一次。","positionUnavailable":"無法擷取您的位置。 請檢查您的裝置。"}

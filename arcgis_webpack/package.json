@@ -21,6 +21,6 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
-    "@arcgis/core": "^4.26"
+    "@arcgis/core": "^4.32.10"
   }
 }
