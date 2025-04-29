@@ -359,12 +359,12 @@ class LayerController {
         StreamController(onCancel: () => handle?.remove());
 
     handle = watch(
-      () => view.zoom,
-      (zoom, _) {
+      allowInterop(() => view.zoom),
+      allowInterop((zoom, _) {
         if (!controller.isClosed && zoom as double > 0) {
           controller.add(zoom);
         }
-      },
+      }),
     );
 
     // Merge all the zoom streams into one
@@ -397,18 +397,16 @@ class LayerController {
         StreamController(onCancel: () => handle?.remove());
 
     handle = watch(
-      () => view.center,
-      (center, _) {
-        if (center != null && !controller.isClosed) {
-          final centerViewPoint = LatLng(
-            (center as JsPoint).latitude,
-            center.longitude,
-          );
-          controller.add(centerViewPoint);
+      allowInterop(() => view.center),
+      allowInterop((center, _) {
+        if (!controller.isClosed && center != null) {
+          final point = center as JsPoint;
+          controller.add(LatLng(point.latitude, point.longitude));
         }
-      },
+      }),
     );
 
+    // Merge all the center position streams into one
     return controller.stream;
   }
 
@@ -455,48 +453,50 @@ class LayerController {
     );
 
     handle = watch(
-      () => view.extent,
-      (extent, _) {
-        if (!controller.isClosed) {
-          final List<String> graphicIdsInView = <String>[];
+      allowInterop(() => view.extent),
+      allowInterop(
+        (extent, _) {
+          if (!controller.isClosed) {
+            final List<String> graphicIdsInView = <String>[];
 
-          // Return all the visible graphic ids in the MapView
-          view.graphics.forEach(
-            allowInterop((JsGraphic graphic, _, __) {
-              final bool isInView =
-                  (extent as JsExtent?)?.intersects(graphic.geometry.extent) ??
-                      false;
-              if (isInView) {
-                graphicIdsInView.add(graphic.attributes.id);
-              }
-            }),
-          );
+            // Return all the visible graphic ids in the MapView
+            view.graphics.forEach(
+              allowInterop((JsGraphic graphic, _, __) {
+                final bool isInView = (extent as JsExtent?)
+                        ?.intersects(graphic.geometry.extent) ??
+                    false;
+                if (isInView) {
+                  graphicIdsInView.add(graphic.attributes.id);
+                }
+              }),
+            );
 
-          // Return all the visible graphic ids in the graphic layers
-          final layers = map.layers;
-          layers?.forEach(
-            allowInterop((layer, _, __) {
-              if (layer is JsGraphicsLayer) {
-                layer.graphics?.forEach(
-                  allowInterop((JsGraphic graphic, _, __) {
-                    final bool isInView = (extent as JsExtent?)
-                            ?.intersects(graphic.geometry.extent) ??
-                        false;
-                    if (isInView) {
-                      graphicIdsInView.add(graphic.attributes.id);
-                    }
-                  }),
-                );
-              }
-            }),
-          );
+            // Return all the visible graphic ids in the graphic layers
+            final layers = map.layers;
+            layers?.forEach(
+              allowInterop((layer, _, __) {
+                if (layer is JsGraphicsLayer) {
+                  layer.graphics?.forEach(
+                    allowInterop((JsGraphic graphic, _, __) {
+                      final bool isInView = (extent as JsExtent?)
+                              ?.intersects(graphic.geometry.extent) ??
+                          false;
+                      if (isInView) {
+                        graphicIdsInView.add(graphic.attributes.id);
+                      }
+                    }),
+                  );
+                }
+              }),
+            );
 
-          if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
-            controller.add(graphicIdsInView);
-            graphicIdsInViewBuffer = graphicIdsInView;
+            if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
+              controller.add(graphicIdsInView);
+              graphicIdsInViewBuffer = graphicIdsInView;
+            }
           }
-        }
-      },
+        },
+      ),
     );
     // Merge all the streams into one
     return controller.stream;
@@ -509,14 +509,14 @@ class LayerController {
     JsView view,
     JsEsriMap map,
   ) {
-    final extent = view.get('extent') as JsExtent?;
+    final extent = view.extent;
 
     // Return all the visible graphic ids in the MapView
     final List<String> graphicIdsInView = <String>[];
     view.graphics.forEach(
       allowInterop((JsGraphic graphic, _, __) {
         final bool isInView =
-            extent?.intersects(graphic.geometry.extent) ?? false;
+            extent.intersects(graphic.geometry.extent) ?? false;
         if (isInView) {
           graphicIdsInView.add(graphic.attributes.id);
         }
@@ -531,7 +531,7 @@ class LayerController {
           layer.graphics?.forEach(
             allowInterop((JsGraphic graphic, _, __) {
               final bool isInView =
-                  extent?.intersects(graphic.geometry.extent) ?? false;
+                  extent.intersects(graphic.geometry.extent) ?? false;
               if (isInView) {
                 graphicIdsInView.add(graphic.attributes.id);
               }
@@ -566,46 +566,47 @@ class LayerController {
   /// Gets the current bounds streams of the active views.
   Stream<BoundingBox> _getCurrentBoundsStreams(JsView view) {
     streamsRefreshed.add(boundsStreamRefreshedForCurrentView);
-
-    // In order to stop watching on the extent when the stream is canceled in Dart,
+    // In order to stop watching on the bounds when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     WatchHandle? handle;
     final StreamController<BoundingBox> controller =
         StreamController(onCancel: () => handle?.remove());
 
     handle = watch(
-      () => view.extent,
-      (newValue, _) {
-        if (newValue is JsExtent && !controller.isClosed) {
-          final centerViewPoint =
-              LatLng(newValue.center.latitude, newValue.center.longitude);
-          final xDistanceFromViewCenter = newValue.width / 2;
-          final yDistanceFromViewCenter = newValue.height / 2;
+      allowInterop(() => view.extent),
+      allowInterop(
+        (newValue, _) {
+          if (newValue is JsExtent && !controller.isClosed) {
+            final centerViewPoint =
+                LatLng(newValue.center.latitude, newValue.center.longitude);
+            final xDistanceFromViewCenter = newValue.width / 2;
+            final yDistanceFromViewCenter = newValue.height / 2;
 
-          // Lower left point
-          final latLngMin = BoundingBox.getLatLngFromMapUnits(
-            referencePoint: centerViewPoint,
-            x: -xDistanceFromViewCenter,
-            y: -yDistanceFromViewCenter,
-          );
+            // Lower left point
+            final latLngMin = BoundingBox.getLatLngFromMapUnits(
+              referencePoint: centerViewPoint,
+              x: -xDistanceFromViewCenter,
+              y: -yDistanceFromViewCenter,
+            );
 
-          // Top right point
-          final latLngMax = BoundingBox.getLatLngFromMapUnits(
-            referencePoint: centerViewPoint,
-            x: xDistanceFromViewCenter,
-            y: yDistanceFromViewCenter,
-          );
+            // Top right point
+            final latLngMax = BoundingBox.getLatLngFromMapUnits(
+              referencePoint: centerViewPoint,
+              x: xDistanceFromViewCenter,
+              y: yDistanceFromViewCenter,
+            );
 
-          controller.add(
-            BoundingBox(
-              height: newValue.height,
-              width: newValue.width,
-              lowerLeft: latLngMin,
-              topRight: latLngMax,
-            ),
-          );
-        }
-      },
+            controller.add(
+              BoundingBox(
+                height: newValue.height,
+                width: newValue.width,
+                lowerLeft: latLngMin,
+                topRight: latLngMax,
+              ),
+            );
+          }
+        },
+      ),
     );
 
     return controller.stream;
