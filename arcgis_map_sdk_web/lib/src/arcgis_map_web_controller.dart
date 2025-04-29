@@ -264,12 +264,16 @@ class ArcgisMapWebController {
     final webgl2 = canvasElement?.getContext('webgl2');
 
     if (webgl != null) {
-      (webgl as WebGLRenderingContext).getCustomExtension('WEBGL_lose_context')?.loseContext();
+      (webgl as WebGLRenderingContext)
+          .getCustomExtension('WEBGL_lose_context')
+          ?.loseContext();
       webgl.getCustomExtension('WEBGL_lose_context')?.restoreContext();
     }
 
     if (webgl2 != null) {
-      (webgl2 as WebGLRenderingContext).getCustomExtension('WEBGL_lose_context')?.loseContext();
+      (webgl2 as WebGLRenderingContext)
+          .getCustomExtension('WEBGL_lose_context')
+          ?.loseContext();
       webgl2.getCustomExtension('WEBGL_lose_context')?.restoreContext();
     }
   }
