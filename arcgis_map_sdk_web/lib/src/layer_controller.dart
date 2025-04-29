@@ -515,8 +515,7 @@ class LayerController {
     final List<String> graphicIdsInView = <String>[];
     view.graphics.forEach(
       allowInterop((JsGraphic graphic, _, __) {
-        final bool isInView =
-            extent.intersects(graphic.geometry.extent) ?? false;
+        final bool isInView = extent.intersects(graphic.geometry.extent);
         if (isInView) {
           graphicIdsInView.add(graphic.attributes.id);
         }
@@ -530,8 +529,7 @@ class LayerController {
         if (layer is JsGraphicsLayer) {
           layer.graphics?.forEach(
             allowInterop((JsGraphic graphic, _, __) {
-              final bool isInView =
-                  extent.intersects(graphic.geometry.extent) ?? false;
+              final bool isInView = extent.intersects(graphic.geometry.extent);
               if (isInView) {
                 graphicIdsInView.add(graphic.attributes.id);
               }
