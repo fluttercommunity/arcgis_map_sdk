@@ -8,43 +8,41 @@ import CoreLocation
 
 
 struct MapContentView: View {
-    @ObservedObject var mapViewModel: MapViewModel
+    @ObservedObject var viewModel: MapViewModel
         
-    init(mapViewModel: MapViewModel) {
-        self.mapViewModel = mapViewModel
+    init(viewModel: MapViewModel) {
+        self.viewModel = viewModel
     }
     
     var body: some View {
         MapViewReader { mapViewProxy in
-            MapView(map: mapViewModel.map,
-                    viewpoint: mapViewModel.viewpoint,
-                    graphicsOverlays: [mapViewModel.defaultGraphicsOverlay])
-                .attributionBarHidden(mapViewModel.attributionBarHidden)
-                .locationDisplay(mapViewModel.locationDisplay)
-                .contentInsets(mapViewModel.contentInsets)
-                .interactionModes(mapViewModel.interactionModes)
+            MapView(map: viewModel.map,
+                    viewpoint: viewModel.viewpoint,
+                    graphicsOverlays: [viewModel.defaultGraphicsOverlay])
+                .attributionBarHidden(viewModel.attributionBarHidden)
+                .locationDisplay(viewModel.locationDisplay)
+                .contentInsets(viewModel.contentInsets)
+                .interactionModes(viewModel.interactionModes)
                 .onViewpointChanged(kind: .centerAndScale) { newViewpoint in
-                    mapViewModel.viewpoint = newViewpoint
+                    viewModel.viewpoint = newViewpoint
                 }.onScaleChanged(perform: { scale in
-                    mapViewModel.onScaleChanged?(scale)
+                    viewModel.onScaleChanged?(scale)
                 }).onVisibleAreaChanged(perform: { polygon in
-                    mapViewModel.onVisibleAreaChanged?(polygon)
+                    viewModel.onVisibleAreaChanged?(polygon)
                 })
-                .onChange(of: mapViewModel.map.basemap?.loadStatus) { newValue in
+                .onChange(of: viewModel.map.basemap?.loadStatus) { newValue in
                     if let newValue {
-                         mapViewModel.onLoadStatusChanged?(newValue)
+                         viewModel.onLoadStatusChanged?(newValue)
                      }
                 }
                 .task {
                     // Store the mapViewProxy for external access
-                    mapViewModel.mapViewProxy = mapViewProxy
-                    
-//                    await mapViewModel.locationDidChange()
+                    viewModel.mapViewProxy = mapViewProxy
                 }
                 .onDisappear {
-                    mapViewModel.stopLocationDataSource()
+                    viewModel.stopLocationDataSource()
                     // Clear the mapViewProxy reference when view disappears
-                    mapViewModel.mapViewProxy = nil
+                    viewModel.mapViewProxy = nil
                 }
                 .ignoresSafeArea(edges: .all)
         }
@@ -58,12 +56,10 @@ class MapViewModel: ObservableObject {
     
     @Published var viewpoint: Viewpoint
     @Published var mapViewProxy: MapViewProxy?
-    @Published var attributionBarHidden: Bool = true
+    @Published var attributionBarHidden: Bool = false
     @Published var contentInsets: EdgeInsets = EdgeInsets()
     @Published var interactionModes: MapViewInteractionModes = .all
     @Published var defaultGraphicsOverlay = GraphicsOverlay()
-    /// The latest location update from the location data source.
-    @Published var currentLocation: Location?
     
     var onScaleChanged: ((Double) -> Void)?
     var onVisibleAreaChanged: ((Polygon) -> Void)?
@@ -72,16 +68,6 @@ class MapViewModel: ObservableObject {
     init(viewpoint : Viewpoint) {
         self.viewpoint = viewpoint
     }
-    
-    // Methods that can be called from outside
-    func setViewpoint(_ newViewpoint: Viewpoint) {
-        viewpoint = newViewpoint
-    }
-    
-    func setViewpointGeometry(_ geometry: Geometry) async {
-        guard let mapViewProxy = mapViewProxy else { return }
-        await mapViewProxy.setViewpointGeometry(geometry)
-    }
 
     /// Stops the location data source.
     func stopLocationDataSource() {
@@ -89,12 +75,4 @@ class MapViewModel: ObservableObject {
             await locationDisplay.dataSource.stop()
         }
     }
-    
-//    /// Uses `for-await-in` to access location updates produced by the async stream.
-//    @MainActor
-//    func locationDidChange() async {
-//        for await newLocation in locationDisplay.dataSource.locations {
-//            currentLocation = newLocation
-//        }
-//    }
 }

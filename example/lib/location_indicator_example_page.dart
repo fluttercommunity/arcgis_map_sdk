@@ -126,7 +126,7 @@ class _LocationIndicatorExamplePageState extends State<LocationIndicatorExampleP
     final location = await Geolocator.getLastKnownPosition();
     if (!mounted || location == null) return;
     // Small delay to let the map render before moving the camera
-    await Future.delayed(Duration(milliseconds: 300));
+    await Future.delayed(Duration(milliseconds: 500));
     await _controller!.moveCamera(
       point: LatLng(location.latitude, location.longitude),
       zoomLevel: 16,

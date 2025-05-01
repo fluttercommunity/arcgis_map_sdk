@@ -8,19 +8,6 @@
 import Foundation
 import ArcGIS
 
-//class ManualLocationDataSource: LocationDataSource {
-//    public func setNewLocation(_ position: UserPosition) {
-//        let loc = Location(
-//            position: position.latLng.toAGSPoint(),
-//            horizontalAccuracy: position.accuracy ?? 0,
-//            velocity: position.velocity ?? 0,
-//            course: position.heading ?? 0,
-//            lastKnown: false
-//        )
-//        didUpdate(loc)
-//    }
-//}
-
 final class CustomLocationProvider: LocationProvider {
     private var locationContinuation: AsyncThrowingStream<Location, Error>.Continuation?
     
