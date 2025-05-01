@@ -46,6 +46,7 @@ struct MapContentView: View {
                     // Clear the mapViewProxy reference when view disappears
                     mapViewModel.mapViewProxy = nil
                 }
+                .ignoresSafeArea(edges: .all)
         }
     }
 }
@@ -57,7 +58,7 @@ class MapViewModel: ObservableObject {
     
     @Published var viewpoint: Viewpoint
     @Published var mapViewProxy: MapViewProxy?
-    @Published var attributionBarHidden: Bool = false
+    @Published var attributionBarHidden: Bool = true
     @Published var contentInsets: EdgeInsets = EdgeInsets()
     @Published var interactionModes: MapViewInteractionModes = .all
     @Published var defaultGraphicsOverlay = GraphicsOverlay()

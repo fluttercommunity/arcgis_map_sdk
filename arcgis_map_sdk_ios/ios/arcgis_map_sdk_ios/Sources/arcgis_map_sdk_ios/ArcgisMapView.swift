@@ -419,10 +419,10 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
 
     private func onStartLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        
         Task {
             do {
                 try await mapContentView.mapViewModel.locationDisplay.dataSource.start();
+                result(true)
             }
             catch{
                 let flutterError = FlutterError(
@@ -552,7 +552,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
         
-        mapContentView.mapViewModel.attributionBarHidden = isVisible
+        mapContentView.mapViewModel.attributionBarHidden = !isVisible
         result(true)
     }
 
