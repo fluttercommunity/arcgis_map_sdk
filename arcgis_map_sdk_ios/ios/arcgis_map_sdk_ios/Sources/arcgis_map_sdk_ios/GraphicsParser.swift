@@ -32,16 +32,14 @@ class GraphicsParser {
         }
 
         // Apply attributes to each graphic, if present
-         if let attributes = dictionary["attributes"] as? [String: Any] {
-             for graphic in newGraphics {
-                 if let mutableAttributes = graphic.attributes as? NSMutableDictionary {
-                     for (key, value) in attributes {
-                         mutableAttributes[key] = value
-                     }
-                 }
-             }
-         }
-  
+        if let attributes = dictionary["attributes"] as? [String: Any] {
+            newGraphics.forEach { graphic in
+                for (key, value) in attributes {
+                    graphic.setAttributeValue(value, forKey: key)
+                }
+            }
+        }
+        
         return newGraphics
     }
 
