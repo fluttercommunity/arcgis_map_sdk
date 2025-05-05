@@ -10,6 +10,8 @@ import ArcGIS
 
 final class CustomLocationProvider: LocationProvider {
     private var locationContinuation: AsyncThrowingStream<Location, Error>.Continuation?
+    private var headingContinuation: AsyncThrowingStream<Double, Error>.Continuation?
+    
     
     // Exposed stream
     var locations: AsyncThrowingStream<Location, Error> {
@@ -17,16 +19,10 @@ final class CustomLocationProvider: LocationProvider {
             self.locationContinuation = continuation
         }
     }
-
+    
     var headings: AsyncThrowingStream<Double, Error> {
         AsyncThrowingStream { continuation in
-            Task {
-                while !Task.isCancelled {
-                    continuation.yield(.random(in: 0...360))
-                    await Task.yield()
-                }
-                continuation.finish()
-            }
+            self.headingContinuation = continuation
         }
     }
 
@@ -41,6 +37,9 @@ final class CustomLocationProvider: LocationProvider {
             isLastKnown: false
         )
         locationContinuation?.yield(loc)
+        if let heading = position.heading {
+            headingContinuation?.yield(heading)
+        }
     }
 }
 
