@@ -1,6 +1,3 @@
-// ignore: unnecessary_library_directive
-library arcgis_map_sdk_platform_interface;
-
 export 'package:arcgis_map_sdk_platform_interface/src/arcgis_map_sdk_platform_interface.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/events/map_event.dart';
 export 'package:arcgis_map_sdk_platform_interface/src/models/animation_options.dart';
