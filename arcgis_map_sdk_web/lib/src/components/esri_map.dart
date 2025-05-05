@@ -1,6 +1,6 @@
-import "dart:js_util" as js_util;
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_sdk_web/src/components/vector_layer.dart';
+import 'package:js/js_util.dart';
 
 class EsriMap {
   const EsriMap();
@@ -12,9 +12,9 @@ class EsriMap {
   }) {
     if (vectorTileLayerUrls != null && vectorTileLayerUrls.isNotEmpty) {
       return JsEsriMap(
-        js_util.jsify({
+        jsify({
           "basemap": JsBaseMap(
-            js_util.jsify({
+            jsify({
               'baseLayers': vectorTileLayerUrls.map(
                 (String url) {
                   return VectorLayer().init(url: url);
@@ -26,7 +26,7 @@ class EsriMap {
       );
     } else {
       return JsEsriMap(
-        js_util.jsify({"basemap": basemap, "ground": ground}),
+        jsify({"basemap": basemap, "ground": ground}),
       );
     }
   }

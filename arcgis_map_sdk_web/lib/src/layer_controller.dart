@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:html' hide VoidCallback;
-import 'dart:js_util';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -12,6 +10,8 @@ import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 enum HoveredState { hovered, notHovered }
 
@@ -677,7 +677,7 @@ class LayerController {
   /// Changes the mouse cursor to a specified [SystemMouseCursor].
   void setMouseCursor(String mapId, SystemMouseCursor cursor) {
     final setCursor = cursor.kind == 'basic' ? 'default' : 'pointer';
-    document.getElementById(mapId)?.style.cursor = setCursor;
+    (document.getElementById(mapId) as HTMLElement?)?.style.cursor = setCursor;
   }
 
   /// Updates the graphic representation of an existing polygon via the [SimpleFillSymbol].
@@ -941,7 +941,9 @@ class LayerController {
 
     if (graphic.onHover == null &&
         graphic.onEnter == null &&
-        graphic.onExit == null) return Future(() => null);
+        graphic.onExit == null) {
+      return Future(() => null);
+    }
     _graphics[graphic] = HoveredState.notHovered;
     return Future(() => null);
   }
@@ -956,7 +958,7 @@ class LayerController {
     bool executing = false;
     return view.on(
       ['pointer-move'],
-      allowInterop((event) async {
+      allowInterop((event) {
         if (executing) return;
         _deBouncer.run(
           () async {
@@ -995,7 +997,9 @@ class LayerController {
     JsHitTestResult hitTestResult,
   ) {
     if (resultsLength < 1 ||
-        hitTestResult.results?[0].graphic?.attributes == null) return;
+        hitTestResult.results?[0].graphic?.attributes == null) {
+      return;
+    }
     final String? hitTestId = hitTestResult.results?[0].graphic?.attributes.id;
     for (final Graphic graphic in _graphics.keys) {
       if (hitTestId == graphic.getAttributesId()) {
