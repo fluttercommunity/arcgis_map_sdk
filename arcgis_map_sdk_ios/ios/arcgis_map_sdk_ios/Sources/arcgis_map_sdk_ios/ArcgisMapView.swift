@@ -259,7 +259,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 }
                 let success = await mapContentView.viewModel.mapViewProxy?.setViewpoint(
                     Viewpoint(center: point.toAGSPoint(), scale: scale),
-                    duration: (animationOptions?.duration ?? 0) / 1000,
+                    duration: (animationOptions?.duration ?? 0) / 1000
                 )
                 result(success)
             } catch {
