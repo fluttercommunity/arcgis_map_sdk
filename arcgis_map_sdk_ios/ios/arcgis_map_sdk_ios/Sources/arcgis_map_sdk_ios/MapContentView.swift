@@ -9,42 +9,46 @@ import CoreLocation
 
 struct MapContentView: View {
     @ObservedObject var viewModel: MapViewModel
-        
+    
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
     }
     
     var body: some View {
         MapViewReader { mapViewProxy in
-            MapView(map: viewModel.map,
-                    viewpoint: viewModel.viewpoint,
-                    graphicsOverlays: [viewModel.defaultGraphicsOverlay])
-                .attributionBarHidden(viewModel.attributionBarHidden)
-                .locationDisplay(viewModel.locationDisplay)
-                .contentInsets(viewModel.contentInsets)
-                .interactionModes(viewModel.interactionModes)
-                .onViewpointChanged(kind: .centerAndScale) { newViewpoint in
-                    viewModel.viewpoint = newViewpoint
-                }.onScaleChanged(perform: { scale in
-                    viewModel.onScaleChanged?(scale)
-                }).onVisibleAreaChanged(perform: { polygon in
-                    viewModel.onVisibleAreaChanged?(polygon)
-                })
-                .onChange(of: viewModel.map.basemap?.loadStatus) { newValue in
-                    if let newValue {
-                         viewModel.onLoadStatusChanged?(newValue)
-                     }
+            MapView(
+                map: viewModel.map,
+                viewpoint: viewModel.viewpoint,
+                graphicsOverlays: [viewModel.defaultGraphicsOverlay]
+            )
+            .attributionBarHidden(viewModel.attributionBarHidden)
+            .locationDisplay(viewModel.locationDisplay)
+            .contentInsets(viewModel.contentInsets)
+            .interactionModes(viewModel.interactionModes)
+            .onViewpointChanged(kind: .centerAndScale) { newViewpoint in
+                viewModel.viewpoint = newViewpoint
+            }
+            .onScaleChanged { scale in
+                viewModel.onScaleChanged?(scale)
+            }
+            .onVisibleAreaChanged { polygon in
+                viewModel.onVisibleAreaChanged?(polygon)
+            }
+            .onChange(of: viewModel.map.basemap?.loadStatus) { newValue in
+                if let newValue {
+                    viewModel.onLoadStatusChanged?(newValue)
                 }
-                .task {
-                    // Store the mapViewProxy for external access
-                    viewModel.mapViewProxy = mapViewProxy
-                }
-                .onDisappear {
-                    viewModel.stopLocationDataSource()
-                    // Clear the mapViewProxy reference when view disappears
-                    viewModel.mapViewProxy = nil
-                }
-                .ignoresSafeArea(edges: .all)
+            }
+            .task {
+                // Store the mapViewProxy for external access
+                viewModel.mapViewProxy = mapViewProxy
+            }
+            .onDisappear {
+                viewModel.stopLocationDataSource()
+                // Clear the mapViewProxy reference when view disappears
+                viewModel.mapViewProxy = nil
+            }
+            .ignoresSafeArea(edges: .all)
         }
     }
 }
@@ -68,7 +72,7 @@ class MapViewModel: ObservableObject {
     init(viewpoint : Viewpoint) {
         self.viewpoint = viewpoint
     }
-
+    
     /// Stops the location data source.
     func stopLocationDataSource() {
         Task {
