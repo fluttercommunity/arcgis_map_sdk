@@ -112,6 +112,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private func setupMethodChannel() {
         methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch (call.method) {
+            case "on_init_complete": waitForViewToInit(call, result)
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
             case "rotate" : onRotate(call, result)
@@ -141,6 +142,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
         })
+    }
+    
+    private func waitForViewToInit(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if mapContentView.viewModel.mapViewProxy != nil {
+                result(true)
+        } else {
+            mapContentView.viewModel.onViewInit = { [weak self] in
+                result(true)
+            }
+        }
     }
 
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {

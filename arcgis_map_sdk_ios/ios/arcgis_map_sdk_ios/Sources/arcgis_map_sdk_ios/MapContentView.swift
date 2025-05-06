@@ -42,6 +42,7 @@ struct MapContentView: View {
             .task {
                 // Store the mapViewProxy for external access
                 viewModel.mapViewProxy = mapViewProxy
+                viewModel.onViewInit?();
             }
             .onDisappear {
                 viewModel.stopLocationDataSource()
@@ -68,6 +69,7 @@ class MapViewModel: ObservableObject {
     var onScaleChanged: ((Double) -> Void)?
     var onVisibleAreaChanged: ((Polygon) -> Void)?
     var onLoadStatusChanged: ((LoadStatus) -> Void)?
+    var onViewInit: (() -> Void)?
     
     init(viewpoint : Viewpoint) {
         self.viewpoint = viewpoint
