@@ -15,7 +15,7 @@ struct LatLng: Codable {
 }
 
 extension LatLng {
-    func toAGSPoint() -> AGSPoint {
-        AGSPoint(x: longitude, y: latitude, spatialReference: .wgs84())
+    func toAGSPoint() -> Point {
+        Point(x: longitude, y: latitude, spatialReference: .wgs84)
     }
 }

@@ -12,10 +12,9 @@ A new Flutter project.
   s.homepage         = 'http://example.com'
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'arcgis_map_sdk_ios/Sources/**/*'
   s.dependency 'Flutter'
-  s.dependency 'ArcGIS-Runtime-Toolkit-iOS'
-  s.platform = :ios, '13.0'
+  s.platform = :ios, '16.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

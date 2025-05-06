@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct MapColor: Codable {
     var red: Double

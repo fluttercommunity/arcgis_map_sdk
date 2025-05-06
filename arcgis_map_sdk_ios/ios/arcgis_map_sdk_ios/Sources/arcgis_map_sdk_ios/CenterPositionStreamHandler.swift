@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Flutter
 
 class CenterPositionStreamHandler: NSObject, FlutterStreamHandler {
 

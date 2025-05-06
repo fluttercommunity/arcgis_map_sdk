@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arcgis_map_sdk_method_channel/src/model_extension.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   /// This method is called when the plugin is first initialized.
   @override
-  Future<void> init(int mapId) async {}
+  Future<void> init(int mapId) async {
+    if (Platform.isIOS) {
+      return _methodChannelBuilder(mapId).invokeMethod('on_init_complete');
+    }
+  }
 
   @override
   Future<FeatureLayer> addFeatureLayer(
