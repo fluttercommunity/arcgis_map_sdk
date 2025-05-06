@@ -33,7 +33,7 @@ enum PolylineStyle: String, Codable {
     case shortDot
     case solid
 
-    func toAGSStyle() -> AGSSimpleLineSymbolStyle {
+    func toAGSStyle() -> SimpleLineSymbol.Style {
         switch (self) {
         case .dash:
             return .dash
@@ -48,7 +48,7 @@ enum PolylineStyle: String, Codable {
         case .longDashDotDot:
             return .longDashDot
         case .none:
-            return .null
+            return .noLine
         case .shortDash:
             return .shortDash
         case .shortDashDot:
@@ -68,7 +68,7 @@ enum MarkerPlacement: String, Codable {
     case end
     case beginEnd
 
-    func toAGSStyle() -> AGSSimpleLineSymbolMarkerPlacement {
+    func toAGSStyle() -> SimpleLineSymbol.MarkerPlacement {
         switch (self) {
         case .begin:
             return .begin
@@ -88,12 +88,12 @@ enum MarkerStyle: String, Codable {
         self = try MarkerStyle(rawValue: decoder.singleValueContainer().decode(RawValue.self)) ?? .none
     }
 
-    func toAGSStyle() -> AGSSimpleLineSymbolMarkerStyle {
+    func toAGSStyle() -> SimpleLineSymbol.MarkerStyle {
         switch (self) {
         case .arrow:
             return .arrow
         case .none:
-            return .none
+            return .noMarkers
         }
     }
 }

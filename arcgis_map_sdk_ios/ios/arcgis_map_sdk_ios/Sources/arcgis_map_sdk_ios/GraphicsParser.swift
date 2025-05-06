@@ -16,10 +16,10 @@ class GraphicsParser {
         self.registrar = registrar
     }
 
-    func parse(dictionary: Dictionary<String, Any>) throws -> [AGSGraphic] {
+    func parse(dictionary: Dictionary<String, Any>) throws -> [Graphic] {
         let type = dictionary["type"] as! String
 
-        let newGraphics: [AGSGraphic]
+        let newGraphics: [Graphic]
         switch (type) {
         case "point":
             newGraphics = try! parsePoint(dictionary)
@@ -31,26 +31,29 @@ class GraphicsParser {
             throw ParseException(message: "Unknown graphic type: \(type)")
         }
 
-        let attributes = dictionary["attributes"] as? Dictionary<String, Any>
-        if let attributes = attributes {
-            newGraphics.forEach {
-                $0.attributes.addEntries(from: attributes)
+        // Apply attributes to each graphic, if present
+        if let attributes = dictionary["attributes"] as? [String: Any] {
+            newGraphics.forEach { graphic in
+                for (key, value) in attributes {
+                    graphic.setAttributeValue(value, forKey: key)
+                }
             }
         }
+        
         return newGraphics
     }
 
-    private func parsePoint(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
+    private func parsePoint(_ dictionary: [String: Any]) throws -> [Graphic] {
         let point: LatLng = try! JsonUtil.objectOfJson(dictionary["point"] as! Dictionary<String, Any>)
 
-        let graphic = AGSGraphic()
+        let graphic = Graphic()
         graphic.geometry = point.toAGSPoint()
         graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
         return [graphic]
     }
 
-    private func parsePolyline(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
+    private func parsePolyline(_ dictionary: [String: Any]) throws -> [Graphic] {
         let payload: PathPayload = try! JsonUtil.objectOfJson(dictionary)
 
         return try payload.paths.map { coordinates in
@@ -59,28 +62,28 @@ class GraphicsParser {
                     throw ParseException(message: "Size of coordinates need to be at least 2. Got \(array)")
                 }
                 if(array.count > 2) {
-                    return AGSPoint(x: array[0], y: array[1], z: array[2], spatialReference: .wgs84())
+                    return Point(x: array[0], y: array[1], z: array[2], spatialReference: .wgs84)
                 }
-                return AGSPoint(x: array[0], y: array[1], spatialReference: .wgs84())
+                return Point(x: array[0], y: array[1], spatialReference: .wgs84)
             }
 
-            let graphic = AGSGraphic()
-            graphic.geometry = AGSPolyline(points: points)
+            let graphic = Graphic()
+            graphic.geometry = Polyline(points: points)
             graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
             return graphic
         }
     }
 
-    private func parsePolygon(_ dictionary: [String: Any]) throws -> [AGSGraphic] {
+    private func parsePolygon(_ dictionary: [String: Any]) throws -> [Graphic] {
         let payload: PolygonPayload = try! JsonUtil.objectOfJson(dictionary)
 
         return payload.rings.map { ring in
-            let graphic = AGSGraphic()
+            let graphic = Graphic()
             let points = ring.map { coordinate in
-                AGSPoint(x: coordinate[0], y: coordinate[1], spatialReference: .wgs84())
+                Point(x: coordinate[0], y: coordinate[1], spatialReference: .wgs84)
             }
-            graphic.geometry = AGSPolygon(points: points)
+            graphic.geometry = Polygon(points: points)
             graphic.symbol = try! parseSymbol(dictionary["symbol"] as! Dictionary<String, Any>)
 
             return graphic
@@ -89,7 +92,7 @@ class GraphicsParser {
 
     // region symbol parsing
 
-    func parseSymbol(_ dictionary: [String: Any]) throws -> AGSSymbol {
+    func parseSymbol(_ dictionary: [String: Any]) throws -> Symbol {
         let type = dictionary["type"] as! String;
         switch (type) {
         case "simple-marker":
@@ -105,13 +108,13 @@ class GraphicsParser {
         }
     }
 
-    private func parseSimpleMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+    private func parseSimpleMarkerSymbol(_ dictionary: [String: Any]) -> Symbol {
         let payload: SimpleMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        let symbol = AGSSimpleMarkerSymbol()
+        let symbol = SimpleMarkerSymbol()
         symbol.color = payload.color.toUIColor()
         symbol.size = payload.size
-        symbol.outline = AGSSimpleLineSymbol(
+        symbol.outline = SimpleLineSymbol(
                 style: .solid,
                 color: payload.outlineColor.toUIColor(),
                 width: payload.outlineWidth
@@ -119,13 +122,13 @@ class GraphicsParser {
         return symbol
     }
 
-    private func parseSimpleFillMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+    private func parseSimpleFillMarkerSymbol(_ dictionary: [String: Any]) -> Symbol {
         let payload: SimpleFillSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
-        let symbol = AGSSimpleFillSymbol()
+        let symbol = SimpleFillSymbol()
         symbol.color = payload.fillColor.toUIColor()
 
-        let outline = AGSSimpleLineSymbol()
+        let outline = SimpleLineSymbol()
         outline.width = payload.outlineWidth
         outline.color = payload.outlineColor.toUIColor()
         symbol.outline = outline
@@ -133,12 +136,12 @@ class GraphicsParser {
         return symbol
     }
 
-    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> Symbol {
         let payload: PictureMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
         if(!payload.assetUri.isWebUrl()) {
             let uiImage = getFlutterUiImage(payload.assetUri)
-            let symbol = AGSPictureMarkerSymbol(image: uiImage!)
+            let symbol = PictureMarkerSymbol(image: uiImage!)
             symbol.width = payload.width
             symbol.height = payload.height
             symbol.offsetX = payload.xOffset
@@ -146,7 +149,7 @@ class GraphicsParser {
             return symbol
         }
 
-        let symbol = AGSPictureMarkerSymbol(url: URL(string: payload.assetUri)!)
+        let symbol = PictureMarkerSymbol(url: URL(string: payload.assetUri)!)
         symbol.width = payload.width
         symbol.height = payload.height
         symbol.offsetX = payload.xOffset
@@ -161,9 +164,9 @@ class GraphicsParser {
         return UIImage(named: path!)
     }
 
-    private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> AGSSymbol {
+    private func parseSimpleLineSymbol(_ dictionary: [String: Any]) -> Symbol {
         let payload: SimpleLineSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
-        let symbol = AGSSimpleLineSymbol()
+        let symbol = SimpleLineSymbol()
         
         if let color = payload.color {
             symbol.color = color.toUIColor()
