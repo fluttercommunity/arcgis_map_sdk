@@ -1,7 +1,4 @@
 //
-//  ManualLocationDataSource.swift
-//  arcgis_map_sdk_ios
-//
 //  Created by Julian Bissekkou on 27.11.23.
 //
 
@@ -9,20 +6,26 @@ import Foundation
 import ArcGIS
 
 final class CustomLocationProvider: LocationProvider {
-    private var locationContinuation: AsyncThrowingStream<Location, Error>.Continuation?
-    private var headingContinuation: AsyncThrowingStream<Double, Error>.Continuation?
+    private var locationContinuation: AsyncStream<Location>.Continuation?
+    private var headingContinuation: AsyncStream<Double>.Continuation?
     
     
     // Exposed stream
-    var locations: AsyncThrowingStream<Location, Error> {
-        AsyncThrowingStream { continuation in
+    var locations: AsyncStream<Location> {
+        AsyncStream { @Sendable continuation in
             self.locationContinuation = continuation
+            continuation.onTermination = { _ in
+                     self.locationContinuation = nil
+            }
         }
     }
     
-    var headings: AsyncThrowingStream<Double, Error> {
-        AsyncThrowingStream { continuation in
+    var headings: AsyncStream<Double> {
+        AsyncStream { continuation in
             self.headingContinuation = continuation
+            continuation.onTermination = { @Sendable _ in
+                self.headingContinuation = nil
+            }
         }
     }
 
