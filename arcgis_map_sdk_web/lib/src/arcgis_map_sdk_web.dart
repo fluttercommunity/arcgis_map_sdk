@@ -65,12 +65,6 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> setMethodCallHandler({
-    required int mapId,
-    required Future<dynamic> Function(MethodCall) onCall,
-  }) async {}
-
-  @override
   Future<void> moveCamera({
     required LatLng point,
     required int mapId,
