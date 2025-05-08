@@ -22,6 +22,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+      - run: ./am deps
       - run: ./am format --verify
 
   test:

@@ -25,7 +25,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int mapId,
     void Function(double)? getZoom,
     String layerId,
-  ) async {
+  ) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
@@ -43,7 +43,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setAutoPanMode(String autoPanMode, int mapId) {
-    return _methodChannelBuilder(mapId).invokeMethod("set_auto_pan_mode", autoPanMode);
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("set_auto_pan_mode", autoPanMode);
   }
 
   @override
@@ -121,7 +122,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     required String featureLayerId,
     required List<Graphic> data,
-  }) async {
+  }) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
@@ -165,7 +166,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     AnimationOptions? animationOptions,
     int? threeDHeading,
     int? threeDTilt,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "move_camera",
       {
@@ -196,7 +197,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_in",
       {"lodFactor": lodFactor},
@@ -208,7 +209,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_out",
       {"lodFactor": lodFactor},
@@ -216,7 +217,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> retryLoad(int mapId) async {
+  Future<void> retryLoad(int mapId) {
     return _methodChannelBuilder(mapId).invokeMethod("retryLoad");
   }
 

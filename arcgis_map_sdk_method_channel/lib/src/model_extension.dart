@@ -110,7 +110,7 @@ extension on MeshSymbol3D {
           {
             'type': 'fill',
             'material': {
-              'color': [color.red, color.green, color.blue, colorOpacity],
+              'color': [color.r, color.g, color.b, colorOpacity],
             },
           },
         ],
@@ -174,10 +174,10 @@ Map<String, Object?>? _colorToJson(Color? color) {
   if (color == null) return null;
 
   return {
-    'red': color.red,
-    'green': color.green,
-    'blue': color.blue,
-    'opacity': color.opacity,
+    'red': (color.r * 255).round(),
+    'green': (color.g * 255).round(),
+    'blue': (color.b * 255).round(),
+    'opacity': color.a,
   };
 }
 
