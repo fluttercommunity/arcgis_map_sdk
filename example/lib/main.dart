@@ -735,16 +735,12 @@ class _ExampleMapState extends State<ExampleMap> {
                         onPressed: () => _controller?.retryLoad(),
                         child: const Text('Reload map'),
                       ),
-                      if (!kIsWeb)
-                        ElevatedButton(
-                          onPressed: () => _makePolylineVisible(
-                            points: [
-                              _firstPinCoordinates,
-                              _secondPinCoordinates
-                            ],
-                          ),
-                          child: const Text('Zoom to polyline'),
+                      ElevatedButton(
+                        onPressed: () => _makePolylineVisible(
+                          points: [_firstPinCoordinates, _secondPinCoordinates],
                         ),
+                        child: const Text('Zoom to polyline'),
+                      ),
                     ],
                   ),
                 ),

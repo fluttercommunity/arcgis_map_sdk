@@ -183,6 +183,9 @@ class ArcgisMapController {
     );
   }
 
+  /// Moves the camera to the provided [points] and makes sure that all of
+  /// them are visible.
+  /// Currently, [padding] is only supported on mobile.
   Future<void> moveCameraToPoints({
     required List<LatLng> points,
     double? padding,
