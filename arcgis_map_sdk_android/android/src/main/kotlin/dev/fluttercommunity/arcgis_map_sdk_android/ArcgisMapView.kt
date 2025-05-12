@@ -149,6 +149,8 @@ internal class ArcgisMapView(
         methodChannel.invokeMethod("onStatusChanged", status.jsonValue())
     }
 
+    override fun dispose() {}
+
     // region helper
 
     private fun setupMethodChannel() {
