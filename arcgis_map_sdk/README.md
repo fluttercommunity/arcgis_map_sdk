@@ -18,14 +18,6 @@ dependencies:
 ```
 
 
-### Android only setup
-(Android) In `<app>/android/app/proguard-rules.pro` add:
-
-```
--keep class dev.fluttercommunity.arcgis_map_sdk_android.** { *; }
-```
-
-
 ### Use ArcgisMap
 Integrate the `ArcgisMap` Widget
 
