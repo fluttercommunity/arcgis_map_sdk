@@ -14,7 +14,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let flutterPluginRegistrar: FlutterPluginRegistrar
 
     private var mapContentView: MapContentView
-    
+
     private var hostingController: UIHostingController<MapContentView>
     func view() -> UIView {
         return hostingController.view
@@ -52,7 +52,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 print("setLicenseKey failed. \(error)")
             }
         }
-        
+
         let viewpoint = Viewpoint(
                 latitude: mapOptions.initialCenter.latitude,
                 longitude: mapOptions.initialCenter.longitude,
@@ -60,12 +60,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         )
 
         mapContentView = MapContentView(viewModel: MapViewModel(viewpoint: viewpoint))
-    
+
         // Embed the SwiftUI MapView into a UIHostingController
         hostingController = UIHostingController(rootView: mapContentView)
         hostingController.view.frame = frame
         hostingController.view.backgroundColor = .clear
-        
+
         super.init()
         
         if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
@@ -100,7 +100,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
-        
+
         mapContentView.viewModel.onLoadStatusChanged = { [weak self] status in
             guard let self = self else { return }
             DispatchQueue.main.async {
@@ -143,7 +143,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         })
     }
-    
+
     private func waitForViewToInit(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         if mapContentView.viewModel.mapViewProxy != nil {
                 result(true)
@@ -213,7 +213,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
     }
-    
+
     private func onRotate(_ call: FlutterMethodCall, _ result:@escaping FlutterResult) {
         guard let angleDouble = call.arguments as? Double else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
@@ -260,9 +260,9 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 let zoomLevel = args["zoomLevel"] as? Int
                 let animationDict = args["animationOptions"] as? Dictionary<String, Any>
                 let animationOptions: AnimationOptions? = animationDict == nil ? nil : try JsonUtil.objectOfJson(animationDict!)
-                
+
                 let scale: Double
-                
+
                 if let zoomLevel = zoomLevel {
                     scale = ArcgisMapView.convertZoomLevelToMapScale(zoomLevel)
                 } else {
@@ -288,7 +288,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             do {
                 let payload: MoveToPointsPayload = try JsonUtil.objectOfJson(args)
                 let polyline = Polyline(points: payload.points.map { latLng in Point(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84) })
-                
+
                 if(payload.padding != nil) {
                     let success = try await mapContentView.viewModel.mapViewProxy!.setViewpointGeometry(polyline.extent, padding: payload.padding!)
                     result(success)

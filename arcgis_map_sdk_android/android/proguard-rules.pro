@@ -1,0 +1,2 @@
+-keep class dev.fluttercommunity.arcgis_map_sdk_android.model.** { *; }
+-keep class dev.fluttercommunity.arcgis_map_sdk_android.util.** { *; }

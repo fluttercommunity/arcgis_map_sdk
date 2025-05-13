@@ -412,6 +412,17 @@ class ArcgisMapWebController {
     );
   }
 
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+  }) async {
+    await _layerController!.moveCameraToPoints(
+      points: points,
+      padding: padding,
+      view: _activeView!,
+    );
+  }
+
   Future<void> moveCamera({
     required LatLng point,
     double? zoomLevel,
