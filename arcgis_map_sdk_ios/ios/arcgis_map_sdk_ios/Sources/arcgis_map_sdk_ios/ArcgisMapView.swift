@@ -1,9 +1,10 @@
 import ArcGIS
 import Foundation
+import Flutter
+import SwiftUI
+
 
 class ArcgisMapView: NSObject, FlutterPlatformView {
-
-    private let defaultGraphicsOverlay = AGSGraphicsOverlay()
 
     private let methodChannel: FlutterMethodChannel
     private let zoomEventChannel: FlutterEventChannel
@@ -12,29 +13,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     private let centerPositionStreamHandler = CenterPositionStreamHandler()
     private let flutterPluginRegistrar: FlutterPluginRegistrar
 
-    private var mapLoadStatusObservation: NSKeyValueObservation?
+    private var mapContentView: MapContentView
 
-    private var mapScaleObservation: NSKeyValueObservation?
-    private var mapVisibleAreaObservation: NSKeyValueObservation?
-
-    private let initialZoom: Int
-
-    private var mapView: AGSMapView
-    private let map = AGSMap()
-    private let graphicsOverlay = AGSGraphicsOverlay()
-    private let userIndicatorGraphic = AGSGraphic()
-    private let pinGraphic = AGSGraphic()
-    private let routeLineGraphic = AGSGraphic()
-
-    private var routeLineGraphics = [AGSGraphic]()
-
-    private var routePoints = Array<AGSPoint>()
-
-
-    private static let defaultDuration = 0.8
-
+    private var hostingController: UIHostingController<MapContentView>
     func view() -> UIView {
-        return mapView
+        return hostingController.view
     }
 
     init(
@@ -60,85 +43,76 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
 
         if let apiKey = mapOptions.apiKey {
-            AGSArcGISRuntimeEnvironment.apiKey = apiKey
+            ArcGISEnvironment.apiKey = APIKey(apiKey)
         }
         if let licenseKey = mapOptions.licenseKey {
             do {
-                try AGSArcGISRuntimeEnvironment.setLicenseKey(licenseKey)
+                try ArcGISEnvironment.setLicense(with: LicenseKey(licenseKey)!)
             } catch {
                 print("setLicenseKey failed. \(error)")
             }
         }
 
-        initialZoom = Int(mapOptions.zoom)
+        let viewpoint = Viewpoint(
+                latitude: mapOptions.initialCenter.latitude,
+                longitude: mapOptions.initialCenter.longitude,
+                scale: ArcgisMapView.convertZoomLevelToMapScale(Int(mapOptions.zoom))
+        )
 
-        mapView = AGSMapView.init(frame: frame)
+        mapContentView = MapContentView(viewModel: MapViewModel(viewpoint: viewpoint))
+
+        // Embed the SwiftUI MapView into a UIHostingController
+        hostingController = UIHostingController(rootView: mapContentView)
+        hostingController.view.frame = frame
+        hostingController.view.backgroundColor = .clear
 
         super.init()
-
+        
         if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
-            mapView.isAttributionTextVisible = isAttributionTextVisible
+            mapContentView.viewModel.attributionBarHidden = !isAttributionTextVisible
         }
 
         if mapOptions.basemap != nil {
-            map.basemap = AGSBasemap(style: parseBaseMapStyle(mapOptions.basemap!))
+            mapContentView.viewModel.map.basemap = Basemap(style: parseBaseMapStyle(mapOptions.basemap!))
         } else {
             let layers = mapOptions.vectorTilesUrls!.map { url in
-                AGSArcGISVectorTiledLayer(url: URL(string: url)!)
+                ArcGISVectorTiledLayer(url: URL(string: url)!)
             }
-            map.basemap = AGSBasemap(baseLayers: layers, referenceLayers: nil)
+            mapContentView.viewModel.map.basemap = Basemap(baseLayers: layers)
         }
 
-        map.minScale = convertZoomLevelToMapScale(mapOptions.minZoom)
-        map.maxScale = convertZoomLevelToMapScale(mapOptions.maxZoom)
+        mapContentView.viewModel.map.minScale = ArcgisMapView.convertZoomLevelToMapScale(mapOptions.minZoom)
+        mapContentView.viewModel.map.maxScale = ArcgisMapView.convertZoomLevelToMapScale(mapOptions.maxZoom)
 
-        mapView.map = map
-        mapView.graphicsOverlays.add(defaultGraphicsOverlay)
-
-        mapScaleObservation = mapView.observe(\.mapScale) { [weak self] (map, notifier) in
-            DispatchQueue.main.async {
-                guard let self = self else {
-                    return
-                }
-                let newZoom = self.convertScaleToZoomLevel(self.mapView.mapScale)
-                self.zoomStreamHandler.addZoom(zoom: newZoom)
-            }
+        mapContentView.viewModel.onScaleChanged = { [weak self] scale in
+            guard let self = self else { return }
+            guard !scale.isNaN else { return }
+            let newZoom = self.convertScaleToZoomLevel(scale)
+            self.zoomStreamHandler.addZoom(zoom: newZoom)
         }
-        mapVisibleAreaObservation = mapView.observe(\.visibleArea) { [weak self] (map, notifier) in
-            DispatchQueue.main.async {
-                guard let self = self else {
-                    return
-                }
-                guard let center = self.mapView.visibleArea?.extent.center else {
-                    return
-                }
-                guard let wgs84Center = AGSGeometryEngine.projectGeometry(center, to: .wgs84()) as? AGSPoint else {return}
+        mapContentView.viewModel.onVisibleAreaChanged = { [weak self] polygon in
+            guard let self = self else { return }
+            let center = polygon.extent.center
+            if let wgs84Center = GeometryEngine.project(center, into: .wgs84) as? Point {
                 self.centerPositionStreamHandler.add(center: LatLng(latitude: wgs84Center.y, longitude: wgs84Center.x))
             }
         }
 
-
-        let viewpoint = AGSViewpoint(
-                latitude: mapOptions.initialCenter.latitude,
-                longitude: mapOptions.initialCenter.longitude,
-                scale: convertZoomLevelToMapScale(Int(mapOptions.zoom))
-        )
-        mapView.setViewpoint(viewpoint)
-
         setMapInteractive(mapOptions.isInteractive)
         setupMethodChannel()
 
-        mapLoadStatusObservation = map.observe(\.loadStatus, options: .initial) { [weak self] (map, notifier) in
-                    DispatchQueue.main.async {
-                        let status = map.loadStatus
-                        self?.notifyStatus(status)
-                    }
-                }
+        mapContentView.viewModel.onLoadStatusChanged = { [weak self] status in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.notifyStatus(status)
+          }
+        }
     }
 
     private func setupMethodChannel() {
         methodChannel.setMethodCallHandler({ [self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch (call.method) {
+            case "on_init_complete": waitForViewToInit(call, result)
             case "zoom_in": onZoomIn(call, result)
             case "zoom_out": onZoomOut(call, result)
             case "rotate" : onRotate(call, result)
@@ -170,57 +144,73 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         })
     }
 
-    private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        if(mapView.mapScale.isNaN) {
-            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
-            return
+    private func waitForViewToInit(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        if mapContentView.viewModel.mapViewProxy != nil {
+                result(true)
+        } else {
+            mapContentView.viewModel.onViewInit = { [weak self] in
+                result(true)
+            }
         }
+    }
+
+    private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+         let currentScale = mapContentView.viewModel.viewpoint.targetScale
 
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
+        
         guard let lodFactor = args["lodFactor"] as? Int else {
             result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
             return
         }
 
-        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
+        let currentZoomLevel = convertScaleToZoomLevel(currentScale)
         let totalZoomLevel = currentZoomLevel + lodFactor
-        if (totalZoomLevel > convertScaleToZoomLevel(map.maxScale)) {
-            return
+        if let maxScale = mapContentView.viewModel.map.maxScale {
+            if totalZoomLevel > convertScaleToZoomLevel(maxScale) {
+                result(true)
+                return
+            }
         }
-        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
-        mapView.setViewpointScale(newScale) { _ in
-            result(true)
+        let newScale = ArcgisMapView.convertZoomLevelToMapScale(totalZoomLevel)
+        Task {
+            do {
+                await mapContentView.viewModel.mapViewProxy?.setViewpointScale(newScale)
+                result(true)
+            }
         }
     }
 
     private func onZoomOut(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        if(mapView.mapScale.isNaN) {
-            result(FlutterError(code: "unknown_error", message: "MapView.mapScale is NaN. Maybe the map is not completely loaded.", details: nil))
-            return
-        }
+        let currentScale = mapContentView.viewModel.viewpoint.targetScale
 
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
+        
         guard let lodFactor = args["lodFactor"] as? Int else {
             result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
             return
         }
-
-        let currentZoomLevel = convertScaleToZoomLevel(mapView.mapScale)
+        
+        let currentZoomLevel = convertScaleToZoomLevel(currentScale)
         let totalZoomLevel = currentZoomLevel - lodFactor
-        if (totalZoomLevel < convertScaleToZoomLevel(map.minScale)) {
-            return
+        if let minScale = mapContentView.viewModel.map.minScale {
+            if totalZoomLevel < convertScaleToZoomLevel(minScale) {
+                result(true)
+                return
+            }
         }
-        let newScale = convertZoomLevelToMapScale(totalZoomLevel)
-        mapView.setViewpointScale(newScale) { success in
-            result(success)
+        let newScale = ArcgisMapView.convertZoomLevelToMapScale(totalZoomLevel)
+        Task {
+            do {
+                let success = await mapContentView.viewModel.mapViewProxy?.setViewpointScale(newScale)
+                result(success)
+            }
         }
     }
 
@@ -229,9 +219,11 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
-        mapView.setViewpointRotation(angleDouble) { success in
-            result(success)
+        Task {
+            do {
+                let success = await mapContentView.viewModel.mapViewProxy?.setViewpointRotation(angleDouble)
+                result(success)
+            }
         }
     }
 
@@ -240,15 +232,15 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
+        
         do {
             let padding: ViewPadding = try JsonUtil.objectOfJson(args)
 
-            mapView.contentInset = UIEdgeInsets(
+            mapContentView.viewModel.contentInsets = EdgeInsets(
                 top: padding.top,
-                left: padding.left,
+                leading: padding.left,
                 bottom: padding.bottom,
-                right: padding.right
+                trailing: padding.right
             )
 
             result(true)
@@ -262,29 +254,28 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        do {
-            let point: LatLng = try JsonUtil.objectOfJson(args["point"] as! Dictionary<String, Any>)
-            let zoomLevel = args["zoomLevel"] as? Int
-            let animationDict = args["animationOptions"] as? Dictionary<String, Any>
-            let animationOptions: AnimationOptions? = animationDict == nil ? nil : try JsonUtil.objectOfJson(animationDict!)
+        Task {
+            do {
+                let point: LatLng = try JsonUtil.objectOfJson(args["point"] as! Dictionary<String, Any>)
+                let zoomLevel = args["zoomLevel"] as? Int
+                let animationDict = args["animationOptions"] as? Dictionary<String, Any>
+                let animationOptions: AnimationOptions? = animationDict == nil ? nil : try JsonUtil.objectOfJson(animationDict!)
 
-            let scale: Double
+                let scale: Double
 
-            if let zoomLevel = zoomLevel {
-                scale = convertZoomLevelToMapScale(zoomLevel)
-            } else {
-                scale = mapView.mapScale.isNaN ? convertZoomLevelToMapScale(initialZoom) : mapView.mapScale
-            }
-
-            mapView.setViewpoint(
-                AGSViewpoint(center: point.toAGSPoint(), scale: scale),
-                duration: (animationOptions?.duration ?? 0) / 1000,
-                curve: animationOptions?.arcgisAnimationCurve() ?? .linear
-            ) { success in
+                if let zoomLevel = zoomLevel {
+                    scale = ArcgisMapView.convertZoomLevelToMapScale(zoomLevel)
+                } else {
+                    scale = mapContentView.viewModel.viewpoint.targetScale
+                }
+                let success = await mapContentView.viewModel.mapViewProxy?.setViewpoint(
+                    Viewpoint(center: point.toAGSPoint(), scale: scale),
+                    duration: (animationOptions?.duration ?? 0) / 1000
+                )
                 result(success)
+            } catch {
+                result(FlutterError(code: "error", message: "Error onMoveCamera. Provided: \(args)", details: nil))
             }
-        } catch {
-            result(FlutterError(code: "error", message: "Error onMoveCamera. Provided: \(args)", details: nil))
         }
     }
 
@@ -293,28 +284,27 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
+        Task {
+            do {
+                let payload: MoveToPointsPayload = try JsonUtil.objectOfJson(args)
+                let polyline = Polyline(points: payload.points.map { latLng in Point(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84) })
 
-        do {
-            let payload: MoveToPointsPayload = try JsonUtil.objectOfJson(args)
-            let polyline = AGSPolyline(points: payload.points.map { latLng in AGSPoint(x: latLng.longitude, y:latLng.latitude, spatialReference: .wgs84()) })
-
-            if(payload.padding != nil) {
-                mapView.setViewpointGeometry(polyline.extent, padding: payload.padding!) { success in
+                if(payload.padding != nil) {
+                    let success = try await mapContentView.viewModel.mapViewProxy!.setViewpointGeometry(polyline.extent, padding: payload.padding!)
+                    result(success)
+                } else {
+                    let success = try await mapContentView.viewModel.mapViewProxy!.setViewpointGeometry(polyline.extent)
                     result(success)
                 }
-            } else {
-                mapView.setViewpointGeometry(polyline.extent) { success in
-                    result(success)
-                }
+            } catch {
+                result(FlutterError(code: "error", message: "Error onMoveCameraToPoints. Provided: \(args)", details: nil))
             }
-        } catch {
-            result(FlutterError(code: "error", message: "Error onMoveCameraToPoints. Provided: \(args)", details: nil))
         }
     }
 
     private func onAddGraphic(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let parser = GraphicsParser(registrar: flutterPluginRegistrar)
-        var newGraphics = [AGSGraphic]()
+        var newGraphics = [Graphic]()
         do {
             newGraphics.append(contentsOf: try parser.parse(dictionary: call.arguments as! Dictionary<String, Any>))
         } catch {
@@ -322,31 +312,31 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-
-        let existingIds = defaultGraphicsOverlay.graphics.compactMap { object in
-            let graphic = object as! AGSGraphic
+        
+        let existingIds = mapContentView.viewModel.defaultGraphicsOverlay.graphics.compactMap { object in
+            let graphic = object as! Graphic
             return graphic.attributes["id"] as? String
         }
-
+        
         let hasExistingGraphics = newGraphics.contains(where: { object in
             let graphic = object
             guard let id = graphic.attributes["id"] as? String else {
                 return false
             }
-
+            
             return existingIds.contains(id)
         })
-
+        
         if(hasExistingGraphics) {
             result(false)
             return
         }
-
+        
         // addObjects causes an internal exceptions this is why we add
         // them in this for loop instead.
         // ArcGis is the best <3.
         newGraphics.forEach {
-            defaultGraphicsOverlay.graphics.add($0)
+            mapContentView.viewModel.defaultGraphicsOverlay.addGraphic($0)
         }
         result(true)
     }
@@ -356,16 +346,16 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "graphicId not provided", details: nil))
             return
         }
+        
+        let selectedGraphics = mapContentView.viewModel.defaultGraphicsOverlay.graphics.filter { element in
+            if let graphic = element as? Graphic,
+               let id = graphic.attributes["id"] as? String {
+                return id == graphicId
+            }
+            return false
+        }
 
-        let newGraphics = defaultGraphicsOverlay.graphics.filter({ element in
-            let graphic = element as! AGSGraphic
-            let id = graphic.attributes["id"] as? String
-            return id != graphicId
-        })
-
-        defaultGraphicsOverlay.graphics.removeAllObjects()
-        defaultGraphicsOverlay.graphics.addObjects(from: newGraphics)
-
+        mapContentView.viewModel.defaultGraphicsOverlay.removeGraphics(selectedGraphics)
         result(true)
     }
 
@@ -374,18 +364,21 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "baseMapString not provided", details: nil))
             return
         }
-
-        map.basemap = AGSBasemap(style: parseBaseMapStyle(baseMapString))
-
+        
+        mapContentView.viewModel.map.basemap = Basemap(style: parseBaseMapStyle(baseMapString))
         result(true)
     }
 
     private func onRetryLoad(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-       mapView.map!.retryLoad()
-       result(true)
+        Task {
+            do {
+                try await mapContentView.viewModel.map.retryLoad()
+                result(true)
+            }
+        }
     }
 
-    private func notifyStatus(_ status:  AGSLoadStatus) {
+    private func notifyStatus(_ status:  LoadStatus) {
         methodChannel.invokeMethod("onStatusChanged", arguments: status.jsonValue())
     }
 
@@ -394,27 +387,22 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
+        
         guard let enabled = args["enabled"] as? Bool else {
             result(FlutterError(code: "missing_data", message: "enabled arguments", details: nil))
             return
         }
-
+        
         setMapInteractive(enabled)
         result(true)
     }
 
     private func setMapInteractive(_ enabled: Bool) {
-        mapView.interactionOptions.isZoomEnabled = enabled
-        mapView.interactionOptions.isPanEnabled = enabled
-        mapView.interactionOptions.isFlickEnabled = enabled
-        mapView.interactionOptions.isRotateEnabled = enabled
-        mapView.interactionOptions.isEnabled = enabled
-        // don't set "isMagnifierEnabled" since we don't want to use this feature
+        mapContentView.viewModel.interactionModes = enabled ? .all : []
     }
 
-    private func parseBaseMapStyle(_ string: String) -> AGSBasemapStyle {
-        let baseMapStyle = AGSBasemapStyle.allCases.first { enumValue in
+    private func parseBaseMapStyle(_ string: String) -> Basemap.Style {
+        let baseMapStyle = Basemap.Style.allCases.first { enumValue in
             enumValue.getJsonValue() == string
         }
         if baseMapStyle == nil {
@@ -436,42 +424,47 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
      *  Convert zoom level to map scale
      * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
      * */
-    private func convertZoomLevelToMapScale(_ zoomLevel: Int) -> Double {
+    private static func convertZoomLevelToMapScale(_ zoomLevel: Int) -> Double {
         591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
 
 
     private func onStartLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        mapView.locationDisplay.dataSource.start { error in
-            if let error = error {
+        Task {
+            do {
+                try await mapContentView.viewModel.locationDisplay.dataSource.start();
+                result(true)
+            }
+            catch{
                 let flutterError = FlutterError(
                     code: "generic_error",
                     message: "Failed to start data source: \(error.localizedDescription)",
                     details: nil
                 )
                 result(flutterError)
-            } else {
-                result(true)
             }
         }
     }
 
     private func onStopLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        mapView.locationDisplay.dataSource.stop {
-            result(true)
+        Task {
+            do {
+                await mapContentView.viewModel.locationDisplay.dataSource.stop()
+                result(true)
+            }
         }
     }
 
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        operationWithSymbol(call, result) { mapView.locationDisplay.defaultSymbol = $0 }
+        operationWithSymbol(call, result) { mapContentView.viewModel.locationDisplay.defaultSymbol = $0 }
     }
 
     private func onSetLocationDisplayAccuracySymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        operationWithSymbol(call, result) { mapView.locationDisplay.accuracySymbol = $0 }
+        operationWithSymbol(call, result) { mapContentView.viewModel.locationDisplay.accuracySymbol = $0 }
     }
 
     private func onSetLocationDisplayPingAnimationSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        operationWithSymbol(call, result) { mapView.locationDisplay.pingAnimationSymbol = $0 }
+        operationWithSymbol(call, result) { mapContentView.viewModel.locationDisplay.pingAnimationSymbol = $0 }
     }
 
     private func onSetLocationDisplayUseCourseSymbolOnMove(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -480,13 +473,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-        mapView.locationDisplay.useCourseSymbolOnMovement = active
+        mapContentView.viewModel.locationDisplay.usesCourseSymbolOnMovement = active
         result(true)
     }
 
     private func onUpdateLocationDisplaySourcePositionManually(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let dataSource = mapView.locationDisplay.dataSource
-        guard let source = dataSource as? ManualLocationDataSource else {
+        let dataSource =  mapContentView.viewModel.locationDisplay.dataSource
+        guard let source = dataSource as? CustomLocationDataSource<CustomLocationProvider> else {
             result(FlutterError(code: "invalid_state", message: "Expected ManualLocationDataSource but got \(dataSource)", details: nil))
             return
         }
@@ -496,7 +489,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-        source.setNewLocation(position)
+        source.currentProvider?.setNewLocation(position)
         result(true)
     }
 
@@ -511,36 +504,36 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             return
         }
 
-        mapView.locationDisplay.autoPanMode = autoPanMode
+        mapContentView.viewModel.locationDisplay.autoPanMode = autoPanMode
         result(true)
     }
-
+    
     private func onGetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         // autoPanMode.rawValue is any of [0; 3]:
         // https://developers.arcgis.com/ios/api-reference/_a_g_s_location_display_8h.html
-        guard let stringName = mapView.locationDisplay.autoPanMode.toName() else {
+        guard let stringName = mapContentView.viewModel.locationDisplay.autoPanMode.toName() else {
             result(FlutterError(code: "invalid_data", message: "AutoPanMode has invalid state", details: nil))
             return
         }
         return result(stringName)
     }
-
+    
     private func onSetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let factor = call.arguments as? Double else {
             result(FlutterError(code: "missing_data", message: "Invalid argument, expected an WanderExtentFactor as Double.", details: nil))
             return
         }
-
-        mapView.locationDisplay.wanderExtentFactor = Float(factor)
+        
+        mapContentView.viewModel.locationDisplay.wanderExtentFactor = Float(factor)
         result(true)
     }
-
+    
     private func onGetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        return result(mapView.locationDisplay.wanderExtentFactor)
+        return result(mapContentView.viewModel.locationDisplay.wanderExtentFactor)
     }
 
     private func onSetLocationDisplayDataSourceType(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        if(mapView.locationDisplay.dataSource.status == .started) {
+        if(mapContentView.viewModel.locationDisplay.dataSource.status == .started) {
             result(FlutterError(code: "invalid_state", message: "Current data source is running. Make sure to stop it before setting a new data source", details: nil))
             return
         }
@@ -552,42 +545,44 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
 
         switch(type) {
         case "manual" :
-            mapView.locationDisplay.dataSource = ManualLocationDataSource()
+            mapContentView.viewModel.locationDisplay.dataSource = CustomLocationDataSource{
+                return CustomLocationProvider()
+            }
             result(true)
         case "system" :
-            mapView.locationDisplay.dataSource = AGSCLLocationDataSource()
+            mapContentView.viewModel.locationDisplay.dataSource = SystemLocationDataSource()
             result(true)
         default:
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
     }
-
+    
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let isVisible = call.arguments as? Bool else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-
-        mapView.isAttributionTextVisible = isVisible
+        
+        mapContentView.viewModel.attributionBarHidden = !isVisible
         result(true)
     }
 
     private func onExportImage(_ result: @escaping FlutterResult) {
-        mapView.exportImage { image, error in
-            if let error = error {
-                result(FlutterError(code: "export_error", message: error.localizedDescription, details: nil))
-                return
-            }
-
-            if let image = image, let imageData = image.pngData() {
-                result(FlutterStandardTypedData(bytes: imageData))
-            } else {
-                result(FlutterError(code: "conversion_error", message: "Failed to convert image to PNG data", details: nil))
-            }
-        }
+        Task {
+              do {
+                  let image = try await mapContentView.viewModel.mapViewProxy!.exportImage()
+                  if let imageData = image.pngData() {
+                      result(FlutterStandardTypedData(bytes: imageData))
+                  } else {
+                      result(FlutterError(code: "conversion_error", message: "Failed to convert image to PNG data", details: nil))
+                  }
+              } catch {
+                  result(FlutterError(code: "export_error", message: error.localizedDescription, details: nil))
+              }
+          }
     }
 
-    private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (AGSSymbol) -> Void) {
+    private func operationWithSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult, handler: (Symbol) -> Void) {
         do {
             guard let args = call.arguments as? [String: Any] else {
                 result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
@@ -603,8 +598,8 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     }
 }
 
-extension AGSBasemapStyle: CaseIterable {
-    public static var allCases: [AGSBasemapStyle] {
+extension Basemap.Style: CaseIterable {
+    public static var allCases: [Basemap.Style] {
         [
             .arcGISImagery,
             .arcGISImageryStandard,
@@ -656,7 +651,7 @@ extension AGSBasemapStyle: CaseIterable {
     }
 }
 
-extension AGSBasemapStyle {
+extension Basemap.Style {
     func getJsonValue() -> String? {
         switch self {
         case .arcGISImagery:
@@ -762,19 +757,17 @@ struct MoveToPointsPayload : Codable {
     let padding : Double?
 }
 
-extension AGSLoadStatus {
+extension LoadStatus {
     func jsonValue()  -> String {
         switch self {
         case .loaded:
             return "loaded"
         case .loading:
             return "loading"
-        case .failedToLoad:
-            return "failedToLoad"
+        case .failed:
+            return "failed"
         case .notLoaded:
             return "notLoaded"
-        case .unknown:
-            return "unknown"
         @unknown default:
             return "unknown"
         }
@@ -782,7 +775,7 @@ extension AGSLoadStatus {
 }
 
 extension String {
-    func autoPanModeFromString() -> AGSLocationDisplayAutoPanMode? {
+    func autoPanModeFromString() -> LocationDisplay.AutoPanMode? {
         switch self {
             case "compassNavigation":
                 return .compassNavigation
@@ -798,7 +791,7 @@ extension String {
     }
 }
 
-extension AGSLocationDisplayAutoPanMode {
+extension LocationDisplay.AutoPanMode {
     func toName() -> String? {
         switch self {
         case .off:

@@ -135,7 +135,6 @@ class _LocationIndicatorExamplePageState
     await Geolocator.requestPermission();
     final location = await Geolocator.getLastKnownPosition();
     if (!mounted || location == null) return;
-
     await _controller!.moveCamera(
       point: LatLng(location.latitude, location.longitude),
       zoomLevel: 16,
@@ -166,6 +165,7 @@ class _LocationIndicatorExamplePageState
 
   Future<void> _switchLocationSource() async {
     await _controller!.locationDisplay.stopSource();
+    _isStarted = false;
     await _controller!.setLocationDisplay(
       _isManualLocationSource
           ? ArcgisLocationDisplay()
