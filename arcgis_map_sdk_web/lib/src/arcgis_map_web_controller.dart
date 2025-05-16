@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:js_interop';
-import 'dart:ui' as ui;
+import 'dart:ui_web';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -78,8 +77,9 @@ class ArcgisMapWebController {
   })  : _mapId = mapId,
         _streamController = streamController,
         _mapOptions = mapOptions {
+    final PlatformViewRegistry platformViewRegistry = PlatformViewRegistry();
     // ignore: avoid_dynamic_calls
-    ui.platformViewRegistry.registerViewFactory(
+    platformViewRegistry.registerViewFactory(
       _getViewType(_mapId),
       (int viewId) => _div,
     );
@@ -107,10 +107,12 @@ class ArcgisMapWebController {
 
     // Notifies the controller that the map is ready to be used and [moveBaseMapLabelsToBackground]
     // can be called.
-    _map!.basemap.watch(
-      'loaded',
-      allowInterop((loaded, _, __, ___) {
-        _baseMapLoaded.complete(loaded as bool);
+    watch(
+      allowInterop(() => _map!.basemap.loaded),
+      allowInterop((loaded, _) {
+        if (loaded as bool && !_baseMapLoaded.isCompleted) {
+          _baseMapLoaded.complete(true);
+        }
       }),
     );
 
@@ -269,10 +271,16 @@ class ArcgisMapWebController {
     }
 
     if (webgl2 != null) {
-      (webgl2 as WebGLRenderingContext)
-          .getCustomExtension('WEBGL_lose_context')
-          ?.loseContext();
-      webgl2.getCustomExtension('WEBGL_lose_context')?.restoreContext();
+      // WebGL2 context needs to be handled differently than WebGL1
+      final loseContextExtension = callMethod(
+        webgl2,
+        'getExtension',
+        ['WEBGL_lose_context'],
+      );
+      if (loseContextExtension != null) {
+        callMethod(loseContextExtension as Object, 'loseContext', []);
+        callMethod(loseContextExtension, 'restoreContext', []);
+      }
     }
   }
 

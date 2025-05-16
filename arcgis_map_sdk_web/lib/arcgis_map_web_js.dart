@@ -1,5 +1,6 @@
 @JS()
 import 'dart:async';
+
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'package:web/web.dart';
@@ -105,6 +106,8 @@ class JsAttribution extends Accessor {
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Attribution.html#visible
   external bool get visible;
+
+  external String get attributionText;
 }
 
 @JS("esri.core.Map")
@@ -136,6 +139,8 @@ class JsBaseMap extends Accessor {
   external factory JsBaseMap(dynamic basemap);
 
   external Collection referenceLayers;
+
+  external bool get loaded;
 }
 
 @JS("esri.core.Collection")
@@ -232,6 +237,8 @@ class JsView extends Accessor {
   external Popup? get popup;
 
   external dynamic container;
+
+  external JsExtent get extent;
 }
 
 @JS("esri.core.views.MapView")
@@ -369,17 +376,6 @@ class Accessor {
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#set
   external dynamic set(String path, dynamic value);
-
-  /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#watch
-  external WatchHandle watch(
-    String path,
-    void Function(
-      dynamic newValue,
-      dynamic oldValue,
-      String propertyName,
-      dynamic target,
-    ) callback,
-  );
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#WatchHandle
@@ -435,3 +431,8 @@ extension WebglLoseContextExtension on WebglLoseContext {
 
   external void restoreContext();
 }
+
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
+@JS('esri.core.reactiveUtils.watch')
+external WatchHandle watch(Function getValue, Function callback,
+    [dynamic options]);
