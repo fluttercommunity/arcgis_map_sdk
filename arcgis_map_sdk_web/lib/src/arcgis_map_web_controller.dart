@@ -271,10 +271,16 @@ class ArcgisMapWebController {
     }
 
     if (webgl2 != null) {
-      (webgl2 as WebGLRenderingContext)
-          .getCustomExtension('WEBGL_lose_context')
-          ?.loseContext();
-      webgl2.getCustomExtension('WEBGL_lose_context')?.restoreContext();
+      // WebGL2 context needs to be handled differently than WebGL1
+      final loseContextExtension = callMethod(
+        webgl2,
+        'getExtension',
+        ['WEBGL_lose_context'],
+      );
+      if (loseContextExtension != null) {
+        callMethod(loseContextExtension as Object, 'loseContext', []);
+        callMethod(loseContextExtension, 'restoreContext', []);
+      }
     }
   }
 
