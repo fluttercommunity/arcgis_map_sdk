@@ -1035,6 +1035,13 @@ class LayerController {
   ) {
     if (resultsLength < 1 ||
         hitTestResult.results?[0].graphic?.attributes == null) {
+      for (final Graphic graphic in _graphics.keys) {
+        graphic.onHover?.call(false);
+        if (_graphics[graphic] == HoveredState.hovered) {
+          graphic.onExit?.call();
+          _graphics[graphic] = HoveredState.notHovered;
+        }
+      }
       return;
     }
     final String? hitTestId = hitTestResult.results?[0].graphic?.attributes.id;
