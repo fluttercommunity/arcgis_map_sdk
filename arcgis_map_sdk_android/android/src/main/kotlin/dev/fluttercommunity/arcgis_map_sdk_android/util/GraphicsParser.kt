@@ -1,17 +1,18 @@
 package dev.fluttercommunity.arcgis_map_sdk_android.util
 
 import android.graphics.drawable.BitmapDrawable
-import com.esri.arcgisruntime.geometry.Point
-import com.esri.arcgisruntime.geometry.PointCollection
-import com.esri.arcgisruntime.geometry.Polygon
-import com.esri.arcgisruntime.geometry.Polyline
-import com.esri.arcgisruntime.geometry.SpatialReferences
-import com.esri.arcgisruntime.mapping.view.Graphic
-import com.esri.arcgisruntime.symbology.PictureMarkerSymbol
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
-import com.esri.arcgisruntime.symbology.Symbol
+import com.arcgismaps.Color
+import com.arcgismaps.geometry.Point
+import com.arcgismaps.geometry.Polygon
+import com.arcgismaps.geometry.Polyline
+import com.arcgismaps.geometry.SpatialReference
+import com.arcgismaps.mapping.symbology.PictureMarkerSymbol
+import com.arcgismaps.mapping.symbology.SimpleFillSymbol
+import com.arcgismaps.mapping.symbology.SimpleLineSymbol
+import com.arcgismaps.mapping.symbology.SimpleLineSymbolStyle
+import com.arcgismaps.mapping.symbology.SimpleMarkerSymbol
+import com.arcgismaps.mapping.symbology.Symbol
+import com.arcgismaps.mapping.view.Graphic
 import dev.fluttercommunity.arcgis_map_sdk_android.model.LatLng
 import dev.fluttercommunity.arcgis_map_sdk_android.model.symbol.PictureMarkerSymbolPayload
 import dev.fluttercommunity.arcgis_map_sdk_android.model.symbol.SimpleFillSymbolPayload
@@ -65,7 +66,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         return points.map { subPoints ->
             Graphic().apply {
-                geometry = Polyline(PointCollection(subPoints.map { coordinateArray ->
+                geometry = Polyline(subPoints.map { coordinateArray ->
                     val x = coordinateArray.elementAtOrNull(0)
                     val y = coordinateArray.elementAtOrNull(1)
                     val z = coordinateArray.elementAtOrNull(2)
@@ -73,9 +74,9 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
                         throw Exception("Coordinate array needs at least 2 doubles. Got $coordinateArray")
                     }
 
-                    if (z != null) Point(x, y, z, SpatialReferences.getWgs84())
-                    else Point(x, y, SpatialReferences.getWgs84())
-                }))
+                    if (z != null) Point(x, y, z, SpatialReference.wgs84())
+                    else Point(x, y, SpatialReference.wgs84())
+                })
                 symbol = parseSymbol(symbolMap)
             }
         }
@@ -87,8 +88,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         return rings.map { ring ->
             Graphic().apply {
-                geometry =
-                    Polygon(PointCollection(ring.map { LatLng(it[0], it[1]).toAGSPoint() }))
+                geometry = Polygon(ring.map { LatLng(it[0], it[1]).toAGSPoint() })
                 symbol = parseSymbol(symbolMap)
             }
         }
@@ -110,11 +110,11 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         val payload = map.parseToClass<SimpleMarkerSymbolPayload>()
 
         return SimpleMarkerSymbol().apply {
-            color = payload.color.toHexInt()
+            color = Color(payload.color.toHexInt())
             size = payload.size.toFloat()
             outline = SimpleLineSymbol().apply {
-                style = SimpleLineSymbol.Style.SOLID
-                color = payload.outlineColor.toHexInt()
+                style = SimpleLineSymbolStyle.Solid
+                color = Color(payload.outlineColor.toHexInt())
                 width = payload.outlineWidth.toFloat()
             }
         }
@@ -125,12 +125,13 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         // return local asset in case its a local path
         if (!payload.assetUri.isWebUrl()) {
-            return PictureMarkerSymbol(getBitmapFromAssetPath(payload.assetUri)).apply {
-                width = payload.width.toFloat()
-                height = payload.height.toFloat()
-                offsetX = payload.xOffset.toFloat()
-                offsetY = payload.yOffset.toFloat()
-            }
+            return PictureMarkerSymbol.createWithImage(getBitmapFromAssetPath(payload.assetUri)!!)
+                .apply {
+                    width = payload.width.toFloat()
+                    height = payload.height.toFloat()
+                    offsetX = payload.xOffset.toFloat()
+                    offsetY = payload.yOffset.toFloat()
+                }
         }
 
         return PictureMarkerSymbol(payload.assetUri).apply {
@@ -142,9 +143,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
     }
 
     private fun getBitmapFromAssetPath(asset: String): BitmapDrawable? {
-        val assetPath: String = binding
-            .flutterAssets
-            .getAssetFilePathBySubpath(asset)
+        val assetPath: String = binding.flutterAssets.getAssetFilePathBySubpath(asset)
 
         var inputStream: InputStream? = null
         val drawable: BitmapDrawable?
@@ -161,10 +160,10 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         val payload = map.parseToClass<SimpleFillSymbolPayload>()
 
         return SimpleFillSymbol().apply {
-            color = payload.fillColor.toHexInt()
+            color = Color(payload.fillColor.toHexInt())
             outline = SimpleLineSymbol().apply {
-                style = SimpleLineSymbol.Style.SOLID
-                color = payload.outlineColor.toHexInt()
+                style = SimpleLineSymbolStyle.Solid
+                color = Color(payload.outlineColor.toHexInt())
                 width = payload.outlineWidth.toFloat()
             }
         }
@@ -174,7 +173,7 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
         val payload = map.parseToClass<SimpleLineSymbolPayload>()
 
         return SimpleLineSymbol().apply {
-            if (payload.color != null) color = payload.color.toHexInt()
+            if (payload.color != null) color = Color(payload.color.toHexInt())
             payload.marker?.let {
                 markerStyle = it.style
                 markerPlacement = it.placement

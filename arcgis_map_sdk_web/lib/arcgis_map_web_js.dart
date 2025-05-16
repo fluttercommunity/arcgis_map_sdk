@@ -188,7 +188,7 @@ abstract class JsAttributes {
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html
-@JS("esri.geometry.Extent")
+@JS("esri.core.geometry.Extent")
 abstract class JsExtent {
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html#contains
   external bool contains(dynamic geometry);
@@ -201,6 +201,10 @@ abstract class JsExtent {
   external double get height;
 
   external double get width;
+
+  external factory JsExtent(dynamic map);
+
+  external JsExtent expand(double ratio);
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-View.html

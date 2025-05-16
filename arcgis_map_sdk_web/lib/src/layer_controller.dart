@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -818,6 +819,50 @@ class LayerController {
 
   bool _isZoomInBounds(double zoom) {
     return zoom >= minZoom && zoom <= maxZoom;
+  }
+
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+    AnimationOptions? animationOptions,
+    required JsView view,
+  }) async {
+    // Compute bounding coordinates for the list of points.
+    double minLat = double.infinity;
+    double minLon = double.infinity;
+    double maxLat = -double.infinity;
+    double maxLon = -double.infinity;
+
+    for (final point in points) {
+      minLat = math.min(minLat, point.latitude);
+      maxLat = math.max(maxLat, point.latitude);
+      minLon = math.min(minLon, point.longitude);
+      maxLon = math.max(maxLon, point.longitude);
+    }
+
+    final extentMap = JsExtent(
+      jsify({
+        'xmin': minLon,
+        'ymin': minLat,
+        'xmax': maxLon,
+        'ymax': maxLat,
+        'spatialReference': {'wkid': 4326},
+      }),
+    );
+
+    final target = {
+      'target': extentMap,
+    };
+
+    final targetOptions = <String, dynamic>{};
+    if (animationOptions != null) {
+      targetOptions.addAll({
+        'duration': animationOptions.duration,
+        'easing': animationOptions.animationCurve.value,
+      });
+    }
+
+    await view.goTo(jsify(target), jsify(targetOptions)).toFuture();
   }
 
   /// Go to the given point and zoom if wanted

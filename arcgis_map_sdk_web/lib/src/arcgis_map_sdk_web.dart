@@ -42,16 +42,27 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
+  Future<void> setMethodCallHandler({
+    required int mapId,
+    required Future<dynamic> Function(MethodCall) onCall,
+  }) async {
+    // No-Op
+  }
+
+  @override
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    required int mapId,
+    double? padding,
+  }) {
+    return _map(mapId).moveCameraToPoints(points: points, padding: padding);
+  }
+
+  @override
   Future<void> init(int mapId) async {
     await _hasScriptLoaded.future;
     _map(mapId).init();
   }
-
-  @override
-  Future<void> setMethodCallHandler({
-    required int mapId,
-    required Future<dynamic> Function(MethodCall) onCall,
-  }) async {}
 
   @override
   Future<void> moveCamera({

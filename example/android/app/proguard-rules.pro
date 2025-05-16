@@ -1,1 +1,0 @@
--keep class esri.arcgis.flutter_plugin.** { *; }
