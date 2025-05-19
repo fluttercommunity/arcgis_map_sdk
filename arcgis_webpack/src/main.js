@@ -13,6 +13,8 @@ import VectorTileLayer from "@arcgis/core/layers/VectorTileLayer";
 import Basemap from "@arcgis/core/Basemap";
 import SceneLayer from "@arcgis/core/layers/SceneLayer";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
+import * as reactiveUtils from "@arcgis/core/core/reactiveUtils";
+import Extent from "@arcgis/core/geometry/Extent";
 
 window.esri = {
   'core': {
@@ -24,6 +26,7 @@ window.esri = {
     },
     'geometry': {
       'Point': Point,
+      'Extent': Extent,
     },
     'widgets': {
       'Attribution': Attribution,
@@ -38,7 +41,8 @@ window.esri = {
       GraphicsLayer: GraphicsLayer,
     },
     'Basemap': Basemap,
-    'intl': intl
+    'intl': intl,
+    'reactiveUtils': reactiveUtils
   },
 }
 

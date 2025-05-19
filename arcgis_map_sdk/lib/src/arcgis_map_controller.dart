@@ -40,7 +40,7 @@ class ArcgisMapController {
     void Function(dynamic)? onPressed,
     String? url,
     void Function(double)? getZoom,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addFeatureLayer(
       options,
       data,
@@ -62,7 +62,7 @@ class ArcgisMapController {
     required String layerId,
     required GraphicsLayerOptions options,
     void Function(dynamic)? onPressed,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addGraphicsLayer(
       options,
       mapId,
@@ -75,7 +75,7 @@ class ArcgisMapController {
     required String layerId,
     required String url,
     required SceneLayerOptions options,
-  }) async {
+  }) {
     return ArcgisMapPlatform.instance.addSceneLayer(
       options: options,
       layerId: layerId,
@@ -183,6 +183,9 @@ class ArcgisMapController {
     );
   }
 
+  /// Moves the camera to the provided [points] and makes sure that all of
+  /// them are visible.
+  /// Currently, [padding] is only supported on mobile.
   Future<void> moveCameraToPoints({
     required List<LatLng> points,
     double? padding,
@@ -300,7 +303,7 @@ class ArcgisMapController {
     ArcgisMapPlatform.instance.addViewPadding(mapId, padding);
   }
 
-  Future<void> toggleBaseMap({required BaseMap baseMap}) async {
+  Future<void> toggleBaseMap({required BaseMap baseMap}) {
     return ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
   }
 

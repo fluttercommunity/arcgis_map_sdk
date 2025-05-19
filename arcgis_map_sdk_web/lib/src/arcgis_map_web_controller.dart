@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:html';
-import 'dart:js';
-import 'dart:js_util';
-import 'dart:ui' as ui;
+import 'dart:ui_web';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -15,6 +12,8 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 class ArcgisMapWebController {
   final int _mapId;
@@ -35,7 +34,7 @@ class ArcgisMapWebController {
     maxZoom: _mapOptions.maxZoom,
   );
 
-  late final _div = DivElement()
+  late final _div = HTMLDivElement()
     ..id = _getViewType(_mapId)
     ..style.width = '100%'
     ..style.height = '100%';
@@ -78,8 +77,9 @@ class ArcgisMapWebController {
   })  : _mapId = mapId,
         _streamController = streamController,
         _mapOptions = mapOptions {
+    final PlatformViewRegistry platformViewRegistry = PlatformViewRegistry();
     // ignore: avoid_dynamic_calls
-    ui.platformViewRegistry.registerViewFactory(
+    platformViewRegistry.registerViewFactory(
       _getViewType(_mapId),
       (int viewId) => _div,
     );
@@ -90,8 +90,10 @@ class ArcgisMapWebController {
   }
 
   Future<void> _createMap() async {
-    // ignore: avoid_dynamic_calls
-    context["esri"]["core"]["config"]["apiKey"] = _mapOptions.apiKey;
+    final esri = getProperty<Object>(globalThis, 'esri');
+    final core = getProperty<Object>(esri, 'core');
+    final config = getProperty<Object>(core, 'config');
+    setProperty(config, 'apiKey', _mapOptions.apiKey);
 
     if (_mapOptions.mapStyle == MapStyle.threeD) {
       _sceneView = _createJsSceneView();
@@ -105,10 +107,12 @@ class ArcgisMapWebController {
 
     // Notifies the controller that the map is ready to be used and [moveBaseMapLabelsToBackground]
     // can be called.
-    _map!.basemap.watch(
-      'loaded',
-      allowInterop((loaded, _, __, ___) {
-        _baseMapLoaded.complete(loaded as bool);
+    watch(
+      allowInterop(() => _map!.basemap.loaded),
+      allowInterop((loaded, _) {
+        if (loaded as bool && !_baseMapLoaded.isCompleted) {
+          _baseMapLoaded.complete(true);
+        }
       }),
     );
 
@@ -171,7 +175,7 @@ class ArcgisMapWebController {
     void Function(double)? getZoom,
     String layerId,
   ) async {
-    if (context["FeatureLayer"] == null) {
+    if (getProperty(globalThis, "FeatureLayer") == null) {
       await promiseToFuture(loadFeatureLayer());
     }
     return _layerController!.createFeatureLayer(
@@ -189,7 +193,7 @@ class ArcgisMapWebController {
     required SceneLayerOptions options,
     required String layerId,
     required String url,
-  }) async {
+  }) {
     final scene = _layerController!.createSceneLayer(
       options: options,
       layerId: layerId,
@@ -209,7 +213,7 @@ class ArcgisMapWebController {
     GraphicsLayerOptions options,
     String layerId,
     void Function(dynamic)? onPressed,
-  ) async {
+  ) {
     return _layerController!.createGraphicsLayer(
       options,
       layerId,
@@ -254,23 +258,29 @@ class ArcgisMapWebController {
     );
     // "webgl" (or "experimental-webgl") which will create a WebGLRenderingContext object representing a
     // three-dimensional rendering context. This context is only available on browsers that implement WebGL version 1 (OpenGL ES 2.0).
-    final webgl = (canvasElement as CanvasElement?)?.getContext('webgl');
+    final webgl = (canvasElement as HTMLCanvasElement?)?.getContext('webgl');
     // "webgl2" which will create a WebGL2RenderingContext object representing a three-dimensional rendering context.
     // This context is only available on browsers that implement WebGL version 2 (OpenGL ES 3.0)
     final webgl2 = canvasElement?.getContext('webgl2');
 
     if (webgl != null) {
       (webgl as WebGLRenderingContext)
-          .getExtension('WEBGL_lose_context')
+          .getCustomExtension('WEBGL_lose_context')
           ?.loseContext();
-      webgl.getExtension('WEBGL_lose_context')?.restoreContext();
+      webgl.getCustomExtension('WEBGL_lose_context')?.restoreContext();
     }
 
     if (webgl2 != null) {
-      (webgl2 as WebGLRenderingContext)
-          .getExtension('WEBGL_lose_context')
-          ?.loseContext();
-      webgl2.getExtension('WEBGL_lose_context')?.restoreContext();
+      // WebGL2 context needs to be handled differently than WebGL1
+      final loseContextExtension = callMethod(
+        webgl2,
+        'getExtension',
+        ['WEBGL_lose_context'],
+      );
+      if (loseContextExtension != null) {
+        callMethod(loseContextExtension as Object, 'loseContext', []);
+        callMethod(loseContextExtension, 'restoreContext', []);
+      }
     }
   }
 
@@ -407,6 +417,17 @@ class ArcgisMapWebController {
       map: _map!,
       polygonId: polygonId,
       pointCoordinates: pointCoordinates,
+    );
+  }
+
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+  }) async {
+    await _layerController!.moveCameraToPoints(
+      points: points,
+      padding: padding,
+      view: _activeView!,
     );
   }
 

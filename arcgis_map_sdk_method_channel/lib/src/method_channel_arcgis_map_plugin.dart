@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arcgis_map_sdk_method_channel/src/model_extension.dart';
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +16,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   /// This method is called when the plugin is first initialized.
   @override
-  Future<void> init(int mapId) async {}
+  Future<void> init(int mapId) async {
+    if (Platform.isIOS) {
+      return _methodChannelBuilder(mapId).invokeMethod('on_init_complete');
+    }
+  }
 
   @override
   Future<FeatureLayer> addFeatureLayer(
@@ -25,7 +31,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int mapId,
     void Function(double)? getZoom,
     String layerId,
-  ) async {
+  ) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
@@ -43,7 +49,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setAutoPanMode(String autoPanMode, int mapId) {
-    return _methodChannelBuilder(mapId).invokeMethod("set_auto_pan_mode", autoPanMode);
+    return _methodChannelBuilder(mapId)
+        .invokeMethod("set_auto_pan_mode", autoPanMode);
   }
 
   @override
@@ -121,7 +128,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     required String featureLayerId,
     required List<Graphic> data,
-  }) async {
+  }) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
@@ -165,7 +172,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     AnimationOptions? animationOptions,
     int? threeDHeading,
     int? threeDTilt,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "move_camera",
       {
@@ -196,7 +203,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_in",
       {"lodFactor": lodFactor},
@@ -208,7 +215,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int lodFactor,
     required int mapId,
     AnimationOptions? animationOptions,
-  }) async {
+  }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "zoom_out",
       {"lodFactor": lodFactor},
@@ -216,7 +223,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> retryLoad(int mapId) async {
+  Future<void> retryLoad(int mapId) {
     return _methodChannelBuilder(mapId).invokeMethod("retryLoad");
   }
 

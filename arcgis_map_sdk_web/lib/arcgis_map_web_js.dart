@@ -1,10 +1,9 @@
 @JS()
-library arcgis_map_sdk_web;
-
 import 'dart:async';
-import 'dart:js_util';
 
 import 'package:js/js.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 export 'package:arcgis_map_sdk_web/src/arcgis_map_sdk_web.dart';
 
@@ -107,6 +106,8 @@ class JsAttribution extends Accessor {
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Attribution.html#visible
   external bool get visible;
+
+  external String get attributionText;
 }
 
 @JS("esri.core.Map")
@@ -138,6 +139,8 @@ class JsBaseMap extends Accessor {
   external factory JsBaseMap(dynamic basemap);
 
   external Collection referenceLayers;
+
+  external bool get loaded;
 }
 
 @JS("esri.core.Collection")
@@ -185,7 +188,7 @@ abstract class JsAttributes {
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html
-@JS("esri.geometry.Extent")
+@JS("esri.core.geometry.Extent")
 abstract class JsExtent {
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html#contains
   external bool contains(dynamic geometry);
@@ -198,6 +201,10 @@ abstract class JsExtent {
   external double get height;
 
   external double get width;
+
+  external factory JsExtent(dynamic map);
+
+  external JsExtent expand(double ratio);
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-View.html
@@ -230,6 +237,8 @@ class JsView extends Accessor {
   external Popup? get popup;
 
   external dynamic container;
+
+  external JsExtent get extent;
 }
 
 @JS("esri.core.views.MapView")
@@ -367,17 +376,6 @@ class Accessor {
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#set
   external dynamic set(String path, dynamic value);
-
-  /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#watch
-  external WatchHandle watch(
-    String path,
-    void Function(
-      dynamic newValue,
-      dynamic oldValue,
-      String propertyName,
-      dynamic target,
-    ) callback,
-  );
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html#WatchHandle
@@ -420,12 +418,8 @@ class JsHandle {
 @JS()
 class Popup {}
 
-@JS()
-@staticInterop
-class WebGLRenderingContext {}
-
 extension WebGLRenderingContextExtension on WebGLRenderingContext {
-  external WebglLoseContext? getExtension(String something);
+  external WebglLoseContext? getCustomExtension(String something);
 }
 
 @JS()
@@ -437,3 +431,8 @@ extension WebglLoseContextExtension on WebglLoseContext {
 
   external void restoreContext();
 }
+
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
+@JS('esri.core.reactiveUtils.watch')
+external WatchHandle watch(Function getValue, Function callback,
+    [dynamic options]);

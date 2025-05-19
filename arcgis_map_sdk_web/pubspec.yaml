@@ -5,8 +5,8 @@ repository: https://github.com/fluttercommunity/arcgis_map_sdk
 maintainer: Matthaios Saitakis (@MatthaiosSait), Pascal Welsch (@passsy), Max Peters (@maxpeters)
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   arcgis_map_sdk_platform_interface: ^1.0.1
@@ -17,9 +17,10 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   js: ^0.6.2
+  web: ^1.1.1
 
 dev_dependencies:
-  lint: ^2.0.0
+  lint: ^2.8.0
 
 flutter:
   plugin:
@@ -44,22 +45,33 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/components/assets/action-pad/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/action/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/alert/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/autocomplete/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/block-section/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/block/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/button/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/card/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/carousel/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/chip/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/color-picker/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/combobox/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/date-picker/nls/
     - assets/arcgis_js_api_custom_build/assets/components/assets/date-picker/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/dialog/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/filter/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/flow-item/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/handle/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/icon/
     - assets/arcgis_js_api_custom_build/assets/components/assets/inline-editable/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/input-date-picker/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/input-number/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/input-text/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/input-time-picker/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/input-time-zone/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/input/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/list-item/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/list/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/menu-item/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/menu/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/modal/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/notice/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/pagination/t9n/
@@ -68,7 +80,17 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/components/assets/popover/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/rating/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/scrim/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/sheet/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/shell-panel/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/sort-handle/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/stepper-item/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/stepper/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/tab-nav/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/tab-title/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/table-cell/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/table-header/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/table/t9n/
+    - assets/arcgis_js_api_custom_build/assets/components/assets/text-area/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/time-picker/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/tip-manager/t9n/
     - assets/arcgis_js_api_custom_build/assets/components/assets/tip/t9n/
@@ -89,8 +111,11 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/images/support/
     - assets/arcgis_js_api_custom_build/assets/esri/layers/support/rasterFormats/
     - assets/arcgis_js_api_custom_build/assets/esri/libs/basisu/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/dxtEncoder/
     - assets/arcgis_js_api_custom_build/assets/esri/libs/i3s/
     - assets/arcgis_js_api_custom_build/assets/esri/libs/linkchartlayout/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/lyr3d/
+    - assets/arcgis_js_api_custom_build/assets/esri/libs/parquet/pkg/
     - assets/arcgis_js_api_custom_build/assets/esri/libs/vxl/
     - assets/arcgis_js_api_custom_build/assets/esri/rest/knowledgeGraph/wasmInterface/
     - assets/arcgis_js_api_custom_build/assets/esri/smartMapping/t9n/
@@ -110,6 +135,7 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/themes/dark/
     - assets/arcgis_js_api_custom_build/assets/esri/themes/light/
     - assets/arcgis_js_api_custom_build/assets/esri/views/3d/analysis/Slice/images/
+    - assets/arcgis_js_api_custom_build/assets/esri/views/3d/analysis/images/
     - assets/arcgis_js_api_custom_build/assets/esri/views/3d/environment/resources/
     - assets/arcgis_js_api_custom_build/assets/esri/views/3d/webgl-engine/lib/
     - assets/arcgis_js_api_custom_build/assets/esri/views/interactive/tooltip/t9n/
@@ -121,12 +147,15 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/BasemapGallery/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/BasemapLayerList/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/BasemapToggle/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/BatchAttributeForm/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Bookmarks/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/BuildingExplorer/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/CatalogLayerList/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Compass/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/CoordinateConversion/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Daylight/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/DirectLineMeasurement3D/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/DirectionalPad/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Directions/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/DistanceMeasurement2D/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Editor/t9n/
@@ -136,6 +165,7 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureForm/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureTable/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FeatureTemplates/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/Features/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/FloorFilter/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Fullscreen/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Histogram/t9n/
@@ -147,6 +177,7 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Locate/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Measurement/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/NavigationToggle/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/OrientedImageryViewer/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Popup/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Print/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/ScaleBar/t9n/
@@ -160,10 +191,15 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Swipe/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/TableList/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/TimeSlider/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/TimeZoneLabel/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Track/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkAssociations/assets/img/line-caps/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkAssociations/assets/img/line-patterns/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkAssociations/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkTrace/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/UtilityNetworkValidateTopology/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/ValuePicker/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/VideoPlayer/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Weather/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/Zoom/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/ClassedColorSlider/t9n/
@@ -173,6 +209,9 @@ flutter:
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/HeatmapSlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/OpacitySlider/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/smartMapping/SizeSlider/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/FilterBuilder/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/FilterCondition/t9n/
+    - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/GridControls/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/SelectionToolbar/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/SketchTooltipControls/t9n/
     - assets/arcgis_js_api_custom_build/assets/esri/widgets/support/SnappingControls/t9n/

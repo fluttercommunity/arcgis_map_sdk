@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 
 extension AnimationOptionsJsonExtension on AnimationOptions {
@@ -103,7 +105,12 @@ extension on MeshSymbol3D {
           {
             'type': 'fill',
             'material': {
-              'color': [color.red, color.green, color.blue, colorOpacity],
+              'color': [
+                color.red255,
+                color.green255,
+                color.blue255,
+                colorOpacity
+              ],
             },
           },
         ],
@@ -113,13 +120,13 @@ extension on MeshSymbol3D {
 extension on SimpleMarkerSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-marker',
-        'color': [color.red, color.green, color.blue, colorOpacity],
+        'color': [color.red255, color.green255, color.blue255, colorOpacity],
         'size': radius,
         'outline': <String, dynamic>{
           'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
+            outlineColor.red255,
+            outlineColor.green255,
+            outlineColor.blue255,
             outlineColorOpacity,
           ],
           'width': outlineWidth,
@@ -141,12 +148,17 @@ extension on PictureMarkerSymbol {
 extension on SimpleFillSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'type': 'simple-fill',
-        'color': [fillColor.red, fillColor.green, fillColor.blue, opacity],
+        'color': [
+          fillColor.red255,
+          fillColor.green255,
+          fillColor.blue255,
+          opacity
+        ],
         'outline': {
           'color': [
-            outlineColor.red,
-            outlineColor.green,
-            outlineColor.blue,
+            outlineColor.red255,
+            outlineColor.green255,
+            outlineColor.blue255,
           ], // White
           'width': outlineWidth,
         },
@@ -156,7 +168,7 @@ extension on SimpleFillSymbol {
 extension on SimpleLineSymbol {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
         'cap': cap.value,
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red255, color?.green255, color?.blue255, colorOpacity],
         'declaredClass': declaredClass,
         'join': join.value,
         'marker': marker?.convertToJson(),
@@ -169,7 +181,7 @@ extension on SimpleLineSymbol {
 
 extension on LineSymbolMarker {
   Map<String, dynamic> convertToJson() => <String, dynamic>{
-        'color': [color?.red, color?.green, color?.blue, colorOpacity],
+        'color': [color?.red255, color?.green255, color?.blue255, colorOpacity],
         'declaredClass': declaredClass,
         'placement': placement.value,
         'style': style.value,
@@ -179,34 +191,48 @@ extension on LineSymbolMarker {
 
 extension BaseMapExt on BaseMap {
   static const Map<BaseMap, String> values = {
-    BaseMap.arcgisImagery: 'arcgis-imagery',
-    BaseMap.arcgisImageryStandard: 'arcgis-imagery-standard',
-    BaseMap.arcgisImageryLabels: 'arcgis-imagery-labels',
-    BaseMap.arcgisLightGray: 'arcgis-light-gray',
-    BaseMap.arcgisDarkGray: 'arcgis-dark-gray',
-    BaseMap.arcgisNavigation: 'arcgis-navigation',
-    BaseMap.arcgisNavigationNight: 'arcgis-navigation-night',
-    BaseMap.arcgisStreets: 'arcgis-streets',
-    BaseMap.arcgisStreetsNight: 'arcgis-streets-night',
-    BaseMap.arcgisStreetsRelief: 'arcgis-streets-relief',
-    BaseMap.arcgisTopographic: 'arcgis-topographic',
-    BaseMap.arcgisOceans: 'arcgis-oceans',
-    BaseMap.osmStandard: 'osm-standard',
-    BaseMap.osmStandardRelief: 'osm-standard-relief',
-    BaseMap.osmStreets: 'osm-streets',
-    BaseMap.osmStreetsRelief: 'osm-streets-relief',
-    BaseMap.osmLightGray: 'osm-light-gray',
-    BaseMap.osmDarkGray: 'osm-dark-gray',
-    BaseMap.arcgisTerrain: 'arcgis-terrain',
-    BaseMap.arcgisCommunity: 'arcgis-community',
-    BaseMap.arcgisChartedTerritory: 'arcgis-charted-territory',
-    BaseMap.arcgisColoredPencil: 'arcgis-colored-pencil',
-    BaseMap.arcgisNova: 'arcgis-nova',
+    BaseMap.arcgisImagery: 'arcgis/imagery',
+    BaseMap.arcgisImageryStandard: 'arcgis/imagery/standard',
+    BaseMap.arcgisImageryLabels: 'arcgis/imagery/labels',
+    BaseMap.arcgisLightGray: 'arcgis/light-gray',
+    BaseMap.arcgisDarkGray: 'arcgis/dark-gray',
+    BaseMap.arcgisNavigation: 'arcgis/navigation',
+    BaseMap.arcgisNavigationNight: 'arcgis/navigation-night',
+    BaseMap.arcgisStreets: 'arcgis/streets',
+    BaseMap.arcgisStreetsNight: 'arcgis/streets-night',
+    BaseMap.arcgisStreetsRelief: 'arcgis/streets-relief',
+    BaseMap.arcgisStreetsReliefBase: 'arcgis/streets-relief-base',
+    BaseMap.arcgisOutdoor: 'arcgis/outdoor',
+    BaseMap.arcgisTopographic: 'arcgis/topographic',
+    BaseMap.arcgisTopographicBase: 'arcgis/topographic/base',
+    BaseMap.arcgisOceans: 'arcgis/oceans',
+    BaseMap.arcgisOceansBase: 'arcgis/oceans/base',
+    BaseMap.arcgisOceansLabels: 'arcgis/oceans/labels',
+    BaseMap.osmStandard: 'osm/standard',
+    BaseMap.osmStandardRelief: 'osm/standard-relief',
+    BaseMap.osmStandardReliefBase: 'osm/standard-relief/base',
+    BaseMap.osmNavigation: 'osm/navigation',
+    BaseMap.osmNavigationDark: 'osm/navigation-dark',
+    BaseMap.osmStreets: 'osm/streets',
+    BaseMap.osmStreetsRelief: 'osm/streets-relief',
+    BaseMap.osmStreetsReliefBase: 'osm/streets-relief/base',
+    BaseMap.osmLightGray: 'osm/light-gray',
+    BaseMap.osmHybrid: 'osm/hybrid',
+    BaseMap.osmDarkGray: 'osm/dark-gray',
+    BaseMap.osmDarkGrayBase: 'osm/dark-gray/base',
+    BaseMap.arcgisTerrain: 'arcgis/terrain',
+    BaseMap.arcgisTerrainBase: 'arcgis/terrain/base',
+    BaseMap.arcgisTerrainDetail: 'arcgis/terrain/detail',
+    BaseMap.arcgisCommunity: 'arcgis/community',
+    BaseMap.arcgisChartedTerritory: 'arcgis/charted-territory',
+    BaseMap.arcgisChartedTerritoryBase: 'arcgis/charted-territory-base',
+    BaseMap.arcgisColoredPencil: 'arcgis/colored-pencil',
+    BaseMap.arcgisNova: 'arcgis/nova',
     BaseMap.arcgisModernAntique: 'arcgis-modern-antique',
-    BaseMap.arcgisMidcentury: 'arcgis-midcentury',
-    BaseMap.arcgisNewspaper: 'arcgis-newspaper',
-    BaseMap.arcgisHillshadeLight: 'arcgis-hillshade-light',
-    BaseMap.arcgisHillshadeDark: 'arcgis-hillshade-dark',
+    BaseMap.arcgisMidcentury: 'arcgis/midcentury',
+    BaseMap.arcgisNewspaper: 'arcgis/newspaper',
+    BaseMap.arcgisHillshadeLight: 'arcgis/hillshade-light',
+    BaseMap.arcgisHillshadeDark: 'arcgis/hillshade-dark',
     BaseMap.nationalGepgraphic: 'national-geographic',
     BaseMap.streetsNavigationVector: 'streets-navigation-vector',
     BaseMap.darkGrayVector: 'dark-gray-vector',
@@ -236,6 +262,14 @@ extension GroundExt on Ground {
   };
 
   String get value => values[this]!;
+}
+
+extension ColorExt on Color {
+  int get red255 => (r * 255).round();
+
+  int get blue255 => (b * 255).round();
+
+  int get green255 => (g * 255).round();
 }
 
 // endregion

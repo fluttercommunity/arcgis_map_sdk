@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:html';
-import 'dart:js';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/src/arcgis_map_web_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 class ArcgisMapWeb extends ArcgisMapPlatform {
   static final _hasScriptLoaded = Completer();
@@ -15,15 +15,14 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     ArcgisMapPlatform.instance = ArcgisMapWeb();
 
     //load webpack custom build of the ArcGIS JS API
-    final script = ScriptElement()
-      ..addEventListener("load", (event) => _hasScriptLoaded.complete())
-      // ignore: unsafe_html
+    final script = HTMLScriptElement()
       ..src =
           "assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/main.js";
 
+    script.onLoad.listen((event) => _hasScriptLoaded.complete());
     document.head!.append(script);
 
-    final link = LinkElement()
+    final link = HTMLLinkElement()
       ..type = "text/css"
       ..href =
           "assets/packages/arcgis_map_sdk_web/assets/css_overrides/override_outline.css"
@@ -48,6 +47,15 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required Future<dynamic> Function(MethodCall) onCall,
   }) async {
     // No-Op
+  }
+
+  @override
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    required int mapId,
+    double? padding,
+  }) {
+    return _map(mapId).moveCameraToPoints(points: points, padding: padding);
   }
 
   @override
@@ -128,7 +136,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> toggleBaseMap(int mapId, BaseMap baseMap) async {
+  Future<void> toggleBaseMap(int mapId, BaseMap baseMap) {
     return _map(mapId).toggleBaseMap(baseMap: baseMap);
   }
 
@@ -148,7 +156,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     int mapId,
     void Function(double)? getZoom,
     String layerId,
-  ) async {
+  ) {
     return _map(mapId)
         .addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
   }
@@ -159,7 +167,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     int mapId,
     String layerId,
     void Function(dynamic)? onPressed,
-  ) async {
+  ) {
     return _map(mapId).addGraphicsLayer(
       options,
       layerId,
@@ -173,7 +181,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required String layerId,
     required String url,
     required int mapId,
-  }) async {
+  }) {
     return _map(mapId).addSceneLayer(
       options: options,
       layerId: layerId,
@@ -291,8 +299,14 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       ///
       /// https://developers.arcgis.com/javascript/latest/es-modules/#managing-assets-locally
       // ignore: avoid_dynamic_calls
-      context["esri"]["core"]["config"]["assetsPath"] =
-          "/assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/assets";
+      final esri = getProperty<Object>(globalThis, 'esri');
+      final core = getProperty<Object>(esri, 'core');
+      final config = getProperty<Object>(core, 'config');
+      setProperty(
+        config,
+        'assetsPath',
+        "/assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/assets",
+      );
     });
 
     final mapController = ArcgisMapWebController(

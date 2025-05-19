@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:html' hide VoidCallback;
-import 'dart:js_util';
+import 'dart:math' as math;
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
@@ -12,6 +11,8 @@ import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:js/js_util.dart';
+import 'package:web/web.dart';
 
 enum HoveredState { hovered, notHovered }
 
@@ -358,15 +359,13 @@ class LayerController {
     final StreamController<double> controller =
         StreamController(onCancel: () => handle?.remove());
 
-    handle = view.watch(
-      'zoom',
-      allowInterop(
-        (zoom, _, __, ___) {
-          if (!controller.isClosed && zoom as double > 0) {
-            controller.add(zoom);
-          }
-        },
-      ),
+    handle = watch(
+      allowInterop(() => view.zoom),
+      allowInterop((zoom, _) {
+        if (!controller.isClosed && zoom as double > 0) {
+          controller.add(zoom);
+        }
+      }),
     );
 
     // Merge all the zoom streams into one
@@ -398,21 +397,17 @@ class LayerController {
     final StreamController<LatLng> controller =
         StreamController(onCancel: () => handle?.remove());
 
-    handle = view.watch(
-      'center',
-      allowInterop(
-        (center, _, __, ___) {
-          if (center != null && !controller.isClosed) {
-            final centerViewPoint = LatLng(
-              (center as JsPoint).latitude,
-              center.longitude,
-            );
-            controller.add(centerViewPoint);
-          }
-        },
-      ),
+    handle = watch(
+      allowInterop(() => view.center),
+      allowInterop((center, _) {
+        if (!controller.isClosed && center != null) {
+          final point = center as JsPoint;
+          controller.add(LatLng(point.latitude, point.longitude));
+        }
+      }),
     );
 
+    // Merge all the center position streams into one
     return controller.stream;
   }
 
@@ -458,49 +453,51 @@ class LayerController {
       },
     );
 
-    handle = view.watch(
-      'extent',
-      allowInterop((extent, _, __, ___) {
-        if (!controller.isClosed) {
-          final List<String> graphicIdsInView = <String>[];
+    handle = watch(
+      allowInterop(() => view.extent),
+      allowInterop(
+        (extent, _) {
+          if (!controller.isClosed) {
+            final List<String> graphicIdsInView = <String>[];
 
-          // Return all the visible graphic ids in the MapView
-          view.graphics.forEach(
-            allowInterop((JsGraphic graphic, _, __) {
-              final bool isInView =
-                  (extent as JsExtent?)?.intersects(graphic.geometry.extent) ??
-                      false;
-              if (isInView) {
-                graphicIdsInView.add(graphic.attributes.id);
-              }
-            }),
-          );
+            // Return all the visible graphic ids in the MapView
+            view.graphics.forEach(
+              allowInterop((JsGraphic graphic, _, __) {
+                final bool isInView = (extent as JsExtent?)
+                        ?.intersects(graphic.geometry.extent) ??
+                    false;
+                if (isInView) {
+                  graphicIdsInView.add(graphic.attributes.id);
+                }
+              }),
+            );
 
-          // Return all the visible graphic ids in the graphic layers
-          final layers = map.layers;
-          layers?.forEach(
-            allowInterop((layer, _, __) {
-              if (layer is JsGraphicsLayer) {
-                layer.graphics?.forEach(
-                  allowInterop((JsGraphic graphic, _, __) {
-                    final bool isInView = (extent as JsExtent?)
-                            ?.intersects(graphic.geometry.extent) ??
-                        false;
-                    if (isInView) {
-                      graphicIdsInView.add(graphic.attributes.id);
-                    }
-                  }),
-                );
-              }
-            }),
-          );
+            // Return all the visible graphic ids in the graphic layers
+            final layers = map.layers;
+            layers?.forEach(
+              allowInterop((layer, _, __) {
+                if (layer is JsGraphicsLayer) {
+                  layer.graphics?.forEach(
+                    allowInterop((JsGraphic graphic, _, __) {
+                      final bool isInView = (extent as JsExtent?)
+                              ?.intersects(graphic.geometry.extent) ??
+                          false;
+                      if (isInView) {
+                        graphicIdsInView.add(graphic.attributes.id);
+                      }
+                    }),
+                  );
+                }
+              }),
+            );
 
-          if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
-            controller.add(graphicIdsInView);
-            graphicIdsInViewBuffer = graphicIdsInView;
+            if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
+              controller.add(graphicIdsInView);
+              graphicIdsInViewBuffer = graphicIdsInView;
+            }
           }
-        }
-      }),
+        },
+      ),
     );
     // Merge all the streams into one
     return controller.stream;
@@ -513,14 +510,13 @@ class LayerController {
     JsView view,
     JsEsriMap map,
   ) {
-    final extent = view.get('extent') as JsExtent?;
+    final extent = view.extent;
 
     // Return all the visible graphic ids in the MapView
     final List<String> graphicIdsInView = <String>[];
     view.graphics.forEach(
       allowInterop((JsGraphic graphic, _, __) {
-        final bool isInView =
-            extent?.intersects(graphic.geometry.extent) ?? false;
+        final bool isInView = extent.intersects(graphic.geometry.extent);
         if (isInView) {
           graphicIdsInView.add(graphic.attributes.id);
         }
@@ -534,8 +530,7 @@ class LayerController {
         if (layer is JsGraphicsLayer) {
           layer.graphics?.forEach(
             allowInterop((JsGraphic graphic, _, __) {
-              final bool isInView =
-                  extent?.intersects(graphic.geometry.extent) ?? false;
+              final bool isInView = extent.intersects(graphic.geometry.extent);
               if (isInView) {
                 graphicIdsInView.add(graphic.attributes.id);
               }
@@ -570,46 +565,47 @@ class LayerController {
   /// Gets the current bounds streams of the active views.
   Stream<BoundingBox> _getCurrentBoundsStreams(JsView view) {
     streamsRefreshed.add(boundsStreamRefreshedForCurrentView);
-
-    // In order to stop watching on the extent when the stream is canceled in Dart,
+    // In order to stop watching on the bounds when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     WatchHandle? handle;
     final StreamController<BoundingBox> controller =
         StreamController(onCancel: () => handle?.remove());
 
-    handle = view.watch(
-      'extent',
-      allowInterop((newValue, _, __, ___) {
-        if (newValue is JsExtent && !controller.isClosed) {
-          final centerViewPoint =
-              LatLng(newValue.center.latitude, newValue.center.longitude);
-          final xDistanceFromViewCenter = newValue.width / 2;
-          final yDistanceFromViewCenter = newValue.height / 2;
+    handle = watch(
+      allowInterop(() => view.extent),
+      allowInterop(
+        (newValue, _) {
+          if (newValue is JsExtent && !controller.isClosed) {
+            final centerViewPoint =
+                LatLng(newValue.center.latitude, newValue.center.longitude);
+            final xDistanceFromViewCenter = newValue.width / 2;
+            final yDistanceFromViewCenter = newValue.height / 2;
 
-          // Lower left point
-          final latLngMin = BoundingBox.getLatLngFromMapUnits(
-            referencePoint: centerViewPoint,
-            x: -xDistanceFromViewCenter,
-            y: -yDistanceFromViewCenter,
-          );
+            // Lower left point
+            final latLngMin = BoundingBox.getLatLngFromMapUnits(
+              referencePoint: centerViewPoint,
+              x: -xDistanceFromViewCenter,
+              y: -yDistanceFromViewCenter,
+            );
 
-          // Top right point
-          final latLngMax = BoundingBox.getLatLngFromMapUnits(
-            referencePoint: centerViewPoint,
-            x: xDistanceFromViewCenter,
-            y: yDistanceFromViewCenter,
-          );
+            // Top right point
+            final latLngMax = BoundingBox.getLatLngFromMapUnits(
+              referencePoint: centerViewPoint,
+              x: xDistanceFromViewCenter,
+              y: yDistanceFromViewCenter,
+            );
 
-          controller.add(
-            BoundingBox(
-              height: newValue.height,
-              width: newValue.width,
-              lowerLeft: latLngMin,
-              topRight: latLngMax,
-            ),
-          );
-        }
-      }),
+            controller.add(
+              BoundingBox(
+                height: newValue.height,
+                width: newValue.width,
+                lowerLeft: latLngMin,
+                topRight: latLngMax,
+              ),
+            );
+          }
+        },
+      ),
     );
 
     return controller.stream;
@@ -649,17 +645,14 @@ class LayerController {
     // so that a custom widget can be implemented in Dart.
     final attributionWidget = Attribution().init(view: view);
     view.ui.add(attributionWidget, "manual");
-    handle = attributionWidget.watch(
-      'attributionText',
-      allowInterop(
-        (newValue, _, __, ___) {
-          if (newValue is String &&
-              newValue.isNotEmpty &&
-              !controller.isClosed) {
-            controller.add(newValue);
-          }
-        },
-      ),
+
+    handle = watch(
+      allowInterop(() => attributionWidget.attributionText),
+      allowInterop((newValue, _) {
+        if (newValue is String && newValue.isNotEmpty && !controller.isClosed) {
+          controller.add(newValue);
+        }
+      }),
     );
     view.ui.remove(attributionWidget);
 
@@ -677,7 +670,7 @@ class LayerController {
   /// Changes the mouse cursor to a specified [SystemMouseCursor].
   void setMouseCursor(String mapId, SystemMouseCursor cursor) {
     final setCursor = cursor.kind == 'basic' ? 'default' : 'pointer';
-    document.getElementById(mapId)?.style.cursor = setCursor;
+    (document.getElementById(mapId) as HTMLElement?)?.style.cursor = setCursor;
   }
 
   /// Updates the graphic representation of an existing polygon via the [SimpleFillSymbol].
@@ -828,6 +821,50 @@ class LayerController {
     return zoom >= minZoom && zoom <= maxZoom;
   }
 
+  Future<void> moveCameraToPoints({
+    required List<LatLng> points,
+    double? padding,
+    AnimationOptions? animationOptions,
+    required JsView view,
+  }) async {
+    // Compute bounding coordinates for the list of points.
+    double minLat = double.infinity;
+    double minLon = double.infinity;
+    double maxLat = -double.infinity;
+    double maxLon = -double.infinity;
+
+    for (final point in points) {
+      minLat = math.min(minLat, point.latitude);
+      maxLat = math.max(maxLat, point.latitude);
+      minLon = math.min(minLon, point.longitude);
+      maxLon = math.max(maxLon, point.longitude);
+    }
+
+    final extentMap = JsExtent(
+      jsify({
+        'xmin': minLon,
+        'ymin': minLat,
+        'xmax': maxLon,
+        'ymax': maxLat,
+        'spatialReference': {'wkid': 4326},
+      }),
+    );
+
+    final target = {
+      'target': extentMap,
+    };
+
+    final targetOptions = <String, dynamic>{};
+    if (animationOptions != null) {
+      targetOptions.addAll({
+        'duration': animationOptions.duration,
+        'easing': animationOptions.animationCurve.value,
+      });
+    }
+
+    await view.goTo(jsify(target), jsify(targetOptions)).toFuture();
+  }
+
   /// Go to the given point and zoom if wanted
   Future<void> moveCamera({
     required LatLng point,
@@ -941,7 +978,9 @@ class LayerController {
 
     if (graphic.onHover == null &&
         graphic.onEnter == null &&
-        graphic.onExit == null) return Future(() => null);
+        graphic.onExit == null) {
+      return Future(() => null);
+    }
     _graphics[graphic] = HoveredState.notHovered;
     return Future(() => null);
   }
@@ -956,7 +995,7 @@ class LayerController {
     bool executing = false;
     return view.on(
       ['pointer-move'],
-      allowInterop((event) async {
+      allowInterop((event) {
         if (executing) return;
         _deBouncer.run(
           () async {
@@ -995,7 +1034,16 @@ class LayerController {
     JsHitTestResult hitTestResult,
   ) {
     if (resultsLength < 1 ||
-        hitTestResult.results?[0].graphic?.attributes == null) return;
+        hitTestResult.results?[0].graphic?.attributes == null) {
+      for (final Graphic graphic in _graphics.keys) {
+        graphic.onHover?.call(false);
+        if (_graphics[graphic] == HoveredState.hovered) {
+          graphic.onExit?.call();
+          _graphics[graphic] = HoveredState.notHovered;
+        }
+      }
+      return;
+    }
     final String? hitTestId = hitTestResult.results?[0].graphic?.attributes.id;
     for (final Graphic graphic in _graphics.keys) {
       if (hitTestId == graphic.getAttributesId()) {
@@ -1158,22 +1206,26 @@ class LayerController {
       }),
     );
 
-    // This Future does not work, that is why we use the [baseMapLoaded] Completer.
-    await basemapToggle.toggle().toFuture();
+    // The toggle action is initiated here, but we don't need to await it directly.
+    // The loading state is monitored by the watch in ArcgisMapWebController._createMap.
+    basemapToggle.toggle();
 
     if (showLabelsBeneathGraphics == true) {
       final Completer<void> baseMapLoaded = Completer();
 
-      basemapToggle.activeBasemap.watch(
-        'loaded',
-        allowInterop((loaded, _, __, ___) {
-          if (loaded as bool) {
+      // Watch for the basemap load status after initiating the toggle
+      final handle = watch(
+        allowInterop(() => basemapToggle.activeBasemap.loaded),
+        allowInterop((loaded, _) {
+          if (loaded as bool && !baseMapLoaded.isCompleted) {
             baseMapLoaded.complete();
           }
         }),
       );
 
       await baseMapLoaded.future;
+      // Remove the watch handle once the basemap is loaded
+      handle.remove();
 
       // Destroy the recreated labels layer, if it exists, so that it can be replaced by the new one.
       _recreatedLabelsLayer?.destroy();

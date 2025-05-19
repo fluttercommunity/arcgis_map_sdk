@@ -1,1 +1,1 @@
-{"widgetLabel":"Rada","startTracking":"Alusta minu asukoha jälgimist","stopTracking":"Lõpeta minu asukoha jälgimine"}
+{"widgetLabel":"Rada","startTracking":"Alusta minu asukoha jälgimist","stopTracking":"Lõpeta minu asukoha jälgimine","permissionError":"Ilmnes viga. Kontrollige brauseri ja operatsioonisüsteemi asukohalube.","timeoutError":"Teie asukohta ei saa tuua. Proovige uuesti.","positionUnavailable":"Teie asukohta ei saa tuua. Kontrollige oma seadet."}
