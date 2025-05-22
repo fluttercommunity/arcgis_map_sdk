@@ -34,11 +34,6 @@ struct MapContentView: View {
             .onVisibleAreaChanged { polygon in
                 viewModel.onVisibleAreaChanged?(polygon)
             }
-            .onChange(of: viewModel.map.basemap?.loadStatus) { newValue in
-                if let newValue {
-                    viewModel.onLoadStatusChanged?(newValue)
-                }
-            }
             .task {
                 // Store the mapViewProxy for external access
                 viewModel.mapViewProxy = mapViewProxy
@@ -50,6 +45,11 @@ struct MapContentView: View {
                 viewModel.mapViewProxy = nil
             }
             .ignoresSafeArea(edges: .all)
+            .task {
+                for await loadStatus in viewModel.map.$loadStatus {
+                    viewModel.onLoadStatusChanged?(loadStatus)
+                }
+            }
         }
     }
 }
