@@ -46,7 +46,6 @@ struct MapContentView: View {
             }
             .ignoresSafeArea(edges: .all)
             .task {
-                // Listen for load status changes and set the load status text.
                 for await loadStatus in viewModel.map.$loadStatus {
                     viewModel.onLoadStatusChanged?(loadStatus)
                 }
