@@ -97,10 +97,7 @@ class PictureMarkerSymbol extends Symbol {
     required this.height,
     this.xOffset = 0,
     this.yOffset = 0,
-  }) : assert(
-          assertLocalAssetIsPng(assetUri),
-          "Local assetUri must have type .png. Got $assetUri.",
-        );
+  });
 
   /// Add a [assetUri] of an image to display it as a marker in the whole feature layer
   /// This can be a url or a local path in which the image is stored locally.
@@ -111,13 +108,6 @@ class PictureMarkerSymbol extends Symbol {
   final double height;
   final int xOffset;
   final int yOffset;
-
-  static bool assertLocalAssetIsPng(String assetUri) {
-    if (assetUri.startsWith("https://") || assetUri.startsWith("http://")) {
-      return true;
-    }
-    return assetUri.endsWith(".png");
-  }
 }
 
 /// Set the [fillColor] and other attributes of the polygon displayed in the map
