@@ -1,3 +1,4 @@
 /* This override is used to disable the blue border shown when interacting with the map*/
+/* According to https://community.esri.com/t5/arcgis-javascript-maps-sdk-questions/arcgis-js-api-4-remove-blue-frame-outline-around/td-p/311767 */
 @import"../arcgis_js_api_custom_build/assets/esri/css/main.css";
- body .esri-view .esri-view-surface--inset-outline:focus::after {outline: none !important;}
+ body .esri-view .esri-view-surface--touch-none:focus::after { outline: none !important;}
