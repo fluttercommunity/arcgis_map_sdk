@@ -125,6 +125,9 @@ class GraphicsParser(private val binding: FlutterPluginBinding) {
 
         // return local asset in case its a local path
         if (!payload.assetUri.isWebUrl()) {
+            if (!payload.assetUri.endsWith(".png", ignoreCase = true)) {
+                throw IllegalArgumentException("Local assetUri must have type .png. Got ${payload.assetUri}")
+            }
             return PictureMarkerSymbol.createWithImage(getBitmapFromAssetPath(payload.assetUri)!!)
                 .apply {
                     width = payload.width.toFloat()
