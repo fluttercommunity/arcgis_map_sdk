@@ -19,6 +19,7 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
   /// null when executed on a platform that's not supported yet
   ArcgisMapController? _controller;
   BaseMap selectedBasemap = BaseMap.values.first;
+  var _isSwitchingAllStyles = false;
   bool show3dMap = false;
   bool isBasemapMenuOpened = false;
   final initialCenter = const LatLng(51.16, 10.45);
@@ -63,7 +64,6 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(),
       key: _scaffoldKey,
       body: GestureDetector(
         onTap: () {
@@ -172,59 +172,70 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
                   SizedBox(height: 8),
                   Center(
                     child: ElevatedButton(
+                        onPressed:
+                            _isSwitchingAllStyles ? null : _switchAllStyles,
+                        child: Text(_isSwitchingAllStyles
+                            ? "Switching... ${BaseMap.values.indexOf(selectedBasemap) + 1}/${BaseMap.values.length}"
+                            : "Switch through all styles once")),
+                  ),
+                  Center(
+                    child: ElevatedButton(
                       style: ButtonStyle(
                         shape: WidgetStatePropertyAll(
                           RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
                       ),
-                      onPressed: () {
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return PointerInterceptorWeb(
-                                child: ListView.separated(
-                                  padding: EdgeInsets.only(
-                                      top: 8,
-                                      bottom:
-                                          MediaQuery.paddingOf(context).bottom +
-                                              8),
-                                  itemCount: BaseMap.values.length,
-                                  separatorBuilder: (_, __) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Divider(
-                                      height: 1,
-                                    ),
-                                  ),
-                                  itemBuilder: (context, int i) {
-                                    final basemap = BaseMap.values[i];
-                                    return ListTile(
-                                      dense: true,
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        setState(() {
-                                          selectedBasemap = basemap;
-                                        });
-
-                                        _controller!
-                                            .toggleBaseMap(baseMap: basemap);
-                                      },
-                                      title: Text(
-                                        basemap.name,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .buttonTheme
-                                              .colorScheme!
-                                              .onPrimaryContainer,
+                      onPressed: _isSwitchingAllStyles
+                          ? null
+                          : () {
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) {
+                                    return PointerInterceptorWeb(
+                                      child: ListView.separated(
+                                        padding: EdgeInsets.only(
+                                            top: 8,
+                                            bottom:
+                                                MediaQuery.paddingOf(context)
+                                                        .bottom +
+                                                    8),
+                                        itemCount: BaseMap.values.length,
+                                        separatorBuilder: (_, __) => Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Divider(
+                                            height: 1,
+                                          ),
                                         ),
+                                        itemBuilder: (context, int i) {
+                                          final basemap = BaseMap.values[i];
+                                          return ListTile(
+                                            dense: true,
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                              setState(() {
+                                                selectedBasemap = basemap;
+                                              });
+
+                                              _controller!.toggleBaseMap(
+                                                  baseMap: basemap);
+                                            },
+                                            title: Text(
+                                              basemap.name,
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .buttonTheme
+                                                    .colorScheme!
+                                                    .onPrimaryContainer,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     );
-                                  },
-                                ),
-                              );
-                            });
-                      },
+                                  });
+                            },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -263,5 +274,22 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
         duration: const Duration(seconds: 1),
       ),
     );
+  }
+
+  Future<void> _switchAllStyles() async {
+    setState(() => _isSwitchingAllStyles = true);
+    try {
+      for (final baseMap in BaseMap.values) {
+        await _controller?.toggleBaseMap(baseMap: baseMap);
+        if (!mounted) return;
+        setState(() => selectedBasemap = baseMap);
+        await Future<void>.delayed(const Duration(seconds: 2));
+        if (!mounted) return;
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingAllStyles = false);
+      }
+    }
   }
 }
