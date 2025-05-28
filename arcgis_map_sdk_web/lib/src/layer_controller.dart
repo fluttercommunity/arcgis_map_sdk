@@ -1272,6 +1272,8 @@ class LayerController {
       }),
     );
 
+    if (labelsLayerUrl == null) return;
+
     // By recreating the labels layer, it allows us to push it to the back of the map.
     _recreatedLabelsLayer =
         VectorLayer().init(url: labelsLayerUrl!, apiKey: apiKey);
