@@ -144,7 +144,10 @@ class _DrawOnMapExamplePageState extends State<DrawOnMapExamplePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      floatingActionButton: FloatingActionButton(onPressed: _showBottomSheet,child: Icon(Icons.draw),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showBottomSheet,
+        child: Icon(Icons.draw),
+      ),
       body: Stack(
         children: [
           ArcgisMap(
@@ -583,7 +586,10 @@ class _DrawOnMapExamplePageState extends State<DrawOnMapExamplePage> {
         Navigator.pop(context);
         onPressed();
       },
-      title: Text(text,style: TextStyle(color: Colors.deepPurple),),
+      title: Text(
+        text,
+        style: TextStyle(color: Colors.deepPurple),
+      ),
     );
   }
 }
