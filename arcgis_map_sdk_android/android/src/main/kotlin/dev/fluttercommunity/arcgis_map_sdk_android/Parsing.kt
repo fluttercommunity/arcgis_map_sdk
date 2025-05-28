@@ -178,90 +178,73 @@ fun parseAnimationCurve(value: String): AnimationCurve {
     }
 }
 
-fun BasemapStyle.getJsonValue(): String? {
-    return when (this) {
-        BasemapStyle.ArcGISImagery -> "arcgisImagery"
-        BasemapStyle.ArcGISImageryStandard -> "arcgisImageryStandard"
-        BasemapStyle.ArcGISImageryLabels -> "arcgisImageryLabels"
-        BasemapStyle.ArcGISLightGray -> "arcgisLightGray"
-        BasemapStyle.ArcGISLightGray -> null
-        BasemapStyle.ArcGISLightGrayLabels -> null
-        BasemapStyle.ArcGISDarkGray -> "arcgisDarkGray"
-        BasemapStyle.ArcGISDarkGrayBase -> null
-        BasemapStyle.ArcGISDarkGrayLabels -> null
-        BasemapStyle.ArcGISNavigation -> "arcgisNavigation"
-        BasemapStyle.ArcGISNavigationNight -> "arcgisNavigationNight"
-        BasemapStyle.ArcGISStreets -> "arcgisStreets"
-        BasemapStyle.ArcGISStreetsNight -> "arcgisStreetsNight"
-        BasemapStyle.OsmStreetsRelief -> "arcgisStreetsRelief"
-        BasemapStyle.ArcGISTopographic -> "arcgisTopographic"
-        BasemapStyle.ArcGISOceans -> "arcgisOceans"
-        BasemapStyle.ArcGISOceansBase -> null
-        BasemapStyle.ArcGISOceansLabels -> null
-        BasemapStyle.ArcGISTerrain -> "arcgisTerrain"
-        BasemapStyle.ArcGISTerrainBase -> null
-        BasemapStyle.ArcGISTerrainDetail -> null
-        BasemapStyle.ArcGISCommunity -> "arcgisCommunity"
-        BasemapStyle.ArcGISChartedTerritory -> "arcgisChartedTerritory"
-        BasemapStyle.ArcGISColoredPencil -> "arcgisColoredPencil"
-        BasemapStyle.ArcGISNova -> "arcgisNova"
-        BasemapStyle.ArcGISModernAntique -> "arcgisModernAntique"
-        BasemapStyle.ArcGISMidcentury -> "arcgisMidcentury"
-        BasemapStyle.ArcGISNewspaper -> "arcgisNewspaper"
-        BasemapStyle.ArcGISHillshadeLight -> "arcgisHillshadeLight"
-        BasemapStyle.ArcGISHillshadeDark -> "arcgisHillshadeDark"
-        BasemapStyle.ArcGISStreetsReliefBase -> null
-        BasemapStyle.ArcGISTopographicBase -> null
-        BasemapStyle.ArcGISChartedTerritoryBase -> null
-        BasemapStyle.ArcGISModernAntiqueBase -> null
-        BasemapStyle.OsmStandard -> "osmStandard"
-        BasemapStyle.OsmStandardRelief -> "osmStandardRelief"
-        BasemapStyle.OsmStandardReliefBase -> null
-        BasemapStyle.OsmStreets -> "osmStreets"
-        BasemapStyle.OsmStreetsRelief -> "osmStreetsRelief"
-        BasemapStyle.OsmStreetsReliefBase -> null
-        BasemapStyle.OsmLightGray -> "osmLightGray"
-        BasemapStyle.OsmLightGrayBase -> null
-        BasemapStyle.OsmLightGrayLabels -> null
-        BasemapStyle.OsmDarkGray -> "osmDarkGray"
-        BasemapStyle.OsmDarkGrayBase -> null
-        BasemapStyle.OsmDarkGrayLabels -> null
-        BasemapStyle.OsmHybrid -> "hybrid"
-        else -> null
-    }
+private val basemapStyleMapping = mapOf(
+    BasemapStyle.ArcGISImagery to "arcgisImagery",
+    BasemapStyle.ArcGISImageryStandard to "arcgisImageryStandard",
+    BasemapStyle.ArcGISImageryLabels to "arcgisImageryLabels",
+    BasemapStyle.ArcGISLightGray to "arcgisLightGray",
+    BasemapStyle.ArcGISLightGrayBase to "arcgisLightGrayBase",
+    BasemapStyle.ArcGISLightGrayLabels to "arcgisLightGrayLabels",
+    BasemapStyle.ArcGISDarkGray to "arcgisDarkGray",
+    BasemapStyle.ArcGISDarkGrayBase to "arcgisDarkGrayBase",
+    BasemapStyle.ArcGISDarkGrayLabels to "arcgisDarkGrayLabels",
+    BasemapStyle.ArcGISNavigation to "arcgisNavigation",
+    BasemapStyle.ArcGISNavigationNight to "arcgisNavigationNight",
+    BasemapStyle.ArcGISStreets to "arcgisStreets",
+    BasemapStyle.ArcGISStreetsRelief to "arcgisStreetsRelief",
+    BasemapStyle.ArcGISStreetsReliefBase to "arcgisStreetsReliefBase",
+    BasemapStyle.ArcGISStreetsNight to "arcgisStreetsNight",
+    BasemapStyle.ArcGISTopographic to "arcgisTopographic",
+    BasemapStyle.ArcGISTopographicBase to "arcgisTopographicBase",
+    BasemapStyle.ArcGISOceans to "arcgisOceans",
+    BasemapStyle.ArcGISOceansBase to "arcgisOceansBase",
+    BasemapStyle.ArcGISOceansLabels to "arcgisOceansLabels",
+    BasemapStyle.ArcGISTerrain to "arcgisTerrain",
+    BasemapStyle.ArcGISTerrainBase to "arcgisTerrainBase",
+    BasemapStyle.ArcGISTerrainDetail to "arcgisTerrainDetail",
+    BasemapStyle.ArcGISCommunity to "arcgisCommunity",
+    BasemapStyle.ArcGISChartedTerritory to "arcgisChartedTerritory",
+    BasemapStyle.ArcGISChartedTerritoryBase to "arcgisChartedTerritoryBase",
+    BasemapStyle.ArcGISColoredPencil to "arcgisColoredPencil",
+    BasemapStyle.ArcGISNova to "arcgisNova",
+    BasemapStyle.ArcGISModernAntique to "arcgisModernAntique",
+    BasemapStyle.ArcGISModernAntiqueBase to "arcgisModernAntiqueBase",
+    BasemapStyle.ArcGISMidcentury to "arcgisMidcentury",
+    BasemapStyle.ArcGISNewspaper to "arcgisNewspaper",
+    BasemapStyle.ArcGISHillshadeLight to "arcgisHillshadeLight",
+    BasemapStyle.ArcGISHillshadeDark to "arcgisHillshadeDark",
+    BasemapStyle.ArcGISOutdoor to "arcgisOutdoor",
+    BasemapStyle.ArcGISHumanGeography to "arcgisHumanGeography",
+    BasemapStyle.ArcGISHumanGeographyBase to "arcgisHumanGeographyBase",
+    BasemapStyle.ArcGISHumanGeographyDetail to "arcgisHumanGeographyDetail",
+    BasemapStyle.ArcGISHumanGeographyLabels to "arcgisHumanGeographyLabels",
+    BasemapStyle.ArcGISHumanGeographyDark to "arcgisHumanGeographyDark",
+    BasemapStyle.ArcGISHumanGeographyDarkBase to "arcgisHumanGeographyDarkBase",
+    BasemapStyle.ArcGISHumanGeographyDarkDetail to "arcgisHumanGeographyDarkDetail",
+    BasemapStyle.ArcGISHumanGeographyDarkLabels to "arcgisHumanGeographyDarkLabels",
+    BasemapStyle.OsmStandard to "osmStandard",
+    BasemapStyle.OsmStandardRelief to "osmStandardRelief",
+    BasemapStyle.OsmStandardReliefBase to "osmStandardReliefBase",
+    BasemapStyle.OsmStreets to "osmStreets",
+    BasemapStyle.OsmStreetsRelief to "osmStreetsRelief",
+    BasemapStyle.OsmStreetsReliefBase to "osmStreetsReliefBase",
+    BasemapStyle.OsmLightGray to "osmLightGray",
+    BasemapStyle.OsmLightGrayBase to "osmLightGrayBase",
+    BasemapStyle.OsmLightGrayLabels to "osmLightGrayLabels",
+    BasemapStyle.OsmDarkGray to "osmDarkGray",
+    BasemapStyle.OsmDarkGrayBase to "osmDarkGrayBase",
+    BasemapStyle.OsmDarkGrayLabels to "osmDarkGrayLabels",
+    BasemapStyle.OsmBlueprint to "osmBlueprint",
+    BasemapStyle.OsmHybrid to "osmHybrid",
+    BasemapStyle.OsmHybridDetail to "osmHybridDetail",
+    BasemapStyle.OsmNavigation to "osmNavigation",
+    BasemapStyle.OsmNavigationDark to "osmNavigationDark"
+)
+
+fun BasemapStyle.getJsonValue(): String {
+    return basemapStyleMapping[this]!!
 }
 
 fun parseBasemapStyle(value: String): BasemapStyle? {
-    return when (value) {
-        "arcgisImagery" -> BasemapStyle.ArcGISImagery
-        "arcgisImageryStandard" -> BasemapStyle.ArcGISImageryStandard
-        "arcgisImageryLabels" -> BasemapStyle.ArcGISImageryLabels
-        "arcgisLightGray" -> BasemapStyle.ArcGISLightGray
-        "arcgisDarkGray" -> BasemapStyle.ArcGISDarkGray
-        "arcgisNavigation" -> BasemapStyle.ArcGISNavigation
-        "arcgisNavigationNight" -> BasemapStyle.ArcGISNavigationNight
-        "arcgisStreets" -> BasemapStyle.ArcGISStreets
-        "arcgisStreetsNight" -> BasemapStyle.ArcGISStreetsNight
-        "arcgisStreetsRelief" -> BasemapStyle.OsmStreetsRelief
-        "arcgisTopographic" -> BasemapStyle.ArcGISTopographic
-        "arcgisOceans" -> BasemapStyle.ArcGISOceans
-        "arcgisTerrain" -> BasemapStyle.ArcGISTerrain
-        "arcgisCommunity" -> BasemapStyle.ArcGISCommunity
-        "arcgisChartedTerritory" -> BasemapStyle.ArcGISChartedTerritory
-        "arcgisColoredPencil" -> BasemapStyle.ArcGISColoredPencil
-        "arcgisNova" -> BasemapStyle.ArcGISNova
-        "arcgisModernAntique" -> BasemapStyle.ArcGISModernAntique
-        "arcgisMidcentury" -> BasemapStyle.ArcGISMidcentury
-        "arcgisNewspaper" -> BasemapStyle.ArcGISNewspaper
-        "arcgisHillshadeLight" -> BasemapStyle.ArcGISHillshadeLight
-        "arcgisHillshadeDark" -> BasemapStyle.ArcGISHillshadeDark
-        "osmStandard" -> BasemapStyle.OsmStandard
-        "osmStandardRelief" -> BasemapStyle.OsmStandardRelief
-        "osmStreets" -> BasemapStyle.OsmStreets
-        "osmStreetsRelief" -> BasemapStyle.OsmStreetsRelief
-        "osmLightGray" -> BasemapStyle.OsmLightGray
-        "osmDarkGray" -> BasemapStyle.OsmDarkGray
-        "hybrid" -> BasemapStyle.OsmHybrid
-        else -> null
-    }
+    return basemapStyleMapping.entries.firstOrNull { it.value == value }?.key
 }
