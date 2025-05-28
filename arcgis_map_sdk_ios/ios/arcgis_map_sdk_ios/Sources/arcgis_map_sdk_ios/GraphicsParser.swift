@@ -98,7 +98,7 @@ class GraphicsParser {
         case "simple-marker":
             return parseSimpleMarkerSymbol(dictionary)
         case "picture-marker":
-            return parsePictureMarkerSymbol(dictionary)
+            return try parsePictureMarkerSymbol(dictionary)
         case "simple-fill":
             return parseSimpleFillMarkerSymbol(dictionary)
         case "simple-line":

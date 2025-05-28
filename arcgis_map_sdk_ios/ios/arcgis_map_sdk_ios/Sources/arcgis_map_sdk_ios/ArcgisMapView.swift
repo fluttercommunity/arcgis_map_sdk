@@ -615,7 +615,9 @@ extension Basemap.Style: CaseIterable {
             .arcGISStreets,
             .arcGISStreetsNight,
             .arcGISStreetsRelief,
+            .arcGISStreetsReliefBase,
             .arcGISTopographic,
+            .arcGISTopographicBase,
             .arcGISOceans,
             .arcGISOceansBase,
             .arcGISOceansLabels,
@@ -624,29 +626,41 @@ extension Basemap.Style: CaseIterable {
             .arcGISTerrainDetail,
             .arcGISCommunity,
             .arcGISChartedTerritory,
+            .arcGISChartedTerritoryBase,
             .arcGISColoredPencil,
             .arcGISNova,
             .arcGISModernAntique,
+            .arcGISModernAntiqueBase,
             .arcGISMidcentury,
             .arcGISNewspaper,
             .arcGISHillshadeLight,
             .arcGISHillshadeDark,
-            .arcGISStreetsReliefBase,
-            .arcGISTopographicBase,
-            .arcGISChartedTerritoryBase,
-            .arcGISModernAntiqueBase,
+            .arcGISOutdoor,
+            .arcGISHumanGeography,
+            .arcGISHumanGeographyBase,
+            .arcGISHumanGeographyDetail,
+            .arcGISHumanGeographyLabels,
+            .arcGISHumanGeographyDark,
+            .arcGISHumanGeographyDarkBase,
+            .arcGISHumanGeographyDarkDetail,
+            .arcGISHumanGeographyDarkLabels,
             .osmStandard,
             .osmStandardRelief,
             .osmStandardReliefBase,
             .osmStreets,
             .osmStreetsRelief,
+            .osmStreetsReliefBase,
             .osmLightGray,
             .osmLightGrayBase,
             .osmLightGrayLabels,
             .osmDarkGray,
             .osmDarkGrayBase,
             .osmDarkGrayLabels,
-            .osmStreetsReliefBase
+            .osmBlueprint,
+            .osmHybrid,
+            .osmHybridDetail,
+            .osmNavigation,
+            .osmNavigationDark,
         ]
     }
 }
@@ -663,49 +677,57 @@ extension Basemap.Style {
         case .arcGISLightGray:
             return "arcgisLightGray"
         case .arcGISLightGrayBase:
-            return "arcgisDarkGray"
+            return "arcgisLightGrayBase"
         case .arcGISLightGrayLabels:
-            return nil
+            return "arcgisLightGrayLabels"
         case .arcGISDarkGray:
-            return nil
+            return "arcgisDarkGray"
         case .arcGISDarkGrayBase:
-            return nil
+            return "arcgisDarkGrayBase"
         case .arcGISDarkGrayLabels:
-            return nil
+            return "arcgisDarkGrayLabels"
         case .arcGISNavigation:
             return "arcgisNavigation"
         case .arcGISNavigationNight:
             return "arcgisNavigationNight"
         case .arcGISStreets:
             return "arcgisStreets"
-        case .arcGISStreetsNight:
-            return "arcgisStreetsNight"
         case .arcGISStreetsRelief:
             return "arcgisStreetsRelief"
+        case .arcGISStreetsReliefBase:
+            return "arcgisStreetsReliefBase"
+        case .arcGISStreetsNight:
+            return "arcgisStreetsNight"
         case .arcGISTopographic:
             return "arcgisTopographic"
+        case .arcGISTopographicBase:
+            return "arcgisTopographicBase"
         case .arcGISOceans:
             return "arcgisOceans"
         case .arcGISOceansBase:
-            return nil
+            return "arcgisOceansBase"
         case .arcGISOceansLabels:
-            return nil
+            return "arcgisOceansLabels"
         case .arcGISTerrain:
             return "arcgisTerrain"
         case .arcGISTerrainBase:
-            return nil
+            return "arcgisTerrainBase"
         case .arcGISTerrainDetail:
-            return nil
+            return "arcgisTerrainDetail"
         case .arcGISCommunity:
             return "arcgisCommunity"
         case .arcGISChartedTerritory:
             return "arcgisChartedTerritory"
+        case .arcGISChartedTerritoryBase:
+            return "arcgisChartedTerritoryBase"
         case .arcGISColoredPencil:
             return "arcgisColoredPencil"
         case .arcGISNova:
             return "arcgisNova"
         case .arcGISModernAntique:
             return "arcgisModernAntique"
+        case .arcGISModernAntiqueBase:
+            return "arcgisModernAntiqueBase"
         case .arcGISMidcentury:
             return "arcgisMidcentury"
         case .arcGISNewspaper:
@@ -714,14 +736,24 @@ extension Basemap.Style {
             return "arcgisHillshadeLight"
         case .arcGISHillshadeDark:
             return "arcgisHillshadeDark"
-        case .arcGISStreetsReliefBase:
-            return nil
-        case .arcGISTopographicBase:
-            return nil
-        case .arcGISChartedTerritoryBase:
-            return nil
-        case .arcGISModernAntiqueBase:
-            return nil
+        case .arcGISOutdoor:
+            return "arcgisOutdoor"
+        case .arcGISHumanGeography:
+            return "arcgisHumanGeography"
+        case .arcGISHumanGeographyBase:
+            return "arcgisHumanGeographyBase"
+        case .arcGISHumanGeographyDetail:
+            return "arcgisHumanGeographyDetail"
+        case .arcGISHumanGeographyLabels:
+            return "arcgisHumanGeographyLabels"
+        case .arcGISHumanGeographyDark:
+            return "arcgisHumanGeographyDark"
+        case .arcGISHumanGeographyDarkBase:
+            return "arcgisHumanGeographyDarkBase"
+        case .arcGISHumanGeographyDarkDetail:
+            return "arcgisHumanGeographyDarkDetail"
+        case .arcGISHumanGeographyDarkLabels:
+            return "arcgisHumanGeographyDarkLabels"
         case .osmStandard:
             return "osmStandard"
         case .osmStandardRelief:
@@ -732,22 +764,31 @@ extension Basemap.Style {
             return "osmStreets"
         case .osmStreetsRelief:
             return "osmStreetsRelief"
+        case .osmStreetsReliefBase:
+            return "osmStreetsReliefBase"
         case .osmLightGray:
             return "osmLightGray"
         case .osmLightGrayBase:
-            return nil
+            return "osmLightGrayBase"
         case .osmLightGrayLabels:
-            return nil
+            return "osmLightGrayLabels"
         case .osmDarkGray:
             return "osmDarkGray"
         case .osmDarkGrayBase:
-            return nil
+            return "osmDarkGrayBase"
         case .osmDarkGrayLabels:
-            return nil
-        case .osmStreetsReliefBase:
-            return nil
-        @unknown default:
-            return nil
+            return "osmDarkGrayLabels"
+        case .osmBlueprint:
+            return "osmBlueprint"
+        case .osmHybrid:
+            return "osmHybrid"
+        case .osmHybridDetail:
+            return "osmHybridDetail"
+        case .osmNavigation:
+            return "osmNavigation"
+        case .osmNavigationDark:
+            return "osmNavigationDark"
+
         }
     }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:arcgis_example/basemap_style_example_page.dart';
 import 'package:arcgis_example/export_image_example_page.dart';
 import 'package:arcgis_example/location_indicator_example_page.dart';
 import 'package:arcgis_example/map_elements.dart';
@@ -72,7 +73,6 @@ class _ExampleMapState extends State<ExampleMap> {
   final Map<String, bool> _hoveredPolygons = {};
 
   bool show3dMap = false;
-  bool _baseMapToggled = false;
   final initialCenter = const LatLng(51.16, 10.45);
   final tappedHQ = const LatLng(48.1234963, 11.5910182);
   var _isInteractionEnabled = true;
@@ -525,17 +525,8 @@ class _ExampleMapState extends State<ExampleMap> {
                         child: const Text("Location indicator example"),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _baseMapToggled = !_baseMapToggled;
-                            _controller?.toggleBaseMap(
-                              baseMap: _baseMapToggled
-                                  ? BaseMap.hybrid
-                                  : BaseMap.osmDarkGray,
-                            );
-                          });
-                        },
-                        child: const Text("Toggle BaseMap"),
+                        onPressed: _routeToBasemapStyleExamplePage,
+                        child: const Text("Basemap example"),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -782,6 +773,12 @@ class _ExampleMapState extends State<ExampleMap> {
   void _routeToVectorLayerMap() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const VectorLayerExamplePage()),
+    );
+  }
+
+  void _routeToBasemapStyleExamplePage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => BasemapStyleExamplePage()),
     );
   }
 
