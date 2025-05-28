@@ -184,12 +184,13 @@ class _ExampleMapState extends State<ExampleMap> {
           : NavigationDrawer(children: _buildTiles(context)),
       body: Row(
         children: [
-          SizedBox(
-            width: 250,
-            child: ListView(
-              children: _buildTiles(context),
+          if (isLargeScreen)
+            SizedBox(
+              width: 250,
+              child: ListView(
+                children: _buildTiles(context),
+              ),
             ),
-          ),
           Expanded(
             child: Stack(
               children: [
@@ -426,18 +427,20 @@ class _ExampleMapState extends State<ExampleMap> {
           _navigateTo(context, VectorLayerExamplePage());
         },
       ),
-      _buildTile(
-        title: "Export Image Example",
-        onTap: () {
-          _navigateTo(context, ExportImageExamplePage());
-        },
-      ),
-      _buildTile(
-        title: "Location Indicator Example",
-        onTap: () {
-          _navigateTo(context, LocationIndicatorExamplePage());
-        },
-      ),
+      if (!kIsWeb)
+        _buildTile(
+          title: "Export Image Example",
+          onTap: () {
+            _navigateTo(context, ExportImageExamplePage());
+          },
+        ),
+      if (!kIsWeb)
+        _buildTile(
+          title: "Location Indicator Example",
+          onTap: () {
+            _navigateTo(context, LocationIndicatorExamplePage());
+          },
+        ),
       _buildTile(
         title: "Basemap Style Example",
         onTap: () {
