@@ -7,7 +7,6 @@ import 'package:arcgis_map_sdk/arcgis_map_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Example 3D SceneLayer page.
 class BasemapStyleExamplePage extends StatefulWidget {
   const BasemapStyleExamplePage({super.key});
 
