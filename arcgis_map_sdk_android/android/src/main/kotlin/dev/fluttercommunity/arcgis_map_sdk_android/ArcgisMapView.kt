@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.core.os.registerForAllProfilingResults
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.LicenseKey
@@ -67,8 +68,8 @@ internal class ArcgisMapView(
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
     binding: FlutterPluginBinding,
-    private var lifecycle: Lifecycle?,
-) : PlatformView, MethodCallHandler {
+    override val lifecycle: Lifecycle,
+) : PlatformView, MethodCallHandler, LifecycleOwner {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private var view: View? = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
@@ -92,8 +93,8 @@ internal class ArcgisMapView(
 
     private val initialZoom: Int
 
-    private lateinit var zoomStreamHandler: ZoomStreamHandler
-    private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
+    private var zoomStreamHandler: ZoomStreamHandler? = null
+    private var centerPositionStreamHandler: CenterPositionStreamHandler? = null
 
     private var methodChannel: MethodChannel? = MethodChannel(
         binding.binaryMessenger,
@@ -120,7 +121,7 @@ internal class ArcgisMapView(
 
         _mapView = getView().findViewById(R.id.mapView)
 
-        lifecycle!!.addObserver(mapView)
+        lifecycle.addObserver(mapView)
         mapOptions.isAttributionTextVisible?.let { mapView.isAttributionBarVisible = it }
 
         map.apply {
@@ -153,7 +154,7 @@ internal class ArcgisMapView(
         setMapInteraction(enabled = mapOptions.isInteractive)
 
         //methodChannel?.setMethodCallHandler(this)
-        setupEventChannel()
+        //setupEventChannel()
     }
 
     var disposed = false
@@ -163,31 +164,36 @@ internal class ArcgisMapView(
         disposed = true
 
         coroutineScope.cancel()
-        lifecycle!!.removeObserver(mapView)
+        lifecycle.removeObserver(mapView)
 
         zoomEventChannel?.setStreamHandler(null)
-        zoomStreamHandler.dispose()
         zoomEventChannel = null
 
+        zoomStreamHandler?.dispose()
+        zoomStreamHandler = null
+
         centerPositionEventChannel?.setStreamHandler(null)
-        centerPositionStreamHandler.dispose()
         centerPositionEventChannel = null
+
+        centerPositionStreamHandler?.dispose()
+        centerPositionStreamHandler = null
 
         methodChannel?.setMethodCallHandler(null)
         methodChannel = null
 
+        _mapView?.onDestroy(this)
         _mapView = null
         _map = null
         _graphicsParser = null
-        lifecycle = null
         view = null
     }
 
+    /*
     private fun onMapScaleChanged(scale: Double) {
         if (scale.isNaN()) return
 
         val zoomLevel = getZoomLevel(mapView)
-        zoomStreamHandler.addZoom(zoomLevel)
+        zoomStreamHandler?.addZoom(zoomLevel)
     }
 
     private fun onViewpointChanged(unit: Unit) {
@@ -204,7 +210,7 @@ internal class ArcgisMapView(
 
         val latLng = LatLng(longitude = wgs84Center.x, latitude = wgs84Center.y)
 
-        centerPositionStreamHandler.add(latLng)
+        centerPositionStreamHandler?.add(latLng)
     }
 
     private fun onLoadStatusChanged(status: LoadStatus?) {
@@ -697,25 +703,6 @@ internal class ArcgisMapView(
         return mapView.setViewpointScale(mapView.mapScale.value)
     }
 
-    /**
-     *  Convert zoom level to map scale
-     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
-     * */
-    private fun getMapScale(zoomLevel: Int): Double {
-        return 591657527 * (exp(-0.693 * zoomLevel))
-    }
-
-    private fun setMapInteraction(enabled: Boolean) {
-        mapView.interactionOptions.apply {
-            // don't set "isMagnifierEnabled" since we don't want to use this feature
-            isPanEnabled = enabled
-            isFlingEnabled = enabled
-            isRotateEnabled = enabled
-            isZoomEnabled = enabled
-            isEnabled = enabled
-        }
-    }
-
     // region helper methods
     private fun WeakReference<MethodChannel.Result>.finishWithError(
         e: Throwable,
@@ -817,6 +804,31 @@ internal class ArcgisMapView(
          */
     }
     // endregion
+
+     */
+
+    /**
+     *  Convert zoom level to map scale
+     * https://developers.arcgis.com/documentation/mapping-apis-and-services/reference/zoom-levels-and-scale/#conversion-tool
+     * */
+    private fun getMapScale(zoomLevel: Int): Double {
+        return 591657527 * (exp(-0.693 * zoomLevel))
+    }
+
+    private fun setMapInteraction(enabled: Boolean) {
+        mapView.interactionOptions.apply {
+            // don't set "isMagnifierEnabled" since we don't want to use this feature
+            isPanEnabled = enabled
+            isFlingEnabled = enabled
+            isRotateEnabled = enabled
+            isZoomEnabled = enabled
+            isEnabled = enabled
+        }
+    }
+
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        result.success(true)
+    }
 }
 
 private fun LoadStatus.jsonValue() = when (this) {
