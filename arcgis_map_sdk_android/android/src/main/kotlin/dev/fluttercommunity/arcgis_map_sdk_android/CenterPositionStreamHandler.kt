@@ -17,8 +17,4 @@ class CenterPositionStreamHandler : EventChannel.StreamHandler {
     override fun onCancel(arguments: Any?) {
         sink = null
     }
-
-    fun dispose() {
-        sink = null
-    }
 }
