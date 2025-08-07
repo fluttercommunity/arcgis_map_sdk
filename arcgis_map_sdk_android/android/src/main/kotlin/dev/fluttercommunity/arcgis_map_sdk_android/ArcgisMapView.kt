@@ -2,10 +2,11 @@ package dev.fluttercommunity.arcgis_map_sdk_android
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.os.registerForAllProfilingResults
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.LicenseKey
@@ -39,10 +40,19 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.platform.PlatformView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.lang.ref.WeakReference
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.roundToInt
@@ -53,36 +63,64 @@ import kotlin.math.roundToInt
  * A starting point for documentation can be found here: https://developers.arcgis.com/android/maps-2d/tutorials/display-a-map/
  * */
 internal class ArcgisMapView(
-    private val context: Context,
+    context: Context,
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
-    private val binding: FlutterPluginBinding,
-    private val lifecycle: Lifecycle,
-) : PlatformView {
+    binding: FlutterPluginBinding,
+    private var lifecycle: Lifecycle?,
+) : PlatformView, MethodCallHandler {
 
-    private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
-    private var mapView: MapView
-    private val map = ArcGISMap()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    private var view: View? = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
+
+    private var _mapView: MapView? = null
+    private val mapView: MapView
+        get() = _mapView
+            ?: throw IllegalStateException("MapView accessed after it has been disposed.")
+
+    private var _map: ArcGISMap? = ArcGISMap()
+    private val map: ArcGISMap
+        get() = _map
+            ?: throw IllegalStateException("ArcGISMap has been accessed after it has been disposed.")
+
     private val defaultGraphicsOverlay = GraphicsOverlay()
-    private val graphicsParser = GraphicsParser(binding)
+
+    private var _graphicsParser: GraphicsParser? = GraphicsParser(binding)
+    private val graphicsParser: GraphicsParser
+        get() = _graphicsParser
+            ?: throw IllegalStateException("GraphicsParser has been accessed after it has been disposed.")
 
     private val initialZoom: Int
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
-    private val methodChannel =
-        MethodChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
 
-    override fun getView(): View = view
+    private var methodChannel: MethodChannel? = MethodChannel(
+        binding.binaryMessenger,
+        "dev.fluttercommunity.arcgis_map_sdk/$viewId"
+    )
+
+    private var zoomEventChannel: EventChannel? = EventChannel(
+        binding.binaryMessenger,
+        "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom"
+    )
+    private var centerPositionEventChannel: EventChannel? = EventChannel(
+        binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
+    )
+
+    override fun getView(): View =
+        view ?: throw IllegalStateException("View was accessed after it has been disposed.")
 
     init {
+        Log.d("JB", "Calling init of ArcgisMapView($viewId) $this")
         mapOptions.apiKey?.let { ArcGISEnvironment.apiKey = ApiKey.create(it) }
         mapOptions.licenseKey?.let { ArcGISEnvironment.setLicense(LicenseKey.create(it)!!) }
 
         initialZoom = mapOptions.zoom.roundToInt()
 
-        mapView = view.findViewById(R.id.mapView)
-        lifecycle.addObserver(mapView)
+        _mapView = getView().findViewById(R.id.mapView)
+
+        lifecycle!!.addObserver(mapView)
         mapOptions.isAttributionTextVisible?.let { mapView.isAttributionBarVisible = it }
 
         map.apply {
@@ -97,40 +135,14 @@ internal class ArcgisMapView(
 
             minScale = getMapScale(mapOptions.minZoom)
             maxScale = getMapScale(mapOptions.maxZoom)
-            lifecycle.coroutineScope.launch {
-                loadStatus.collect(::onLoadStatusChanged)
-            }
         }
 
         mapView.map = map
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
-        lifecycle.coroutineScope.launch {
-            mapView.mapScale.collect { scale ->
-                if (scale.isNaN()) return@collect
-
-                val zoomLevel = getZoomLevel(mapView)
-                zoomStreamHandler.addZoom(zoomLevel)
-            }
-        }
-        lifecycle.coroutineScope.launch {
-            mapView.viewpointChanged.collect {
-                // The viewpoint listener is executed async which means that the map
-                // can be altered when this is called. If we reload the map or dispose the map
-                // we don't have a visibleArea or an extent which would throw null pointer in this case.
-                val center = mapView.visibleArea?.extent?.center ?: return@collect
-                val wgs84Center =
-                    GeometryEngine.projectOrNull(center, SpatialReference.wgs84()) as? Point
-
-                if (wgs84Center == null || wgs84Center.x.isNaN() || wgs84Center.y.isNaN()) {
-                    return@collect
-                }
-
-                val latLng = LatLng(longitude = wgs84Center.x, latitude = wgs84Center.y)
-
-                centerPositionStreamHandler.add(latLng)
-            }
-        }
+        //mapView.mapScale.onEach(::onMapScaleChanged).launchIn(coroutineScope)
+        //mapView.viewpointChanged.onEach(::onViewpointChanged).launchIn(coroutineScope)
+        //map.loadStatus.onEach(::onLoadStatusChanged).launchIn(coroutineScope)
 
         val viewPoint = Viewpoint(
             mapOptions.initialCenter.latitude, mapOptions.initialCenter.longitude,
@@ -140,87 +152,83 @@ internal class ArcgisMapView(
 
         setMapInteraction(enabled = mapOptions.isInteractive)
 
-        setupMethodChannel()
+        //methodChannel?.setMethodCallHandler(this)
         setupEventChannel()
+    }
+
+    var disposed = false
+
+    override fun dispose() {
+        Log.d("JB", "disposing ArcgisView($viewId) $this")
+        disposed = true
+
+        coroutineScope.cancel()
+        lifecycle!!.removeObserver(mapView)
+
+        zoomEventChannel?.setStreamHandler(null)
+        zoomStreamHandler.dispose()
+        zoomEventChannel = null
+
+        centerPositionEventChannel?.setStreamHandler(null)
+        centerPositionStreamHandler.dispose()
+        centerPositionEventChannel = null
+
+        methodChannel?.setMethodCallHandler(null)
+        methodChannel = null
+
+        _mapView = null
+        _map = null
+        _graphicsParser = null
+        lifecycle = null
+        view = null
+    }
+
+    private fun onMapScaleChanged(scale: Double) {
+        if (scale.isNaN()) return
+
+        val zoomLevel = getZoomLevel(mapView)
+        zoomStreamHandler.addZoom(zoomLevel)
+    }
+
+    private fun onViewpointChanged(unit: Unit) {
+        // The viewpoint listener is executed async which means that the map
+        // can be altered when this is called. If we reload the map or dispose the map
+        // we don't have a visibleArea or an extent which would throw null pointer in this case.
+        val center = mapView.visibleArea?.extent?.center ?: return
+        val wgs84Center =
+            GeometryEngine.projectOrNull(center, SpatialReference.wgs84()) as? Point
+
+        if (wgs84Center == null || wgs84Center.x.isNaN() || wgs84Center.y.isNaN()) {
+            return
+        }
+
+        val latLng = LatLng(longitude = wgs84Center.x, latitude = wgs84Center.y)
+
+        centerPositionStreamHandler.add(latLng)
     }
 
     private fun onLoadStatusChanged(status: LoadStatus?) {
         if (status == null) return
-        methodChannel.invokeMethod("onStatusChanged", status.jsonValue())
+        methodChannel?.invokeMethod("onStatusChanged", status.jsonValue())
     }
-
-    override fun dispose() {}
 
     // region helper
 
-    private fun setupMethodChannel() {
-        methodChannel.setMethodCallHandler { call, result ->
-            when (call.method) {
-                "zoom_in" -> onZoomIn(call = call, result = result)
-                "zoom_out" -> onZoomOut(call = call, result = result)
-                "rotate" -> onRotate(call = call, result = result)
-                "add_view_padding" -> onAddViewPadding(call = call, result = result)
-                "set_interaction" -> onSetInteraction(call = call, result = result)
-                "move_camera" -> onMoveCamera(call = call, result = result)
-                "move_camera_to_points" -> onMoveCameraToPoints(call = call, result = result)
-                "add_graphic" -> onAddGraphic(call = call, result = result)
-                "remove_graphic" -> onRemoveGraphic(call = call, result = result)
-                "toggle_base_map" -> onToggleBaseMap(call = call, result = result)
-                "retryLoad" -> onRetryLoad(result = result)
-                "location_display_start_data_source" -> onStartLocationDisplayDataSource(result)
-                "location_display_stop_data_source" -> onStopLocationDisplayDataSource(result)
-                "location_display_set_default_symbol" -> onSetLocationDisplayDefaultSymbol(
-                    call, result
-                )
-
-                "set_auto_pan_mode" -> onSetAutoPanMode(call = call, result = result)
-                "get_auto_pan_mode" -> onGetAutoPanMode(call = call, result = result)
-                "set_wander_extent_factor" -> onSetWanderExtentFactor(call = call, result = result)
-                "get_wander_extent_factor" -> onGetWanderExtentFactor(call = call, result = result)
-                "location_display_set_accuracy_symbol" -> onSetLocationDisplayAccuracySymbol(
-                    call, result
-                )
-
-                "location_display_set_ping_animation_symbol" -> onSetLocationDisplayPingAnimationSymbol(
-                    call, result
-                )
-
-                "location_display_set_use_course_symbol_on_move" -> onSetLocationDisplayUseCourseSymbolOnMove(
-                    call, result
-                )
-
-                "location_display_update_display_source_position_manually" -> onUpdateLocationDisplaySourcePositionManually(
-                    call, result
-                )
-
-                "location_display_set_data_source_type" -> onSetLocationDisplayDataSourceType(
-                    call, result
-                )
-
-                "update_is_attribution_text_visible" -> onUpdateIsAttributionTextVisible(
-                    call, result
-                )
-
-                "export_image" -> onExportImage(result)
-
-                else -> result.notImplemented()
-            }
-        }
-    }
-
-    private fun onUpdateIsAttributionTextVisible(call: MethodCall, result: MethodChannel.Result) {
+    private fun onUpdateIsAttributionTextVisible(
+        call: MethodCall,
+        result: WeakReference<MethodChannel.Result>
+    ) {
         val isVisible = call.arguments as? Boolean
         if (isVisible == null) {
             result.error("invalid_argument", "isAttributionTextVisible must be a boolean", null)
             return
         }
-
         mapView.isAttributionBarVisible = isVisible
         result.success(true)
     }
 
-    private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+    private fun onStartLocationDisplayDataSource(result: WeakReference<MethodChannel.Result>) {
+        coroutineScope.launch {
             mapView.locationDisplay.dataSource.start().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -230,8 +238,8 @@ internal class ArcgisMapView(
     }
 
 
-    private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+    private fun onStopLocationDisplayDataSource(result: WeakReference<MethodChannel.Result>) {
+        coroutineScope.launch {
             mapView.locationDisplay.dataSource.stop().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -240,20 +248,26 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {
+    private fun onSetLocationDisplayDefaultSymbol(
+        call: MethodCall,
+        result: WeakReference<MethodChannel.Result>
+    ) {
         finishOperationWithSymbol(call, result) { symbol ->
             mapView.locationDisplay.defaultSymbol = symbol
         }
     }
 
-    private fun onSetLocationDisplayAccuracySymbol(call: MethodCall, result: MethodChannel.Result) {
+    private fun onSetLocationDisplayAccuracySymbol(
+        call: MethodCall,
+        result: WeakReference<MethodChannel.Result>
+    ) {
         finishOperationWithSymbol(call, result) { symbol ->
             mapView.locationDisplay.accuracySymbol = symbol
         }
     }
 
     private fun onSetLocationDisplayPingAnimationSymbol(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         finishOperationWithSymbol(call, result) { symbol ->
             mapView.locationDisplay.pingAnimationSymbol = symbol
@@ -261,7 +275,7 @@ internal class ArcgisMapView(
     }
 
     private fun onSetLocationDisplayUseCourseSymbolOnMove(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         try {
             val active = call.arguments as Boolean
@@ -273,24 +287,23 @@ internal class ArcgisMapView(
     }
 
     private fun onUpdateLocationDisplaySourcePositionManually(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         try {
             val dataSource = mapView.locationDisplay.dataSource as CustomLocationDataSource
             val provider = dataSource.currentProvider as CustomLocationProvider
             val optionParams = call.arguments as Map<String, Any>
             val position = optionParams.parseToClass<UserPosition>()
-            lifecycle.coroutineScope.launch {
-                provider.updateLocation(position)
-                result.success(true)
-            }
+
+            provider.updateLocation(position)
+            result.success(true)
         } catch (e: Throwable) {
             result.finishWithError(e)
         }
     }
 
     private fun onSetAutoPanMode(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         try {
             val mode = call.arguments as String?
@@ -319,7 +332,7 @@ internal class ArcgisMapView(
     }
 
     private fun onGetAutoPanMode(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         try {
             return result.success(
@@ -336,7 +349,7 @@ internal class ArcgisMapView(
     }
 
     private fun onSetWanderExtentFactor(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         try {
             val factor = call.arguments as Double?
@@ -356,13 +369,18 @@ internal class ArcgisMapView(
     }
 
     private fun onGetWanderExtentFactor(
-        call: MethodCall, result: MethodChannel.Result
+        call: MethodCall, result: WeakReference<MethodChannel.Result>
     ) {
         return result.success(mapView.locationDisplay.wanderExtentFactor)
     }
 
-    private fun onSetLocationDisplayDataSourceType(call: MethodCall, result: MethodChannel.Result) {
-        if (mapView.locationDisplay.dataSource.status.value == LocationDataSourceStatus.Started) {
+    private fun onSetLocationDisplayDataSourceType(
+        call: MethodCall,
+        result: WeakReference<MethodChannel.Result>
+    ) {
+        val mapViewRef = WeakReference(mapView)
+
+        if (mapViewRef.get()?.locationDisplay?.dataSource?.status?.value == LocationDataSourceStatus.Started) {
             result.error(
                 "invalid_state",
                 "Current data source is running. Make sure to stop it before setting a new data source",
@@ -374,7 +392,7 @@ internal class ArcgisMapView(
         when (call.arguments) {
             "manual" -> {
                 try {
-                    mapView.locationDisplay.dataSource = CustomLocationDataSource {
+                    mapViewRef.get()?.locationDisplay?.dataSource = CustomLocationDataSource {
                         CustomLocationProvider()
                     }
                     result.success(true)
@@ -385,7 +403,7 @@ internal class ArcgisMapView(
 
             "system" -> {
                 try {
-                    mapView.locationDisplay.dataSource = SystemLocationDataSource()
+                    mapViewRef.get()?.locationDisplay?.dataSource = SystemLocationDataSource()
                     result.success(true)
                 } catch (e: Throwable) {
                     result.finishWithError(e, "Setting datasource on mapview failed")
@@ -406,17 +424,11 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
-        EventChannel(
-            binding.binaryMessenger,
-            "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom"
-        ).setStreamHandler(zoomStreamHandler)
-
-        EventChannel(
-            binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
-        ).setStreamHandler(centerPositionStreamHandler)
+        zoomEventChannel?.setStreamHandler(zoomStreamHandler)
+        centerPositionEventChannel?.setStreamHandler(centerPositionStreamHandler)
     }
 
-    private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
+    private fun onZoomIn(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         if (mapView.mapScale.value.isNaN()) {
             result.error(
                 "Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null
@@ -431,7 +443,7 @@ internal class ArcgisMapView(
             return
         }
         val newScale = getMapScale(totalZoomLevel)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointScale(newScale).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -440,7 +452,7 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onZoomOut(call: MethodCall, result: MethodChannel.Result) {
+    private fun onZoomOut(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         if (mapView.mapScale.value.isNaN()) {
             result.error(
                 "Error", "MapView.mapScale is NaN. Maybe the map is not completely loaded.", null
@@ -456,7 +468,7 @@ internal class ArcgisMapView(
             return
         }
         val newScale = getMapScale(totalZoomLevel)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointScale(newScale).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -466,9 +478,9 @@ internal class ArcgisMapView(
 
     }
 
-    private fun onRotate(call: MethodCall, result: MethodChannel.Result) {
+    private fun onRotate(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         val angleDegrees = call.arguments as Double
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointRotation(angleDegrees).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -477,7 +489,7 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onAddViewPadding(call: MethodCall, result: MethodChannel.Result) {
+    private fun onAddViewPadding(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         try {
             val optionParams = call.arguments as Map<String, Any>
             val viewPadding = optionParams.parseToClass<ViewPadding>()
@@ -493,7 +505,7 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onSetInteraction(call: MethodCall, result: MethodChannel.Result) {
+    private fun onSetInteraction(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         try {
             val enabled = call.argument<Boolean>("enabled")!!
             setMapInteraction(enabled = enabled)
@@ -504,7 +516,7 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onAddGraphic(call: MethodCall, result: MethodChannel.Result) {
+    private fun onAddGraphic(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         try {
             val graphicArguments = call.arguments as Map<String, Any>
             val newGraphic: List<Graphic> = graphicsParser.parse(graphicArguments)
@@ -518,7 +530,7 @@ internal class ArcgisMapView(
 
             defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 updateMap().onSuccess { updateResult ->
                     result.success(updateResult)
                 }.onFailure { e ->
@@ -530,7 +542,7 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onRemoveGraphic(call: MethodCall, result: MethodChannel.Result) {
+    private fun onRemoveGraphic(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         val graphicId = call.arguments as String
 
         val graphicsToRemove = defaultGraphicsOverlay.graphics.filter { graphic ->
@@ -540,7 +552,7 @@ internal class ArcgisMapView(
 
         // Don't use removeAll because this will not trigger a redraw.
         graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             updateMap().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -549,7 +561,8 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onMoveCamera(call: MethodCall, result: MethodChannel.Result) {
+    private fun onMoveCamera(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
+        val mapViewRef = WeakReference(mapView)
         try {
             val arguments = call.arguments as Map<String, Any>
             val point = (arguments["point"] as Map<String, Double>).parseToClass<LatLng>()
@@ -570,14 +583,14 @@ internal class ArcgisMapView(
             }
 
             val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
-            lifecycle.coroutineScope.launch {
-                mapView.setViewpointAnimated(
+            coroutineScope.launch {
+                mapViewRef.get()?.setViewpointAnimated(
                     initialViewPort,
                     (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
                     animationOptions?.animationCurve ?: AnimationCurve.Linear,
-                ).onSuccess {
+                )?.onSuccess {
                     result.success(true)
-                }.onFailure { e ->
+                }?.onFailure { e ->
                     result.finishWithError(e)
                 }
             }
@@ -586,7 +599,12 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onMoveCameraToPoints(call: MethodCall, result: MethodChannel.Result) {
+    private fun onMoveCameraToPoints(
+        call: MethodCall,
+        result: WeakReference<MethodChannel.Result>
+    ) {
+        val mapViewRef = WeakReference(mapView)
+
         try {
             val arguments = call.arguments as Map<String, Any>
             val latLongs = (arguments["points"] as ArrayList<Map<String, Any>>).map { p ->
@@ -603,24 +621,23 @@ internal class ArcgisMapView(
                 }, SpatialReference.wgs84()
             )
 
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 val viewpointResult = if (padding != null) {
-                    mapView.setViewpointGeometry(polyline.extent, padding)
+                    mapViewRef.get()?.setViewpointGeometry(polyline.extent, padding)
                 } else {
-                    mapView.setViewpointGeometry(polyline.extent)
-                }
-                viewpointResult.onSuccess {
-                    result.success(true)
-                }.onFailure { e ->
-                    result.finishWithError(e)
-                }
+                    mapViewRef.get()?.setViewpointGeometry(polyline.extent)
+                } ?: return@launch
+
+                viewpointResult
+                    .onSuccess { result.success(true) }
+                    .onFailure { result.finishWithError(it) }
             }
         } catch (e: Throwable) {
             result.finishWithError(e)
         }
     }
 
-    private fun onToggleBaseMap(call: MethodCall, result: MethodChannel.Result) {
+    private fun onToggleBaseMap(call: MethodCall, result: WeakReference<MethodChannel.Result>) {
         try {
             val newStyle = gson.fromJson<BasemapStyle>(
                 call.arguments as String, object : TypeToken<BasemapStyle>() {}.type
@@ -632,8 +649,8 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onRetryLoad(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+    private fun onRetryLoad(result: WeakReference<MethodChannel.Result>) {
+        coroutineScope.launch {
             mapView.map?.retryLoad()?.onSuccess {
                 result.success(true)
             }?.onFailure { e ->
@@ -642,8 +659,8 @@ internal class ArcgisMapView(
         }
     }
 
-    private fun onExportImage(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+    private fun onExportImage(result: WeakReference<MethodChannel.Result>) {
+        coroutineScope.launch {
             mapView.exportImage().onSuccess { bitmapResult ->
                 val bitmap = bitmapResult.bitmap
                 val stream = ByteArrayOutputStream()
@@ -700,7 +717,10 @@ internal class ArcgisMapView(
     }
 
     // region helper methods
-    private fun MethodChannel.Result.finishWithError(e: Throwable, info: String? = null) {
+    private fun WeakReference<MethodChannel.Result>.finishWithError(
+        e: Throwable,
+        info: String? = null
+    ) {
         val msg = StringBuilder().apply {
             if (info != null) append(info)
             append(e.localizedMessage ?: e.message ?: "$e")
@@ -710,7 +730,7 @@ internal class ArcgisMapView(
 
 
     private fun finishOperationWithSymbol(
-        call: MethodCall, result: MethodChannel.Result, function: (Symbol) -> Unit
+        call: MethodCall, result: WeakReference<MethodChannel.Result>, function: (Symbol) -> Unit
     ) {
         try {
             val map = call.arguments as Map<String, Any>
@@ -720,6 +740,81 @@ internal class ArcgisMapView(
         } catch (e: Throwable) {
             result.finishWithError(e, info = "Error while adding graphic.")
         }
+    }
+
+    override fun onMethodCall(call: MethodCall, resultInner: MethodChannel.Result) {
+        resultInner.success(true)
+        return
+
+        /*
+        val self = WeakReference(this).get() ?: return
+        val result = WeakReference(resultInner)
+
+        when (call.method) {
+            "zoom_in" -> self.onZoomIn(call = call, result = result)
+            "zoom_out" -> self.onZoomOut(call = call, result = result)
+            "rotate" -> self.onRotate(call = call, result = result)
+            "add_view_padding" -> self.onAddViewPadding(call = call, result = result)
+            "set_interaction" -> self.onSetInteraction(call = call, result = result)
+            "move_camera" -> self.onMoveCamera(call = call, result = result)
+            "move_camera_to_points" -> self.onMoveCameraToPoints(call = call, result = result)
+
+            "add_graphic" -> self.onAddGraphic(call = call, result = result)
+            "remove_graphic" -> self.onRemoveGraphic(call = call, result = result)
+            "toggle_base_map" -> self.onToggleBaseMap(call = call, result = result)
+            "retryLoad" -> self.onRetryLoad(result = result)
+            "location_display_start_data_source" -> self.onStartLocationDisplayDataSource(result)
+
+            "location_display_stop_data_source" -> self.onStopLocationDisplayDataSource(result)
+
+            "location_display_set_default_symbol" -> self.onSetLocationDisplayDefaultSymbol(
+                call,
+                result
+            )
+
+            "set_auto_pan_mode" -> self.onSetAutoPanMode(call = call, result = result)
+
+            "get_auto_pan_mode" -> self.onGetAutoPanMode(call = call, result = result)
+
+            "set_wander_extent_factor" -> self.onSetWanderExtentFactor(
+                call = call,
+                result = result
+            )
+
+            "get_wander_extent_factor" -> self.onGetWanderExtentFactor(
+                call = call,
+                result = result
+            )
+
+            "location_display_set_accuracy_symbol" -> self.onSetLocationDisplayAccuracySymbol(
+                call, result
+            )
+
+            "location_display_set_ping_animation_symbol" -> self.onSetLocationDisplayPingAnimationSymbol(
+                call, result
+            )
+
+            "location_display_set_use_course_symbol_on_move" -> self.onSetLocationDisplayUseCourseSymbolOnMove(
+                call, result
+            )
+
+            "location_display_update_display_source_position_manually" -> self.onUpdateLocationDisplaySourcePositionManually(
+                call, result
+            )
+
+            "location_display_set_data_source_type" -> self.onSetLocationDisplayDataSourceType(
+                call, result
+            )
+
+            "update_is_attribution_text_visible" -> self.onUpdateIsAttributionTextVisible(
+                call, result
+            )
+
+            "export_image" -> self.onExportImage(result)
+
+            else -> result.notImplemented()
+        }
+         */
     }
     // endregion
 }
@@ -738,4 +833,23 @@ private fun String.autoPanModeFromString() = when (this) {
     "recenter" -> LocationDisplayAutoPanMode.Recenter
     "off" -> LocationDisplayAutoPanMode.Off
     else -> null
+}
+
+private fun WeakReference<MethodChannel.Result>.success(result: Any?) {
+    val self = get() ?: return
+    self.success(result)
+}
+
+private fun WeakReference<MethodChannel.Result>.error(
+    errorCode: String,
+    errorMessage: String? = null,
+    errorDetails: Any? = null
+) {
+    val self = get() ?: return
+    self.error(errorCode, errorMessage, errorDetails)
+}
+
+private fun WeakReference<MethodChannel.Result>.notImplemented() {
+    val self = get() ?: return
+    self.notImplemented()
 }
