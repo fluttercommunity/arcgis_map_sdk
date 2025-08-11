@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
@@ -40,6 +41,9 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -57,8 +61,10 @@ internal class ArcgisMapView(
     private val viewId: Int,
     private val mapOptions: ArcgisMapOptions,
     private val binding: FlutterPluginBinding,
-    private val lifecycle: Lifecycle,
-) : PlatformView {
+    override val lifecycle: Lifecycle,
+) : PlatformView, LifecycleOwner {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val view: View = LayoutInflater.from(context).inflate(R.layout.vector_map_view, null)
     private var mapView: MapView
@@ -97,7 +103,7 @@ internal class ArcgisMapView(
 
             minScale = getMapScale(mapOptions.minZoom)
             maxScale = getMapScale(mapOptions.maxZoom)
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 loadStatus.collect(::onLoadStatusChanged)
             }
         }
@@ -105,7 +111,7 @@ internal class ArcgisMapView(
         mapView.map = map
         mapView.graphicsOverlays.add(defaultGraphicsOverlay)
 
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.mapScale.collect { scale ->
                 if (scale.isNaN()) return@collect
 
@@ -113,7 +119,7 @@ internal class ArcgisMapView(
                 zoomStreamHandler.addZoom(zoomLevel)
             }
         }
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.viewpointChanged.collect {
                 // The viewpoint listener is executed async which means that the map
                 // can be altered when this is called. If we reload the map or dispose the map
@@ -149,7 +155,10 @@ internal class ArcgisMapView(
         methodChannel.invokeMethod("onStatusChanged", status.jsonValue())
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        coroutineScope.cancel()
+        mapView.onDestroy(this)
+    }
 
     // region helper
 
@@ -220,7 +229,7 @@ internal class ArcgisMapView(
     }
 
     private fun onStartLocationDisplayDataSource(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.locationDisplay.dataSource.start().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -231,7 +240,7 @@ internal class ArcgisMapView(
 
 
     private fun onStopLocationDisplayDataSource(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.locationDisplay.dataSource.stop().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -280,7 +289,7 @@ internal class ArcgisMapView(
             val provider = dataSource.currentProvider as CustomLocationProvider
             val optionParams = call.arguments as Map<String, Any>
             val position = optionParams.parseToClass<UserPosition>()
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 provider.updateLocation(position)
                 result.success(true)
             }
@@ -431,7 +440,7 @@ internal class ArcgisMapView(
             return
         }
         val newScale = getMapScale(totalZoomLevel)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointScale(newScale).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -456,7 +465,7 @@ internal class ArcgisMapView(
             return
         }
         val newScale = getMapScale(totalZoomLevel)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointScale(newScale).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -468,7 +477,7 @@ internal class ArcgisMapView(
 
     private fun onRotate(call: MethodCall, result: MethodChannel.Result) {
         val angleDegrees = call.arguments as Double
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.setViewpointRotation(angleDegrees).onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -518,7 +527,7 @@ internal class ArcgisMapView(
 
             defaultGraphicsOverlay.graphics.addAll(newGraphic)
 
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 updateMap().onSuccess { updateResult ->
                     result.success(updateResult)
                 }.onFailure { e ->
@@ -540,7 +549,7 @@ internal class ArcgisMapView(
 
         // Don't use removeAll because this will not trigger a redraw.
         graphicsToRemove.forEach(defaultGraphicsOverlay.graphics::remove)
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             updateMap().onSuccess {
                 result.success(true)
             }.onFailure { e ->
@@ -570,7 +579,7 @@ internal class ArcgisMapView(
             }
 
             val initialViewPort = Viewpoint(point.latitude, point.longitude, scale)
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 mapView.setViewpointAnimated(
                     initialViewPort,
                     (animationOptions?.duration?.toFloat() ?: 0F) / 1000,
@@ -603,7 +612,7 @@ internal class ArcgisMapView(
                 }, SpatialReference.wgs84()
             )
 
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 val viewpointResult = if (padding != null) {
                     mapView.setViewpointGeometry(polyline.extent, padding)
                 } else {
@@ -633,7 +642,7 @@ internal class ArcgisMapView(
     }
 
     private fun onRetryLoad(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.map?.retryLoad()?.onSuccess {
                 result.success(true)
             }?.onFailure { e ->
@@ -643,7 +652,7 @@ internal class ArcgisMapView(
     }
 
     private fun onExportImage(result: MethodChannel.Result) {
-        lifecycle.coroutineScope.launch {
+        coroutineScope.launch {
             mapView.exportImage().onSuccess { bitmapResult ->
                 val bitmap = bitmapResult.bitmap
                 val stream = ByteArrayOutputStream()
