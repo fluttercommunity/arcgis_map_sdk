@@ -25,4 +25,8 @@ class CenterPositionStreamHandler: NSObject, FlutterStreamHandler {
     func add(center: LatLng) {
         sink?(center.dictionary)
     }
+    
+    deinit {
+        sink = nil
+    }
 }

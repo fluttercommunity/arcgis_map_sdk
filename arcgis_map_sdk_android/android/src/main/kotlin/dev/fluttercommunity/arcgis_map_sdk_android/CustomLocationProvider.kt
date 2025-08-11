@@ -15,7 +15,7 @@ class CustomLocationProvider : CustomLocationDataSource.LocationProvider {
     override val locations: Flow<Location> = _locations.asSharedFlow()
     override val headings: Flow<Double> = _headings.asSharedFlow()
 
-    suspend fun updateLocation(position: UserPosition) {
+    fun updateLocation(position: UserPosition) {
         _locations.tryEmit(
             Location.create(
                 position = position.latLng.toAGSPoint(),
@@ -27,7 +27,7 @@ class CustomLocationProvider : CustomLocationDataSource.LocationProvider {
             )
         )
         position.heading?.let {
-            _headings.emit(it)
+            _headings.tryEmit(it)
         }
     }
 }

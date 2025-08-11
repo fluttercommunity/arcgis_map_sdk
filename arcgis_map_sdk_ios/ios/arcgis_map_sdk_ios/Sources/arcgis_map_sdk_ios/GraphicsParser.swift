@@ -98,7 +98,7 @@ class GraphicsParser {
         case "simple-marker":
             return parseSimpleMarkerSymbol(dictionary)
         case "picture-marker":
-            return parsePictureMarkerSymbol(dictionary)
+            return try parsePictureMarkerSymbol(dictionary)
         case "simple-fill":
             return parseSimpleFillMarkerSymbol(dictionary)
         case "simple-line":
@@ -136,10 +136,13 @@ class GraphicsParser {
         return symbol
     }
 
-    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) -> Symbol {
+    private func parsePictureMarkerSymbol(_ dictionary: [String: Any]) throws -> Symbol {
         let payload: PictureMarkerSymbolPayload = try! JsonUtil.objectOfJson(dictionary)
 
         if(!payload.assetUri.isWebUrl()) {
+            if !payload.assetUri.lowercased().hasSuffix(".png") {
+                throw ParseException(message: "Local assetUri must have type .png. Got \(payload.assetUri)")
+            }
             let uiImage = getFlutterUiImage(payload.assetUri)
             let symbol = PictureMarkerSymbol(image: uiImage!)
             symbol.width = payload.width
