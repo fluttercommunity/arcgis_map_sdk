@@ -29,4 +29,8 @@ class ZoomStreamHandler: NSObject, FlutterStreamHandler {
             sink?(zoom)
         }
     }
+    
+    deinit {
+        sink = nil
+    }
 }

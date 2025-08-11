@@ -13,5 +13,4 @@ public class ArcgisMapPlugin: NSObject, FlutterPlugin {
         )
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
-
 }
