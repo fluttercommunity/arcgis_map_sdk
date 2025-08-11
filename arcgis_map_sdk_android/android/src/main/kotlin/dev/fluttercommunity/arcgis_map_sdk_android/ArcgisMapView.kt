@@ -103,7 +103,7 @@ internal class ArcgisMapView(
 
             minScale = getMapScale(mapOptions.minZoom)
             maxScale = getMapScale(mapOptions.maxZoom)
-            lifecycle.coroutineScope.launch {
+            coroutineScope.launch {
                 loadStatus.collect(::onLoadStatusChanged)
             }
         }
