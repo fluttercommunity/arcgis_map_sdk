@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.LicenseKey
@@ -157,6 +156,8 @@ internal class ArcgisMapView(
 
     override fun dispose() {
         coroutineScope.cancel()
+
+        lifecycle.removeObserver(mapView)
         mapView.onDestroy(this)
     }
 
