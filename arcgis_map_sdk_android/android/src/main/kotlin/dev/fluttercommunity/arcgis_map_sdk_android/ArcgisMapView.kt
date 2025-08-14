@@ -83,15 +83,7 @@ internal class ArcgisMapView(
 
     override fun getView(): View = view
 
-    private val logObserver = object : LifecycleEventObserver {
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            Log.d("ArcgisMapView", "Received event $source -> $event")
-        }
-    }
-
     init {
-        lifecycle.addObserver(logObserver)
-
         mapOptions.apiKey?.let { ArcGISEnvironment.apiKey = ApiKey.create(it) }
         mapOptions.licenseKey?.let { ArcGISEnvironment.setLicense(LicenseKey.create(it)!!) }
 
@@ -168,9 +160,7 @@ internal class ArcgisMapView(
     override fun dispose() {
         coroutineScope.cancel()
 
-        lifecycle.removeObserver(logObserver)
         lifecycle.removeObserver(mapView)
-
         mapView.onDestroy(this)
     }
 
