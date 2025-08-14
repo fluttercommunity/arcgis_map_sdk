@@ -2,12 +2,9 @@ package dev.fluttercommunity.arcgis_map_sdk_android
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
