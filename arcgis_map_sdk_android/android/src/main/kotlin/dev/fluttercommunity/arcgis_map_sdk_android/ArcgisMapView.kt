@@ -2,11 +2,13 @@ package dev.fluttercommunity.arcgis_map_sdk_android
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.LicenseKey
@@ -81,7 +83,15 @@ internal class ArcgisMapView(
 
     override fun getView(): View = view
 
+    private val logObserver = object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            Log.d("ArcgisMapView", "Received event $source -> $event")
+        }
+    }
+
     init {
+        lifecycle.addObserver(logObserver)
+
         mapOptions.apiKey?.let { ArcGISEnvironment.apiKey = ApiKey.create(it) }
         mapOptions.licenseKey?.let { ArcGISEnvironment.setLicense(LicenseKey.create(it)!!) }
 
@@ -157,6 +167,10 @@ internal class ArcgisMapView(
 
     override fun dispose() {
         coroutineScope.cancel()
+
+        lifecycle.removeObserver(logObserver)
+        lifecycle.removeObserver(mapView)
+
         mapView.onDestroy(this)
     }
 
