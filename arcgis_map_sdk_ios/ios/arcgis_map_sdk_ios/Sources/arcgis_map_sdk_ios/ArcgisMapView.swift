@@ -622,7 +622,6 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapContentView.viewModel.onLoadStatusChanged = nil
         mapContentView.viewModel.onViewInit = nil
         mapContentView.viewModel.mapViewProxy = nil
-        mapContentView.viewModel.stopLocationDataSource()
         
         zoomEventChannel.setStreamHandler(nil)
         centerPositionEventChannel.setStreamHandler(nil)
