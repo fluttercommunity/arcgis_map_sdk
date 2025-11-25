@@ -39,3 +39,5 @@ Icon?
 
 .swiftpm/
 Package.resolved
+
+.build/
