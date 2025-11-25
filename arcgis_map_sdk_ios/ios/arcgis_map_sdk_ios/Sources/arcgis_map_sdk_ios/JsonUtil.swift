@@ -7,7 +7,7 @@ class JsonUtil {
         else {
             fatalError("Unable to parse \(T.self) from \(dict)")
         }
-
+        
         return object
     }
 }
