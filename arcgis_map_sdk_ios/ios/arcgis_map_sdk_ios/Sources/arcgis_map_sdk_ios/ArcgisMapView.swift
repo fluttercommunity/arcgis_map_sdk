@@ -616,6 +616,26 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
     }
     
+    /// Cleans up Flutter channels and view model references.
+    ///
+    /// ## Threading Considerations
+    ///
+    /// Flutter channel operations (`setStreamHandler`, `setMethodCallHandler`) **must** be called
+    /// on the main thread. However, `deinit` can be triggered from a background thread when:
+    ///
+    /// 1. An async `Task` (e.g., in `onStartLocationDisplayDataSource`) captures `[weak self]`
+    /// 2. The Task completes on a background thread (Swift's default async executor)
+    /// 3. If `self` has no other strong references, ARC deallocates it on that background thread
+    /// 4. This calls `deinit` on the background thread
+    ///
+    /// If we call `setStreamHandler(nil)` from a background thread, Flutter's
+    /// `PlatformMessageHandlerIos::SetMessageHandler` detects the thread violation and
+    /// crashes via `fml::KillProcess()`.
+    ///
+    /// ## Solution
+    ///
+    /// We check the current thread and dispatch to main if necessary. Channel references
+    /// are captured locally since `self` properties become inaccessible during `deinit`.
     deinit {
         mapContentView.viewModel.onScaleChanged = nil
         mapContentView.viewModel.onVisibleAreaChanged = nil
@@ -623,9 +643,23 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapContentView.viewModel.onViewInit = nil
         mapContentView.viewModel.mapViewProxy = nil
         
-        zoomEventChannel.setStreamHandler(nil)
-        centerPositionEventChannel.setStreamHandler(nil)
-        methodChannel.setMethodCallHandler(nil)
+        // Capture channel references locally - self.* properties are inaccessible
+        // after deinit begins, and we need them for the potential async dispatch.
+        let zoomChannel = zoomEventChannel
+        let centerChannel = centerPositionEventChannel
+        let methodChan = methodChannel
+        
+        if Thread.isMainThread {
+            zoomChannel.setStreamHandler(nil)
+            centerChannel.setStreamHandler(nil)
+            methodChan.setMethodCallHandler(nil)
+        } else {
+            DispatchQueue.main.async {
+                zoomChannel.setStreamHandler(nil)
+                centerChannel.setStreamHandler(nil)
+                methodChan.setMethodCallHandler(nil)
+            }
+        }
     }
 }
 
@@ -819,7 +853,6 @@ extension Basemap.Style {
             return "osmNavigation"
         case .osmNavigationDark:
             return "osmNavigationDark"
-            
         }
     }
 }
