@@ -67,7 +67,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         hostingController.view.backgroundColor = .clear
         
         super.init()
-        
+
         if let isAttributionTextVisible = mapOptions.isAttributionTextVisible {
             mapContentView.viewModel.attributionBarHidden = !isAttributionTextVisible
         }
@@ -116,7 +116,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                 result(FlutterError(code: "disposed", message: "View was disposed", details: nil))
                 return
             }
-            
+
             switch call.method {
             case "on_init_complete": waitForViewToInit(call, result)
             case "zoom_in": onZoomIn(call, result)
@@ -163,12 +163,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     
     private func onZoomIn(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let currentScale = mapContentView.viewModel.viewpoint.targetScale
-        
+
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        
+
         guard let lodFactor = args["lodFactor"] as? Int else {
             result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
             return
@@ -199,7 +199,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        
+
         guard let lodFactor = args["lodFactor"] as? Int else {
             result(FlutterError(code: "missing_data", message: "lodFactor not provided", details: nil))
             return
@@ -223,7 +223,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
     }
-    
+
     private func onRotate(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let angleDouble = call.arguments as? Double else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
@@ -243,7 +243,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        
+
         do {
             let padding: ViewPadding = try JsonUtil.objectOfJson(args)
             
@@ -303,7 +303,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
                     points: payload.points.map { latLng in
                         Point(x: latLng.longitude, y: latLng.latitude, spatialReference: .wgs84)
                     })
-                
+
                 if payload.padding != nil {
                     let success = try await mapContentView.viewModel.mapViewProxy!.setViewpointGeometry(polyline.extent, padding: payload.padding!)
                     result(success)
@@ -333,13 +333,13 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             let graphic = object as! Graphic
             return graphic.attributes["id"] as? String
         }
-        
+
         let hasExistingGraphics = newGraphics.contains(where: { object in
             let graphic = object
             guard let id = graphic.attributes["id"] as? String else {
                 return false
             }
-            
+
             return existingIds.contains(id)
         })
         
@@ -347,7 +347,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(false)
             return
         }
-        
+
         // addObjects causes an internal exceptions this is why we add
         // them in this for loop instead.
         // ArcGis is the best <3.
@@ -404,12 +404,12 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
             return
         }
-        
+
         guard let enabled = args["enabled"] as? Bool else {
             result(FlutterError(code: "missing_data", message: "enabled arguments", details: nil))
             return
         }
-        
+
         setMapInteractive(enabled)
         result(true)
     }
@@ -526,7 +526,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapContentView.viewModel.locationDisplay.autoPanMode = autoPanMode
         result(true)
     }
-    
+
     private func onGetAutoPanMode(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         // autoPanMode.rawValue is any of [0; 3]:
         // https://developers.arcgis.com/ios/api-reference/_a_g_s_location_display_8h.html
@@ -536,7 +536,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         }
         return result(stringName)
     }
-    
+
     private func onSetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let factor = call.arguments as? Double else {
             result(FlutterError(code: "missing_data", message: "Invalid argument, expected an WanderExtentFactor as Double.", details: nil))
@@ -546,7 +546,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapContentView.viewModel.locationDisplay.wanderExtentFactor = Float(factor)
         result(true)
     }
-    
+
     private func onGetWanderExtentFactor(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         return result(mapContentView.viewModel.locationDisplay.wanderExtentFactor)
     }
@@ -575,7 +575,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "invalid_data", message: "Unknown data source type \(String(describing: type))", details: nil))
         }
     }
-    
+
     private func onUpdateIsAttributionTextVisible(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let isVisible = call.arguments as? Bool else {
             result(FlutterError(code: "missing_data", message: "Invalid arguments", details: nil))
@@ -615,7 +615,27 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(FlutterError(code: "unknown_error", message: "Error while adding graphic. \(error)", details: nil))
         }
     }
-    
+
+    /// Cleans up Flutter channels and view model references.
+    ///
+    /// ## Threading Considerations
+    ///
+    /// Flutter channel operations (`setStreamHandler`, `setMethodCallHandler`) **must** be called
+    /// on the main thread. However, `deinit` can be triggered from a background thread when:
+    ///
+    /// 1. An async `Task` (e.g., in `onStartLocationDisplayDataSource`) captures `[weak self]`
+    /// 2. The Task completes on a background thread (Swift's default async executor)
+    /// 3. If `self` has no other strong references, ARC deallocates it on that background thread
+    /// 4. This calls `deinit` on the background thread
+    ///
+    /// If we call `setStreamHandler(nil)` from a background thread, Flutter's
+    /// `PlatformMessageHandlerIos::SetMessageHandler` detects the thread violation and
+    /// crashes via `fml::KillProcess()`.
+    ///
+    /// ## Solution
+    ///
+    /// We check the current thread and dispatch to main if necessary. Channel references
+    /// are captured locally since `self` properties become inaccessible during `deinit`.
     deinit {
         mapContentView.viewModel.onScaleChanged = nil
         mapContentView.viewModel.onVisibleAreaChanged = nil
@@ -623,9 +643,23 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         mapContentView.viewModel.onViewInit = nil
         mapContentView.viewModel.mapViewProxy = nil
         
-        zoomEventChannel.setStreamHandler(nil)
-        centerPositionEventChannel.setStreamHandler(nil)
-        methodChannel.setMethodCallHandler(nil)
+        // Capture channel references locally - self.* properties are inaccessible
+        // after deinit begins, and we need them for the potential async dispatch.
+        let zoomChannel = zoomEventChannel
+        let centerChannel = centerPositionEventChannel
+        let methodChan = methodChannel
+
+        if Thread.isMainThread {
+            zoomChannel.setStreamHandler(nil)
+            centerChannel.setStreamHandler(nil)
+            methodChan.setMethodCallHandler(nil)
+        } else {
+            DispatchQueue.main.async {
+                zoomChannel.setStreamHandler(nil)
+                centerChannel.setStreamHandler(nil)
+                methodChan.setMethodCallHandler(nil)
+            }
+        }
     }
 }
 
@@ -819,7 +853,7 @@ extension Basemap.Style {
             return "osmNavigation"
         case .osmNavigationDark:
             return "osmNavigationDark"
-            
+
         }
     }
 }
