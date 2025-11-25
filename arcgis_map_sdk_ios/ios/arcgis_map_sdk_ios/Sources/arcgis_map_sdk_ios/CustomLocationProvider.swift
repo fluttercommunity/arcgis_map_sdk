@@ -15,7 +15,7 @@ final class CustomLocationProvider: LocationProvider {
         AsyncStream { @Sendable continuation in
             self.locationContinuation = continuation
             continuation.onTermination = { _ in
-                     self.locationContinuation = nil
+                self.locationContinuation = nil
             }
         }
     }
@@ -28,7 +28,7 @@ final class CustomLocationProvider: LocationProvider {
             }
         }
     }
-
+    
     // Push location from outside
     public func setNewLocation(_ position: UserPosition) {
         let loc = Location(
