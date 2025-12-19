@@ -654,7 +654,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             centerChannel.setStreamHandler(nil)
             methodChan.setMethodCallHandler(nil)
         } else {
-            DispatchQueue.main.async {
+            DispatchQueue.main.sync {
                 zoomChannel.setStreamHandler(nil)
                 centerChannel.setStreamHandler(nil)
                 methodChan.setMethodCallHandler(nil)
