@@ -853,6 +853,8 @@ extension Basemap.Style {
             return "osmNavigation"
         case .osmNavigationDark:
             return "osmNavigationDark"
+        @unknown default:
+            return nil
         }
     }
 }
