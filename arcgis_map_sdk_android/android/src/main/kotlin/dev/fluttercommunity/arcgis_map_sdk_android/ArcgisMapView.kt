@@ -213,6 +213,8 @@ internal class ArcgisMapView(
 
                 "export_image" -> onExportImage(result)
 
+                "dispose" -> onDispose(result)
+
                 else -> result.notImplemented()
             }
         }
@@ -248,6 +250,11 @@ internal class ArcgisMapView(
                 result.finishWithError(e)
             }
         }
+    }
+
+    private fun onDispose(result: MethodChannel.Result) {
+        // Not used for now
+        result.success(true)
     }
 
     private fun onSetLocationDisplayDefaultSymbol(call: MethodCall, result: MethodChannel.Result) {

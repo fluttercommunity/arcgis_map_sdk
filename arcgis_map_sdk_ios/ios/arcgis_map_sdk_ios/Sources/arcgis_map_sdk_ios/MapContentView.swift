@@ -5,11 +5,11 @@ import CoreLocation
 
 struct MapContentView: View {
     @ObservedObject var viewModel: MapViewModel
-    
+
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
     }
-    
+
     var body: some View {
         MapViewReader { mapViewProxy in
             MapView(
@@ -36,11 +36,6 @@ struct MapContentView: View {
                 viewModel.onViewInit?();
             }
             .onDisappear {
-                // Wichtig: kein Stop hier.
-                // Der PlatformView wird bei euch durch State-Update entfernt und wir machen
-                // das Stoppen deterministisch über den expliziten Dart->Swift "dispose" Call.
-                // Dadurch vermeiden wir konkurrierende stop() Aufrufe während Rendering.
-
                 // Clear the mapViewProxy reference when view disappears
                 viewModel.mapViewProxy = nil
             }
@@ -71,30 +66,15 @@ class MapViewModel: ObservableObject {
     var onLoadStatusChanged: ((LoadStatus) -> Void)?
     var onViewInit: (() -> Void)?
 
-    private var stopTask: Task<Void, Never>?
-    private var didRequestStop = false
-
     init(viewpoint : Viewpoint) {
         self.viewpoint = viewpoint
     }
 
     /// Stops the location data source.
-    ///
-    /// This must be serialized to avoid concurrent `stop()` calls triggering ArcGIS internal races.
-    @MainActor
     func stopLocationDataSource() {
-        if didRequestStop {
-            return
-        }
-        didRequestStop = true
-
-        // 1) Synchronously disable auto-pan to immediately stop map updates
-        locationDisplay.autoPanMode = .off
-
-        // 2) Asynchronously stop the data source (single flight)
-        stopTask?.cancel()
-        stopTask = Task { [locationDisplay] in
+        Task {
             await locationDisplay.dataSource.stop()
         }
     }
 }
+

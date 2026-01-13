@@ -26,9 +26,7 @@ class ArcgisMapController {
 
   MapStatus get mapStatus => _mapStatus;
 
-  static Future<ArcgisMapController> init(
-    int id,
-  ) async {
+  static Future<ArcgisMapController> init(int id,) async {
     await ArcgisMapPlatform.instance.init(id);
     return ArcgisMapController._(mapId: id);
   }
@@ -307,8 +305,8 @@ class ArcgisMapController {
     return ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
   }
 
-  void dispose() {
-    ArcgisMapPlatform.instance.dispose(mapId: mapId);
+  Future<void> dispose() {
+    return ArcgisMapPlatform.instance.dispose(mapId: mapId);
   }
 
   List<Graphic> getGraphicsInView() {
@@ -327,7 +325,7 @@ class ArcgisMapController {
     return ArcgisMapPlatform.instance
         .setLocationDisplay(mapId, locationDisplay.type)
         .whenComplete(
-      () {
+          () {
         _locationDisplay.deattachFromMap();
         _locationDisplay = locationDisplay..attachToMap(mapId);
       },

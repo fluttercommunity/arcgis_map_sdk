@@ -148,26 +148,22 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       _map(mapId).isGraphicHoveredStream;
 
   @override
-  Future<FeatureLayer> addFeatureLayer(
-    FeatureLayerOptions options,
-    List<Graphic>? data,
-    void Function(dynamic)? onPressed,
-    String? url,
-    int mapId,
-    void Function(double)? getZoom,
-    String layerId,
-  ) {
+  Future<FeatureLayer> addFeatureLayer(FeatureLayerOptions options,
+      List<Graphic>? data,
+      void Function(dynamic)? onPressed,
+      String? url,
+      int mapId,
+      void Function(double)? getZoom,
+      String layerId,) {
     return _map(mapId)
         .addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
   }
 
   @override
-  Future<GraphicsLayer> addGraphicsLayer(
-    GraphicsLayerOptions options,
-    int mapId,
-    String layerId,
-    void Function(dynamic)? onPressed,
-  ) {
+  Future<GraphicsLayer> addGraphicsLayer(GraphicsLayerOptions options,
+      int mapId,
+      String layerId,
+      void Function(dynamic)? onPressed,) {
     return _map(mapId).addGraphicsLayer(
       options,
       layerId,
@@ -275,7 +271,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void dispose({required int mapId}) {
+  Future<void> dispose({required int mapId}) async {
     _map(mapId).dispose();
     _mapById.remove(mapId);
   }

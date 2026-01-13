@@ -144,6 +144,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             case "get_auto_pan_mode": onGetAutoPanMode(call,  result)
             case "set_wander_extent_factor": onSetWanderExtentFactor( call,  result)
             case "get_wander_extent_factor": onGetWanderExtentFactor( call,  result)
+            case "dispose": onDispose(call, result)
             default:
                 result(FlutterError(code: "Unimplemented", message: "No method matching the name \(call.method)", details: nil))
             }
@@ -473,7 +474,18 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
     }
-    
+
+    private func onDispose(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        Task { [weak self] in
+            guard let self = self else {
+                result(true)
+                return
+            }
+            await self.mapContentView.viewModel.locationDisplay.dataSource.stop()
+            result(true)
+        }
+    }
+
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         operationWithSymbol(call, result) { mapContentView.viewModel.locationDisplay.defaultSymbol = $0 }
     }
@@ -637,30 +649,32 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
     /// We check the current thread and dispatch to main if necessary. Channel references
     /// are captured locally since `self` properties become inaccessible during `deinit`.
     deinit {
-        mapContentView.viewModel.onScaleChanged = nil
-        mapContentView.viewModel.onVisibleAreaChanged = nil
-        mapContentView.viewModel.onLoadStatusChanged = nil
-        mapContentView.viewModel.onViewInit = nil
-        mapContentView.viewModel.mapViewProxy = nil
-        
-        // Capture channel references locally - self.* properties are inaccessible
-        // after deinit begins, and we need them for the potential async dispatch.
+        let viewModel = mapContentView.viewModel
         let zoomChannel = zoomEventChannel
         let centerChannel = centerPositionEventChannel
         let methodChan = methodChannel
         
-        if Thread.isMainThread {
+        let dealloc = {
+            viewModel.onScaleChanged = nil
+            viewModel.onVisibleAreaChanged = nil
+            viewModel.onLoadStatusChanged = nil
+            viewModel.onViewInit = nil
+            viewModel.mapViewProxy = nil
+            
             zoomChannel.setStreamHandler(nil)
             centerChannel.setStreamHandler(nil)
             methodChan.setMethodCallHandler(nil)
+        }
+        
+        if Thread.isMainThread {
+            dealloc()
         } else {
             DispatchQueue.main.sync {
-                zoomChannel.setStreamHandler(nil)
-                centerChannel.setStreamHandler(nil)
-                methodChan.setMethodCallHandler(nil)
+                dealloc()
             }
         }
     }
+    
 }
 
 extension Basemap.Style: CaseIterable {

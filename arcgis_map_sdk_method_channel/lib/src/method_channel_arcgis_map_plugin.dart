@@ -23,15 +23,13 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<FeatureLayer> addFeatureLayer(
-    FeatureLayerOptions options,
-    List<Graphic>? data,
-    void Function(dynamic)? onPressed,
-    String? url,
-    int mapId,
-    void Function(double)? getZoom,
-    String layerId,
-  ) {
+  Future<FeatureLayer> addFeatureLayer(FeatureLayerOptions options,
+      List<Graphic>? data,
+      void Function(dynamic)? onPressed,
+      String? url,
+      int mapId,
+      void Function(double)? getZoom,
+      String layerId,) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
@@ -95,11 +93,12 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     _centerPositionEventStream ??= EventChannel(
       "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
     ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
-          (data) => LatLng(
+          (data) =>
+          LatLng(
             (data['latitude'] as num).toDouble(),
             (data['longitude'] as num).toDouble(),
           ),
-        );
+    );
     return _centerPositionEventStream!;
   }
 
@@ -155,7 +154,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  void dispose({required int mapId}) {}
+  Future<void> dispose({required int mapId}) {
+    return _methodChannelBuilder(mapId).invokeMethod("dispose");
+  }
 
   @override
   Widget buildView({
@@ -314,10 +315,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> setLocationDisplayPingAnimationSymbol(
-    int mapId,
-    Symbol symbol,
-  ) {
+  Future<void> setLocationDisplayPingAnimationSymbol(int mapId,
+      Symbol symbol,) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "location_display_set_ping_animation_symbol",
       symbol.toJson(),
@@ -333,10 +332,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> updateLocationDisplaySourcePositionManually(
-    int mapId,
-    UserPosition position,
-  ) {
+  Future<void> updateLocationDisplaySourcePositionManually(int mapId,
+      UserPosition position,) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "location_display_update_display_source_position_manually",
       position.toMap(),
@@ -352,10 +349,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> updateIsAttributionTextVisible(
-    int mapId,
-    bool isAttributionTextVisible,
-  ) {
+  Future<void> updateIsAttributionTextVisible(int mapId,
+      bool isAttributionTextVisible,) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "update_is_attribution_text_visible",
       isAttributionTextVisible,
