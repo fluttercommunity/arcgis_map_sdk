@@ -5,11 +5,11 @@ import CoreLocation
 
 struct MapContentView: View {
     @ObservedObject var viewModel: MapViewModel
-
+    
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
     }
-
+    
     var body: some View {
         MapViewReader { mapViewProxy in
             MapView(
@@ -53,23 +53,23 @@ struct MapContentView: View {
 class MapViewModel: ObservableObject {
     let map = Map()
     let locationDisplay = LocationDisplay()
-
+    
     @Published var viewpoint: Viewpoint
     @Published var mapViewProxy: MapViewProxy?
     @Published var attributionBarHidden: Bool = false
     @Published var contentInsets: EdgeInsets = EdgeInsets()
     @Published var interactionModes: MapViewInteractionModes = .all
     @Published var defaultGraphicsOverlay = GraphicsOverlay()
-
+    
     var onScaleChanged: ((Double) -> Void)?
     var onVisibleAreaChanged: ((Polygon) -> Void)?
     var onLoadStatusChanged: ((LoadStatus) -> Void)?
     var onViewInit: (() -> Void)?
-
+    
     init(viewpoint : Viewpoint) {
         self.viewpoint = viewpoint
     }
-
+    
     /// Stops the location data source.
     func stopLocationDataSource() {
         Task {

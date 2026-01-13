@@ -474,7 +474,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             }
         }
     }
-
+    
     private func onDispose(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         Task { [weak self] in
             guard let self = self else {
@@ -485,7 +485,7 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
             result(true)
         }
     }
-
+    
     private func onSetLocationDisplayDefaultSymbol(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         operationWithSymbol(call, result) { mapContentView.viewModel.locationDisplay.defaultSymbol = $0 }
     }

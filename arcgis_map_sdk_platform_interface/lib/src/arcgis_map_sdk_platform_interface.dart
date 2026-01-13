@@ -26,20 +26,24 @@ class ArcgisMapPlatform extends PlatformInterface {
     throw UnimplementedError('exportImage() has not been implemented.');
   }
 
-  Future<FeatureLayer> addFeatureLayer(FeatureLayerOptions options,
-      List<Graphic>? data,
-      void Function(dynamic)? onPressed,
-      String? url,
-      int mapId,
-      void Function(double)? getZoom,
-      String layerId,) {
+  Future<FeatureLayer> addFeatureLayer(
+    FeatureLayerOptions options,
+    List<Graphic>? data,
+    void Function(dynamic)? onPressed,
+    String? url,
+    int mapId,
+    void Function(double)? getZoom,
+    String layerId,
+  ) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
-  Future<GraphicsLayer> addGraphicsLayer(GraphicsLayerOptions options,
-      int mapId,
-      String layerId,
-      void Function(dynamic)? onPressed,) {
+  Future<GraphicsLayer> addGraphicsLayer(
+    GraphicsLayerOptions options,
+    int mapId,
+    String layerId,
+    void Function(dynamic)? onPressed,
+  ) {
     throw UnimplementedError('addGraphicsLayer() has not been implemented.');
   }
 
@@ -272,8 +276,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> setLocationDisplayPingAnimationSymbol(int mapId,
-      Symbol symbol,) {
+  Future<void> setLocationDisplayPingAnimationSymbol(int mapId, Symbol symbol) {
     throw UnimplementedError(
       'setLocationDisplayPingAnimationSymbol() has not been implemented.',
     );
@@ -285,21 +288,23 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> updateLocationDisplaySourcePositionManually(int mapId,
-      UserPosition position,) {
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
     throw UnimplementedError(
       'updateLocationDisplaySourcePositionManually() has not been implemented.',
     );
   }
 
   Future<void> setLocationDisplay(int mapId, String type) {
-    throw UnimplementedError(
-      'setLocationDisplay() has not been implemented.',
-    );
+    throw UnimplementedError('setLocationDisplay() has not been implemented.');
   }
 
-  Future<void> updateIsAttributionTextVisible(int mapId,
-      bool isAttributionTextVisible,) {
+  Future<void> updateIsAttributionTextVisible(
+    int mapId,
+    bool isAttributionTextVisible,
+  ) {
     throw UnimplementedError(
       'updateIsAttributionTextVisible() has not been implemented.',
     );

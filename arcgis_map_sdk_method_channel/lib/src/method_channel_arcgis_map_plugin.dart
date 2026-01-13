@@ -23,21 +23,23 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<FeatureLayer> addFeatureLayer(FeatureLayerOptions options,
-      List<Graphic>? data,
-      void Function(dynamic)? onPressed,
-      String? url,
-      int mapId,
-      void Function(double)? getZoom,
-      String layerId,) {
+  Future<FeatureLayer> addFeatureLayer(
+    FeatureLayerOptions options,
+    List<Graphic>? data,
+    void Function(dynamic)? onPressed,
+    String? url,
+    int mapId,
+    void Function(double)? getZoom,
+    String layerId,
+  ) {
     throw UnimplementedError('addFeatureLayer() has not been implemented.');
   }
 
   @override
   Future<Uint8List> exportImage(int mapId) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod<Uint8List>("export_image")
-        .then((value) => value!);
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod<Uint8List>("export_image").then((value) => value!);
   }
 
   @override
@@ -47,8 +49,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setAutoPanMode(String autoPanMode, int mapId) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("set_auto_pan_mode", autoPanMode);
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("set_auto_pan_mode", autoPanMode);
   }
 
   @override
@@ -65,17 +68,16 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   void setWanderExtentFactor(double factor, int mapId) {
-    _methodChannelBuilder(mapId).invokeMethod(
-      "set_wander_extent_factor",
-      factor,
-    );
+    _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("set_wander_extent_factor", factor);
   }
 
   @override
   Future<double> getWanderExtentFactor(int mapId) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod<double>("get_wander_extent_factor")
-        .then((value) => value!);
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod<double>("get_wander_extent_factor").then((value) => value!);
   }
 
   @override
@@ -90,15 +92,15 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<LatLng> centerPosition(int mapId) {
-    _centerPositionEventStream ??= EventChannel(
-      "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
-    ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
-          (data) =>
-          LatLng(
+    _centerPositionEventStream ??=
+        EventChannel(
+          "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
+        ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
+          (data) => LatLng(
             (data['latitude'] as num).toDouble(),
             (data['longitude'] as num).toDouble(),
           ),
-    );
+        );
     return _centerPositionEventStream!;
   }
 
@@ -149,8 +151,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setInteraction(int mapId, {required bool isEnabled}) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("set_interaction", {"enabled": isEnabled});
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("set_interaction", {"enabled": isEnabled});
   }
 
   @override
@@ -174,14 +177,13 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int? threeDHeading,
     int? threeDTilt,
   }) {
-    return _methodChannelBuilder(mapId).invokeMethod<bool>(
-      "move_camera",
-      {
-        "point": point.toMap(),
-        "zoomLevel": zoomLevel?.round(),
-        "animationOptions": animationOptions?.toMap(),
-      },
-    ).then((value) => value!);
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<bool>("move_camera", {
+          "point": point.toMap(),
+          "zoomLevel": zoomLevel?.round(),
+          "animationOptions": animationOptions?.toMap(),
+        })
+        .then((value) => value!);
   }
 
   @override
@@ -192,10 +194,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }) {
     return _methodChannelBuilder(mapId).invokeMethod<bool>(
       "move_camera_to_points",
-      {
-        "points": points.map((p) => p.toMap()).toList(),
-        "padding": padding,
-      },
+      {"points": points.map((p) => p.toMap()).toList(), "padding": padding},
     );
   }
 
@@ -205,10 +204,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _methodChannelBuilder(mapId).invokeMethod<bool>(
-      "zoom_in",
-      {"lodFactor": lodFactor},
-    ).then((value) => value!);
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<bool>("zoom_in", {"lodFactor": lodFactor})
+        .then((value) => value!);
   }
 
   @override
@@ -217,10 +215,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _methodChannelBuilder(mapId).invokeMethod<bool>(
-      "zoom_out",
-      {"lodFactor": lodFactor},
-    ).then((value) => value!);
+    return _methodChannelBuilder(mapId)
+        .invokeMethod<bool>("zoom_out", {"lodFactor": lodFactor})
+        .then((value) => value!);
   }
 
   @override
@@ -238,40 +235,40 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<double> getZoom(int mapId) {
-    _zoomEventStream ??=
-        EventChannel("dev.fluttercommunity.arcgis_map_sdk/$mapId/zoom")
-            .receiveBroadcastStream()
-            .cast<int>()
-            .map((event) => event.toDouble());
+    _zoomEventStream ??= EventChannel(
+      "dev.fluttercommunity.arcgis_map_sdk/$mapId/zoom",
+    ).receiveBroadcastStream().cast<int>().map((event) => event.toDouble());
     return _zoomEventStream!;
   }
 
   @override
   Future<void> addGraphic(int mapId, String layerId, Graphic graphic) {
     // layers are not implemented for native
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "add_graphic",
-      graphic.toJson(),
-    );
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("add_graphic", graphic.toJson());
   }
 
   @override
   Future<void> removeGraphic(int mapId, String layerId, String graphicId) {
     // layers are not implemented for native
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("remove_graphic", graphicId);
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("remove_graphic", graphicId);
   }
 
   @override
   void addViewPadding(int mapId, ViewPadding padding) {
-    _methodChannelBuilder(mapId)
-        .invokeMethod<void>("add_view_padding", padding.toMap());
+    _methodChannelBuilder(
+      mapId,
+    ).invokeMethod<void>("add_view_padding", padding.toMap());
   }
 
   @override
   Future<void> toggleBaseMap(int mapId, BaseMap baseMap) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("toggle_base_map", baseMap.name);
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("toggle_base_map", baseMap.name);
   }
 
   @override
@@ -288,35 +285,34 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> startLocationDisplayDataSource(int mapId) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("location_display_start_data_source");
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("location_display_start_data_source");
   }
 
   @override
   Future<void> stopLocationDisplayDataSource(int mapId) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod("location_display_stop_data_source");
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("location_display_stop_data_source");
   }
 
   @override
   Future<void> setLocationDisplayDefaultSymbol(int mapId, Symbol symbol) {
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "location_display_set_default_symbol",
-      symbol.toJson(),
-    );
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("location_display_set_default_symbol", symbol.toJson());
   }
 
   @override
   Future<void> setLocationDisplayAccuracySymbol(int mapId, Symbol symbol) {
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "location_display_set_accuracy_symbol",
-      symbol.toJson(),
-    );
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("location_display_set_accuracy_symbol", symbol.toJson());
   }
 
   @override
-  Future<void> setLocationDisplayPingAnimationSymbol(int mapId,
-      Symbol symbol,) {
+  Future<void> setLocationDisplayPingAnimationSymbol(int mapId, Symbol symbol) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "location_display_set_ping_animation_symbol",
       symbol.toJson(),
@@ -332,8 +328,10 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   }
 
   @override
-  Future<void> updateLocationDisplaySourcePositionManually(int mapId,
-      UserPosition position,) {
+  Future<void> updateLocationDisplaySourcePositionManually(
+    int mapId,
+    UserPosition position,
+  ) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "location_display_update_display_source_position_manually",
       position.toMap(),
@@ -342,15 +340,16 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Future<void> setLocationDisplay(int mapId, String type) {
-    return _methodChannelBuilder(mapId).invokeMethod(
-      "location_display_set_data_source_type",
-      type,
-    );
+    return _methodChannelBuilder(
+      mapId,
+    ).invokeMethod("location_display_set_data_source_type", type);
   }
 
   @override
-  Future<void> updateIsAttributionTextVisible(int mapId,
-      bool isAttributionTextVisible,) {
+  Future<void> updateIsAttributionTextVisible(
+    int mapId,
+    bool isAttributionTextVisible,
+  ) {
     return _methodChannelBuilder(mapId).invokeMethod(
       "update_is_attribution_text_visible",
       isAttributionTextVisible,

@@ -88,8 +88,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _map(mapId)
-        .zoomIn(lodFactor: lodFactor, animationOptions: animationOptions);
+    return _map(
+      mapId,
+    ).zoomIn(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
@@ -98,8 +99,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _map(mapId)
-        .zoomOut(lodFactor: lodFactor, animationOptions: animationOptions);
+    return _map(
+      mapId,
+    ).zoomOut(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
@@ -148,27 +150,28 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       _map(mapId).isGraphicHoveredStream;
 
   @override
-  Future<FeatureLayer> addFeatureLayer(FeatureLayerOptions options,
-      List<Graphic>? data,
-      void Function(dynamic)? onPressed,
-      String? url,
-      int mapId,
-      void Function(double)? getZoom,
-      String layerId,) {
-    return _map(mapId)
-        .addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
+  Future<FeatureLayer> addFeatureLayer(
+    FeatureLayerOptions options,
+    List<Graphic>? data,
+    void Function(dynamic)? onPressed,
+    String? url,
+    int mapId,
+    void Function(double)? getZoom,
+    String layerId,
+  ) {
+    return _map(
+      mapId,
+    ).addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
   }
 
   @override
-  Future<GraphicsLayer> addGraphicsLayer(GraphicsLayerOptions options,
-      int mapId,
-      String layerId,
-      void Function(dynamic)? onPressed,) {
-    return _map(mapId).addGraphicsLayer(
-      options,
-      layerId,
-      onPressed,
-    );
+  Future<GraphicsLayer> addGraphicsLayer(
+    GraphicsLayerOptions options,
+    int mapId,
+    String layerId,
+    void Function(dynamic)? onPressed,
+  ) {
+    return _map(mapId).addGraphicsLayer(options, layerId, onPressed);
   }
 
   @override
@@ -178,11 +181,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required String url,
     required int mapId,
   }) {
-    return _map(mapId).addSceneLayer(
-      options: options,
-      layerId: layerId,
-      url: url,
-    );
+    return _map(
+      mapId,
+    ).addSceneLayer(options: options, layerId: layerId, url: url);
   }
 
   @override
@@ -250,10 +251,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     required List<Graphic> data,
   }) async {
-    await _map(mapId).updateFeatureLayer(
-      featureLayerId: featureLayerId,
-      data: data,
-    );
+    await _map(
+      mapId,
+    ).updateFeatureLayer(featureLayerId: featureLayerId, data: data);
   }
 
   @override

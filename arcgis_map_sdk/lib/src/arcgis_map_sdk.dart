@@ -43,9 +43,9 @@ class ArcgisMap extends StatefulWidget {
     this.isAttributionTextVisible,
     super.key,
   }) : assert(
-  basemap != null ||
-      (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
-  );
+          basemap != null ||
+              (vectorTileLayerUrls != null && (vectorTileLayerUrls.length > 0)),
+        );
 
   final String? apiKey;
   final String? licenseKey;
