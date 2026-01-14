@@ -253,7 +253,7 @@ internal class ArcgisMapView(
     }
 
     private fun onDispose(result: MethodChannel.Result) {
-        // Not used for now
+        // Only used on iOS for now. No need to cleanup anything on android
         result.success(true)
     }
 
