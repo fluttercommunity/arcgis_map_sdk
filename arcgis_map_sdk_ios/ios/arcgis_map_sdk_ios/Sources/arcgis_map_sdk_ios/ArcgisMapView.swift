@@ -446,15 +446,20 @@ class ArcgisMapView: NSObject, FlutterPlatformView {
         591657527 * (exp(-0.693 * Double(zoomLevel)))
     }
     
-    
     private func onStartLocationDisplayDataSource(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         Task { [weak self] in
-            guard let self = self else { return }
+            guard let self = self else {
+                // View was disposed
+                result(false)
+                return
+            }
             do {
                 try await self.mapContentView.viewModel.locationDisplay.dataSource.start()
                 result(true)
-            }
-            catch{
+            } catch is CancellationError {
+                // Ignore Cancellation - View disposed / Task was cancelled
+                result(false)
+            } catch {
                 let flutterError = FlutterError(
                     code: "generic_error",
                     message: "Failed to start data source: \(error.localizedDescription)",
