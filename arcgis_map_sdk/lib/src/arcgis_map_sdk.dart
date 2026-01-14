@@ -182,4 +182,10 @@ class _ArcgisMapState extends State<ArcgisMap> {
       mapOptions: _arcgisMapOptions,
     );
   }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 }

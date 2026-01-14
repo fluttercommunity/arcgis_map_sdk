@@ -307,8 +307,8 @@ class ArcgisMapController {
     return ArcgisMapPlatform.instance.toggleBaseMap(mapId, baseMap);
   }
 
-  void dispose() {
-    ArcgisMapPlatform.instance.dispose(mapId: mapId);
+  Future<void> dispose() {
+    return ArcgisMapPlatform.instance.dispose(mapId: mapId);
   }
 
   List<Graphic> getGraphicsInView() {

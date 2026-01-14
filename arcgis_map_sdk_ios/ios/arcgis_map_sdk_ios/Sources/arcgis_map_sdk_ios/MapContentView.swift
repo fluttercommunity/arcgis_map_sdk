@@ -1,7 +1,3 @@
-//
-//  Created by Tarek Tolba on 29/04/2025.
-//
-
 import SwiftUI
 import ArcGIS
 import CoreLocation
@@ -40,7 +36,6 @@ struct MapContentView: View {
                 viewModel.onViewInit?();
             }
             .onDisappear {
-                viewModel.stopLocationDataSource()
                 // Clear the mapViewProxy reference when view disappears
                 viewModel.mapViewProxy = nil
             }
@@ -82,3 +77,4 @@ class MapViewModel: ObservableObject {
         }
     }
 }
+

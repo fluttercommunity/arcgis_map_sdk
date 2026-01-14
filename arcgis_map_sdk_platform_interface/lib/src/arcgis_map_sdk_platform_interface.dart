@@ -143,7 +143,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  void dispose({required int mapId}) {
+  Future<void> dispose({required int mapId}) {
     throw UnimplementedError('dispose() has not been implemented.');
   }
 
@@ -276,10 +276,7 @@ class ArcgisMapPlatform extends PlatformInterface {
     );
   }
 
-  Future<void> setLocationDisplayPingAnimationSymbol(
-    int mapId,
-    Symbol symbol,
-  ) {
+  Future<void> setLocationDisplayPingAnimationSymbol(int mapId, Symbol symbol) {
     throw UnimplementedError(
       'setLocationDisplayPingAnimationSymbol() has not been implemented.',
     );
@@ -301,9 +298,7 @@ class ArcgisMapPlatform extends PlatformInterface {
   }
 
   Future<void> setLocationDisplay(int mapId, String type) {
-    throw UnimplementedError(
-      'setLocationDisplay() has not been implemented.',
-    );
+    throw UnimplementedError('setLocationDisplay() has not been implemented.');
   }
 
   Future<void> updateIsAttributionTextVisible(

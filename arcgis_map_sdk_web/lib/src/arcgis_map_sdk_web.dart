@@ -88,8 +88,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _map(mapId)
-        .zoomIn(lodFactor: lodFactor, animationOptions: animationOptions);
+    return _map(
+      mapId,
+    ).zoomIn(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
@@ -98,8 +99,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _map(mapId)
-        .zoomOut(lodFactor: lodFactor, animationOptions: animationOptions);
+    return _map(
+      mapId,
+    ).zoomOut(lodFactor: lodFactor, animationOptions: animationOptions);
   }
 
   @override
@@ -157,8 +159,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     void Function(double)? getZoom,
     String layerId,
   ) {
-    return _map(mapId)
-        .addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
+    return _map(
+      mapId,
+    ).addFeatureLayer(options, data, onPressed, url, getZoom, layerId);
   }
 
   @override
@@ -168,11 +171,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     String layerId,
     void Function(dynamic)? onPressed,
   ) {
-    return _map(mapId).addGraphicsLayer(
-      options,
-      layerId,
-      onPressed,
-    );
+    return _map(mapId).addGraphicsLayer(options, layerId, onPressed);
   }
 
   @override
@@ -182,11 +181,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required String url,
     required int mapId,
   }) {
-    return _map(mapId).addSceneLayer(
-      options: options,
-      layerId: layerId,
-      url: url,
-    );
+    return _map(
+      mapId,
+    ).addSceneLayer(options: options, layerId: layerId, url: url);
   }
 
   @override
@@ -254,10 +251,9 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
     required int mapId,
     required List<Graphic> data,
   }) async {
-    await _map(mapId).updateFeatureLayer(
-      featureLayerId: featureLayerId,
-      data: data,
-    );
+    await _map(
+      mapId,
+    ).updateFeatureLayer(featureLayerId: featureLayerId, data: data);
   }
 
   @override
@@ -275,7 +271,7 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
   }
 
   @override
-  void dispose({required int mapId}) {
+  Future<void> dispose({required int mapId}) async {
     _map(mapId).dispose();
     _mapById.remove(mapId);
   }
