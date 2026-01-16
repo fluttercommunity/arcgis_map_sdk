@@ -86,7 +86,7 @@ class ArcgisMap extends StatefulWidget {
 
 class _ArcgisMapState extends State<ArcgisMap> {
   final int _mapId = _nextMapCreationId++;
-  late ArcgisMapController controller;
+  ArcgisMapController? controller;
 
   late ArcgisMapOptions _arcgisMapOptions = ArcgisMapOptions(
     apiKey: widget.apiKey,
@@ -117,7 +117,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   Future<void> onPlatformViewCreated(int id) async {
     controller = await ArcgisMapController.init(id);
-    widget.onMapCreated?.call(controller);
+    widget.onMapCreated?.call(controller!);
   }
 
   @override
@@ -139,11 +139,11 @@ class _ArcgisMapState extends State<ArcgisMap> {
   void didUpdateWidget(ArcgisMap oldWidget) {
     super.didUpdateWidget(oldWidget);
     if ((widget.basemap != null) && oldWidget.basemap != widget.basemap) {
-      controller.toggleBaseMap(baseMap: widget.basemap!);
+      controller?.toggleBaseMap(baseMap: widget.basemap!);
     }
     if (widget.isAttributionTextVisible != null &&
         widget.isAttributionTextVisible != oldWidget.isAttributionTextVisible) {
-      controller.updateIsAttributionTextVisible(
+      controller?.updateIsAttributionTextVisible(
         widget.isAttributionTextVisible!,
       );
     }
@@ -185,7 +185,7 @@ class _ArcgisMapState extends State<ArcgisMap> {
 
   @override
   void dispose() {
-    controller.dispose();
+    controller?.dispose();
     super.dispose();
   }
 }
