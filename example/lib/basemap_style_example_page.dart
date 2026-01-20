@@ -21,7 +21,6 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
   BaseMap selectedBasemap = BaseMap.values.first;
   var _isSwitchingAllStyles = false;
   bool show3dMap = false;
-  bool isBasemapMenuOpened = false;
   final initialCenter = const LatLng(51.16, 10.45);
   final tappedHQ = const LatLng(48.1234963, 11.5910182);
 
@@ -65,201 +64,193 @@ class _BasemapStyleExamplePageState extends State<BasemapStyleExamplePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: GestureDetector(
-        onTap: () {
-          setState(() {
-            isBasemapMenuOpened = false;
-          });
-        },
-        child: Stack(
-          children: [
-            ArcgisMap(
-              mapStyle: show3dMap ? MapStyle.threeD : MapStyle.twoD,
-              apiKey: arcGisApiKey,
-              basemap: BaseMap.osmDarkGray,
-              ground: show3dMap ? Ground.worldElevation : null,
-              showLabelsBeneathGraphics: true,
-              initialCenter: initialCenter,
-              zoom: 8,
-              rotationEnabled: true,
-              onMapCreated: _onMapCreated,
-              defaultUiList: [
-                DefaultWidget(
-                  viewType: DefaultWidgetType.compass,
-                  position: WidgetPosition.topRight,
+      body: Stack(
+        children: [
+          ArcgisMap(
+            mapStyle: show3dMap ? MapStyle.threeD : MapStyle.twoD,
+            apiKey: arcGisApiKey,
+            basemap: BaseMap.osmDarkGray,
+            ground: show3dMap ? Ground.worldElevation : null,
+            showLabelsBeneathGraphics: true,
+            initialCenter: initialCenter,
+            zoom: 8,
+            rotationEnabled: true,
+            onMapCreated: _onMapCreated,
+            defaultUiList: [
+              DefaultWidget(
+                viewType: DefaultWidgetType.compass,
+                position: WidgetPosition.topRight,
+              ),
+            ],
+          ),
+          Positioned(
+            top: MediaQuery.paddingOf(context).top + 8,
+            left: 8,
+            child: BackButton(
+              color: Colors.black,
+              style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.grey)),
+            ),
+          ),
+          Positioned(
+            bottom: 40,
+            right: 0,
+            left: 0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    FloatingActionButton(
+                      heroTag: "zoom-in-button",
+                      onPressed: () {
+                        _controller?.zoomIn(
+                          lodFactor: 1,
+                          animationOptions: AnimationOptions(
+                            duration: 1000,
+                            animationCurve: AnimationCurve.easeIn,
+                          ),
+                        );
+                      },
+                      backgroundColor: Colors.grey,
+                      child: const Icon(Icons.add),
+                    ),
+                    FloatingActionButton(
+                      heroTag: "zoom-out-button",
+                      onPressed: () {
+                        _controller?.zoomOut(
+                          lodFactor: 1,
+                          animationOptions: AnimationOptions(
+                            duration: 1000,
+                            animationCurve: AnimationCurve.easeIn,
+                          ),
+                        );
+                      },
+                      backgroundColor: Colors.grey,
+                      child: const Icon(Icons.remove),
+                    ),
+                    FloatingActionButton(
+                      heroTag: "move-camera-button",
+                      backgroundColor: Colors.red,
+                      child: const Icon(Icons.place_outlined),
+                      onPressed: () {
+                        _controller?.moveCamera(
+                          point: tappedHQ,
+                          zoomLevel: 8.0,
+                          threeDHeading: 30,
+                          threeDTilt: 60,
+                          animationOptions: AnimationOptions(
+                            duration: 1500,
+                            animationCurve: AnimationCurve.easeIn,
+                          ),
+                        );
+                      },
+                    ),
+                    if (kIsWeb)
+                      FloatingActionButton(
+                        heroTag: "3d-map-button",
+                        onPressed: () {
+                          setState(() {
+                            show3dMap = !show3dMap;
+                            _controller?.switchMapStyle(
+                              show3dMap ? MapStyle.threeD : MapStyle.twoD,
+                            );
+                          });
+                        },
+                        backgroundColor: show3dMap ? Colors.red : Colors.blue,
+                        child: Text(show3dMap ? '3D' : '2D'),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Center(
+                  child: ElevatedButton(
+                      onPressed:
+                          _isSwitchingAllStyles ? null : _switchAllStyles,
+                      child: Text(_isSwitchingAllStyles
+                          ? "Switching... ${BaseMap.values.indexOf(selectedBasemap) + 1}/${BaseMap.values.length}"
+                          : "Switch through all styles once")),
+                ),
+                Center(
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    onPressed: _isSwitchingAllStyles
+                        ? null
+                        : () {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return PointerInterceptorWeb(
+                                    child: ListView.separated(
+                                      padding: EdgeInsets.only(
+                                          top: 8,
+                                          bottom: MediaQuery.paddingOf(context)
+                                                  .bottom +
+                                              8),
+                                      itemCount: BaseMap.values.length,
+                                      separatorBuilder: (_, __) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        child: Divider(
+                                          height: 1,
+                                        ),
+                                      ),
+                                      itemBuilder: (context, int i) {
+                                        final basemap = BaseMap.values[i];
+                                        return ListTile(
+                                          dense: true,
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            setState(() {
+                                              selectedBasemap = basemap;
+                                            });
+
+                                            _controller!.toggleBaseMap(
+                                                baseMap: basemap);
+                                          },
+                                          title: Text(
+                                            basemap.name,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .buttonTheme
+                                                  .colorScheme!
+                                                  .onPrimaryContainer,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                });
+                          },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          selectedBasemap.name,
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontSize: 15,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          size: 22,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-            Positioned(
-              top: MediaQuery.paddingOf(context).top + 8,
-              left: 8,
-              child: BackButton(
-                color: Colors.black,
-                style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Colors.grey)),
-              ),
-            ),
-            Positioned(
-              bottom: 40,
-              right: 0,
-              left: 0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      FloatingActionButton(
-                        heroTag: "zoom-in-button",
-                        onPressed: () {
-                          _controller?.zoomIn(
-                            lodFactor: 1,
-                            animationOptions: AnimationOptions(
-                              duration: 1000,
-                              animationCurve: AnimationCurve.easeIn,
-                            ),
-                          );
-                        },
-                        backgroundColor: Colors.grey,
-                        child: const Icon(Icons.add),
-                      ),
-                      FloatingActionButton(
-                        heroTag: "zoom-out-button",
-                        onPressed: () {
-                          _controller?.zoomOut(
-                            lodFactor: 1,
-                            animationOptions: AnimationOptions(
-                              duration: 1000,
-                              animationCurve: AnimationCurve.easeIn,
-                            ),
-                          );
-                        },
-                        backgroundColor: Colors.grey,
-                        child: const Icon(Icons.remove),
-                      ),
-                      FloatingActionButton(
-                        heroTag: "move-camera-button",
-                        backgroundColor: Colors.red,
-                        child: const Icon(Icons.place_outlined),
-                        onPressed: () {
-                          _controller?.moveCamera(
-                            point: tappedHQ,
-                            zoomLevel: 8.0,
-                            threeDHeading: 30,
-                            threeDTilt: 60,
-                            animationOptions: AnimationOptions(
-                              duration: 1500,
-                              animationCurve: AnimationCurve.easeIn,
-                            ),
-                          );
-                        },
-                      ),
-                      if (kIsWeb)
-                        FloatingActionButton(
-                          heroTag: "3d-map-button",
-                          onPressed: () {
-                            setState(() {
-                              show3dMap = !show3dMap;
-                              _controller?.switchMapStyle(
-                                show3dMap ? MapStyle.threeD : MapStyle.twoD,
-                              );
-                            });
-                          },
-                          backgroundColor: show3dMap ? Colors.red : Colors.blue,
-                          child: Text(show3dMap ? '3D' : '2D'),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Center(
-                    child: ElevatedButton(
-                        onPressed:
-                            _isSwitchingAllStyles ? null : _switchAllStyles,
-                        child: Text(_isSwitchingAllStyles
-                            ? "Switching... ${BaseMap.values.indexOf(selectedBasemap) + 1}/${BaseMap.values.length}"
-                            : "Switch through all styles once")),
-                  ),
-                  Center(
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(
-                          RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                      onPressed: _isSwitchingAllStyles
-                          ? null
-                          : () {
-                              showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) {
-                                    return PointerInterceptorWeb(
-                                      child: ListView.separated(
-                                        padding: EdgeInsets.only(
-                                            top: 8,
-                                            bottom:
-                                                MediaQuery.paddingOf(context)
-                                                        .bottom +
-                                                    8),
-                                        itemCount: BaseMap.values.length,
-                                        separatorBuilder: (_, __) => Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 20),
-                                          child: Divider(
-                                            height: 1,
-                                          ),
-                                        ),
-                                        itemBuilder: (context, int i) {
-                                          final basemap = BaseMap.values[i];
-                                          return ListTile(
-                                            dense: true,
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              setState(() {
-                                                selectedBasemap = basemap;
-                                              });
-
-                                              _controller!.toggleBaseMap(
-                                                  baseMap: basemap);
-                                            },
-                                            title: Text(
-                                              basemap.name,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .buttonTheme
-                                                    .colorScheme!
-                                                    .onPrimaryContainer,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  });
-                            },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            selectedBasemap.name,
-                            style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontSize: 15,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 22,
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
