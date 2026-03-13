@@ -72,6 +72,7 @@ internal class ArcgisMapView(
     private val graphicsParser = GraphicsParser(binding)
 
     private val initialZoom: Int
+    private var isDisposed = false
 
     private lateinit var zoomStreamHandler: ZoomStreamHandler
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
@@ -155,6 +156,8 @@ internal class ArcgisMapView(
     }
 
     override fun dispose() {
+        isDisposed = true
+        methodChannel.setMethodCallHandler(null)
         coroutineScope.cancel()
 
         lifecycle.removeObserver(mapView)
@@ -165,6 +168,10 @@ internal class ArcgisMapView(
 
     private fun setupMethodChannel() {
         methodChannel.setMethodCallHandler { call, result ->
+            if (isDisposed) {
+                result.error("disposed", "ArcgisMapView has been disposed", null)
+                return@setMethodCallHandler
+            }
             when (call.method) {
                 "zoom_in" -> onZoomIn(call = call, result = result)
                 "zoom_out" -> onZoomOut(call = call, result = result)
@@ -651,9 +658,13 @@ internal class ArcgisMapView(
 
     private fun onRetryLoad(result: MethodChannel.Result) {
         coroutineScope.launch {
-            mapView.map?.retryLoad()?.onSuccess {
-                result.success(true)
-            }?.onFailure { e ->
+            try {
+                map.retryLoad().onSuccess {
+                    result.success(true)
+                }.onFailure { e ->
+                    result.finishWithError(e)
+                }
+            } catch (e: Throwable) {
                 result.finishWithError(e)
             }
         }
