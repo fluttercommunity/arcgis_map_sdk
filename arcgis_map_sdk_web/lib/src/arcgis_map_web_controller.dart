@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:ui_web';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
@@ -12,7 +14,6 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:js/js_util.dart';
 import 'package:web/web.dart';
 
 class ArcgisMapWebController {
@@ -90,10 +91,10 @@ class ArcgisMapWebController {
   }
 
   Future<void> _createMap() async {
-    final esri = getProperty<Object>(globalThis, 'esri');
-    final core = getProperty<Object>(esri, 'core');
-    final config = getProperty<Object>(core, 'config');
-    setProperty(config, 'apiKey', _mapOptions.apiKey);
+    final esri = globalContext.getProperty<JSObject>('esri'.toJS);
+    final core = esri.getProperty<JSObject>('core'.toJS);
+    final config = core.getProperty<JSObject>('config'.toJS);
+    config.setProperty('apiKey'.toJS, _mapOptions.apiKey?.toJS);
 
     if (_mapOptions.mapStyle == MapStyle.threeD) {
       _sceneView = _createJsSceneView();
@@ -108,12 +109,12 @@ class ArcgisMapWebController {
     // Notifies the controller that the map is ready to be used and [moveBaseMapLabelsToBackground]
     // can be called.
     watch(
-      allowInterop(() => _map!.basemap.loaded),
-      allowInterop((loaded, _) {
-        if (loaded as bool && !_baseMapLoaded.isCompleted) {
+      (() => _map!.basemap.loaded).toJS,
+      (bool loaded, JSAny? _) {
+        if (loaded && !_baseMapLoaded.isCompleted) {
           _baseMapLoaded.complete(true);
         }
-      }),
+      }.toJS,
     );
 
     _createDefaultViews(_activeView!);
@@ -175,10 +176,10 @@ class ArcgisMapWebController {
     void Function(double)? getZoom,
     String layerId,
   ) async {
-    if (getProperty(globalThis, "FeatureLayer") == null) {
-      await promiseToFuture(loadFeatureLayer());
+    if (globalContext.getProperty<JSAny?>('FeatureLayer'.toJS) == null) {
+      await loadFeatureLayer().toFuture();
     }
-    return _layerController!.createFeatureLayer(
+    return await _layerController!.createFeatureLayer(
       options,
       data,
       onPressed,
@@ -272,14 +273,14 @@ class ArcgisMapWebController {
 
     if (webgl2 != null) {
       // WebGL2 context needs to be handled differently than WebGL1
-      final loseContextExtension = callMethod(
-        webgl2,
-        'getExtension',
-        ['WEBGL_lose_context'],
+      final loseContextExtension = webgl2.callMethodVarArgs<JSAny?>(
+        'getExtension'.toJS,
+        ['WEBGL_lose_context'.toJS],
       );
       if (loseContextExtension != null) {
-        callMethod(loseContextExtension as Object, 'loseContext', []);
-        callMethod(loseContextExtension, 'restoreContext', []);
+        final extension = loseContextExtension as JSObject;
+        extension.callMethodVarArgs<JSAny?>('loseContext'.toJS);
+        extension.callMethodVarArgs<JSAny?>('restoreContext'.toJS);
       }
     }
   }

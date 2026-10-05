@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/src/arcgis_map_web_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:js/js_util.dart';
 import 'package:web/web.dart';
 
 class ArcgisMapWeb extends ArcgisMapPlatform {
@@ -295,13 +296,13 @@ class ArcgisMapWeb extends ArcgisMapPlatform {
       ///
       /// https://developers.arcgis.com/javascript/latest/es-modules/#managing-assets-locally
       // ignore: avoid_dynamic_calls
-      final esri = getProperty<Object>(globalThis, 'esri');
-      final core = getProperty<Object>(esri, 'core');
-      final config = getProperty<Object>(core, 'config');
-      setProperty(
-        config,
-        'assetsPath',
-        "/assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/assets",
+      final esri = globalContext.getProperty<JSObject>('esri'.toJS);
+      final core = esri.getProperty<JSObject>('core'.toJS);
+      final config = core.getProperty<JSObject>('config'.toJS);
+      config.setProperty(
+        'assetsPath'.toJS,
+        "/assets/packages/arcgis_map_sdk_web/assets/arcgis_js_api_custom_build/assets"
+            .toJS,
       );
     });
 
