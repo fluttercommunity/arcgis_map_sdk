@@ -1,6 +1,6 @@
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_sdk_web/src/components/vector_layer.dart';
-import 'package:js/js_util.dart';
+import 'package:arcgis_map_sdk_web/src/js_interop_utils.dart';
 
 class EsriMap {
   const EsriMap();
@@ -15,19 +15,15 @@ class EsriMap {
         jsify({
           "basemap": JsBaseMap(
             jsify({
-              'baseLayers': vectorTileLayerUrls.map(
-                (String url) {
-                  return VectorLayer().init(url: url);
-                },
-              ).toList(growable: false),
+              'baseLayers': vectorTileLayerUrls.map((String url) {
+                return VectorLayer().init(url: url);
+              }).toList(growable: false),
             }),
           ),
         }),
       );
     } else {
-      return JsEsriMap(
-        jsify({"basemap": basemap, "ground": ground}),
-      );
+      return JsEsriMap(jsify({"basemap": basemap, "ground": ground}));
     }
   }
 }

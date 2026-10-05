@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:js_interop';
 import 'dart:math' as math;
 
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
@@ -6,12 +7,13 @@ import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
 import 'package:arcgis_map_sdk_web/src/components/attribution.dart';
 import 'package:arcgis_map_sdk_web/src/components/js_helper_functions.dart';
 import 'package:arcgis_map_sdk_web/src/components/vector_layer.dart';
+import 'package:arcgis_map_sdk_web/src/js_interop_types.dart';
+import 'package:arcgis_map_sdk_web/src/js_interop_utils.dart';
 import 'package:arcgis_map_sdk_web/src/model_extension.dart';
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:js/js_util.dart';
 import 'package:web/web.dart';
 
 enum HoveredState { hovered, notHovered }
@@ -22,8 +24,8 @@ class LayerController {
   final int minZoom;
   final int maxZoom;
 
-  final List<JsLayer> _layers = <JsLayer>[];
-  final List<JsLayer> _temp3DLayers = [];
+  final List<JsLayerInterop> _layers = <JsLayerInterop>[];
+  final List<JsLayerInterop> _temp3DLayers = [];
   final List<String> _graphicObjectIds = <String>[];
 
   /// Used as a buffer. This layer is destroyed and recreated, so that the labels it contains can be moved
@@ -79,10 +81,7 @@ class LayerController {
         jsify({
           'id': layerId,
           "url": url,
-          "renderer": {
-            "type": "simple",
-            "symbol": options.symbol.toJson(),
-          },
+          "renderer": {"type": "simple", "symbol": options.symbol.toJson()},
           "elevationInfo": {
             "mode": options.elevationMode.value,
             "offset": 0,
@@ -98,7 +97,7 @@ class LayerController {
     // Add layer to map, not a promise
     map.add(sceneLayer);
 
-    _layers.add(sceneLayer as JsLayer);
+    _layers.add(JsLayerInterop(JSObject.fromInteropObject(sceneLayer)));
 
     final SceneLayer sceneLayer0 = SceneLayer(id: sceneLayer.id);
 
@@ -117,9 +116,7 @@ class LayerController {
     final JsFeatureLayer featureLayer;
     // Create a layer from a backend service
     if (url != null) {
-      featureLayer = JsFeatureLayer(
-        jsify({"url": url}),
-      );
+      featureLayer = JsFeatureLayer(jsify({"url": url}));
     } else {
       // Checks if a feature layer with the layerId is already in use
       if (!_layers
@@ -133,10 +130,7 @@ class LayerController {
             "title": 'First layer',
             // Includes all fields from the service in the layer
             "fields": options.fields.map((Field field) => field.toJson()),
-            "renderer": {
-              "type": "simple",
-              "symbol": options.symbol.toJson(),
-            },
+            "renderer": {"type": "simple", "symbol": options.symbol.toJson()},
             "outFields": ["*"],
             // "featureReduction": options.featureReduction,
           }),
@@ -156,19 +150,23 @@ class LayerController {
     if (onPressed != null) {
       view.on(
         ['click'],
-        allowInterop((event) async {
-          final JsHitTestResult hitTestResult =
-              await view.hitTest(event).toFuture();
-          if (hitTestResult.results?.isNotEmpty ?? false) {
-            final graphicAttributes =
-                hitTestResult.results![0].graphic?.attributes;
-            onPressed(Attributes(jsNativeObjectToMap(graphicAttributes)));
+        (JSObject event) {
+          Future<void> handleClick() async {
+            final JsHitTestResult hitTestResult =
+                await view.hitTest(event).toFuture();
+            if ((hitTestResult.results?.length ?? 0) > 0) {
+              final graphicAttributes =
+                  hitTestResult.results![0].graphic?.attributes;
+              onPressed(Attributes(jsNativeObjectToMap(graphicAttributes)));
+            }
           }
-        }),
+
+          return handleClick().toJS;
+        }.toJS,
       );
     }
 
-    _layers.add(featureLayer as JsLayer);
+    _layers.add(JsLayerInterop(JSObject.fromInteropObject(featureLayer)));
 
     return FeatureLayer(id: featureLayer.id);
   }
@@ -206,7 +204,7 @@ class LayerController {
       );
     }
 
-    _layers.add(graphicsLayer as JsLayer);
+    _layers.add(JsLayerInterop(JSObject.fromInteropObject(graphicsLayer)));
 
     // Add layer to map, not a promise
     map.add(graphicsLayer);
@@ -215,15 +213,19 @@ class LayerController {
     if (onPressed != null) {
       view.on(
         ['click'],
-        allowInterop((event) async {
-          final JsHitTestResult hitTestResult =
-              await view.hitTest(event).toFuture();
-          if (hitTestResult.results?.isNotEmpty ?? false) {
-            final graphicAttributes =
-                hitTestResult.results![0].graphic?.attributes;
-            onPressed(Attributes(jsNativeObjectToMap(graphicAttributes)));
+        (JSObject event) {
+          Future<void> handleClick() async {
+            final JsHitTestResult hitTestResult =
+                await view.hitTest(event).toFuture();
+            if ((hitTestResult.results?.length ?? 0) > 0) {
+              final graphicAttributes =
+                  hitTestResult.results![0].graphic?.attributes;
+              onPressed(Attributes(jsNativeObjectToMap(graphicAttributes)));
+            }
           }
-        }),
+
+          return handleClick().toJS;
+        }.toJS,
       );
     }
 
@@ -239,11 +241,11 @@ class LayerController {
     required LatLng pointCoordinates,
   }) {
     // Search for the polygon in the map view
-    final JsGraphic? polygonInView = view.graphics.find(
-      allowInterop((JsGraphic graphic, _, __) {
+    final JsGraphicInterop? polygonInView = view.graphics.find(
+      (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
         final result = graphic.attributes.id;
         return result == polygonId;
-      }),
+      }.toJS,
     );
 
     if (polygonInView != null) {
@@ -251,22 +253,23 @@ class LayerController {
     }
 
     // Search for the polygon in the graphic layers
-    JsGraphic? polygonInLayer;
+    JsGraphicInterop? polygonInLayer;
     final layers = map.layers;
     layers?.forEach(
-      allowInterop((layer, _, __) {
-        if (layer is JsGraphicsLayer) {
-          final JsGraphic? graphic = layer.graphics?.find(
-            allowInterop((JsGraphic graphic, _, __) {
+      (JsLayerInterop layer, JSAny? _, JSAny? __) {
+        if (layer.type == 'graphics') {
+          final graphicsLayer = JsGraphicsLayerInterop(layer);
+          final graphic = graphicsLayer.graphics?.find(
+            (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
               final result = graphic.attributes.id;
               return result == polygonId;
-            }),
+            }.toJS,
           );
           if (graphic != null) {
             polygonInLayer = graphic;
           }
         }
-      }),
+      }.toJS,
     );
 
     if (polygonInLayer != null) {
@@ -276,15 +279,17 @@ class LayerController {
     }
   }
 
-  bool _isPointInPolygon(JsGraphic polygon, LatLng pointCoordinates) {
-    return polygon.geometry.extent.contains(
-      JsPoint(
-        jsify({
-          'latitude': pointCoordinates.latitude,
-          'longitude': pointCoordinates.longitude,
-        }),
-      ),
+  bool _isPointInPolygon(JSObject polygon, LatLng pointCoordinates) {
+    final point = JsPoint(
+      jsify({
+        'latitude': pointCoordinates.latitude,
+        'longitude': pointCoordinates.longitude,
+      }),
     );
+    return JsGraphicInterop(polygon)
+        .geometry
+        .extent
+        .contains(JSObject.fromInteropObject(point));
   }
 
   static const onClickStreamRefreshedForCurrentView =
@@ -311,23 +316,29 @@ class LayerController {
 
     view.on(
       ['click'],
-      allowInterop((event) async {
-        if (!controller.isClosed) {
-          final JsHitTestResult hitTestResult =
-              await view.hitTest(event).toFuture();
-          final int resultsLength = hitTestResult.results?.length ?? 0;
+      (JSObject event) {
+        Future<void> handleClick() async {
+          if (!controller.isClosed) {
+            final JsHitTestResult hitTestResult =
+                await view.hitTest(event).toFuture();
+            final int resultsLength = hitTestResult.results?.length ?? 0;
 
-          if (resultsLength > 0 &&
-              hitTestResult.results![0].graphic?.attributes.id != null) {
-            final graphicAttributes =
-                hitTestResult.results![0].graphic!.attributes;
+            if (resultsLength > 0 &&
+                hitTestResult.results![0].graphic?.attributes.id != null) {
+              final graphicAttributes =
+                  hitTestResult.results![0].graphic!.attributes;
 
-            controller.add(Attributes(jsNativeObjectToMap(graphicAttributes)));
-          } else {
-            controller.add(null);
+              controller.add(
+                Attributes(jsNativeObjectToMap(graphicAttributes)),
+              );
+            } else {
+              controller.add(null);
+            }
           }
         }
-      }),
+
+        return handleClick().toJS;
+      }.toJS,
     );
 
     // Merge all the zoom streams into one
@@ -356,16 +367,17 @@ class LayerController {
     // In order to stop watching on the zoom when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     WatchHandle? handle;
-    final StreamController<double> controller =
-        StreamController(onCancel: () => handle?.remove());
+    final StreamController<double> controller = StreamController(
+      onCancel: () => handle?.remove(),
+    );
 
     handle = watch(
-      allowInterop(() => view.zoom),
-      allowInterop((zoom, _) {
-        if (!controller.isClosed && zoom as double > 0) {
+      (() => view.zoom).toJS,
+      (double zoom, JSAny? _) {
+        if (!controller.isClosed && zoom > 0) {
           controller.add(zoom);
         }
-      }),
+      }.toJS,
     );
 
     // Merge all the zoom streams into one
@@ -377,8 +389,9 @@ class LayerController {
 
   /// Return a Stream that emits the center position of the current view.
   Stream<LatLng> getCenterPosition(JsView view) {
-    if (!streamsRefreshed
-        .contains(centerPositionStreamRefreshedForCurrentView)) {
+    if (!streamsRefreshed.contains(
+      centerPositionStreamRefreshedForCurrentView,
+    )) {
       refreshCenterPositionStreams(view);
     }
     return centerPositionStreamGroup.stream;
@@ -394,17 +407,17 @@ class LayerController {
     streamsRefreshed.add(centerPositionStreamRefreshedForCurrentView);
 
     WatchHandle? handle;
-    final StreamController<LatLng> controller =
-        StreamController(onCancel: () => handle?.remove());
+    final StreamController<LatLng> controller = StreamController(
+      onCancel: () => handle?.remove(),
+    );
 
     handle = watch(
-      allowInterop(() => view.center),
-      allowInterop((center, _) {
+      (() => view.center).toJS,
+      (JsPointInterop? center, JSAny? _) {
         if (!controller.isClosed && center != null) {
-          final point = center as JsPoint;
-          controller.add(LatLng(point.latitude, point.longitude));
+          controller.add(LatLng(center.latitude, center.longitude));
         }
-      }),
+      }.toJS,
     );
 
     // Merge all the center position streams into one
@@ -418,22 +431,17 @@ class LayerController {
   /// The List refreshes when the view is moved or zoomed.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html#intersects
-  Stream<List<String>> getVisibleGraphicsStream(
-    JsView view,
-    JsEsriMap map,
-  ) {
-    if (!streamsRefreshed
-        .contains(visibleGraphicsStreamRefreshedForCurrentView)) {
+  Stream<List<String>> getVisibleGraphicsStream(JsView view, JsEsriMap map) {
+    if (!streamsRefreshed.contains(
+      visibleGraphicsStreamRefreshedForCurrentView,
+    )) {
       refreshVisibleGraphicsStreams(view, map);
     }
     return visibleGraphicsStreamGroup.stream;
   }
 
   /// Binds the [getVisibleGraphicsStream] to the active views.
-  void refreshVisibleGraphicsStreams(
-    JsView view,
-    JsEsriMap map,
-  ) {
+  void refreshVisibleGraphicsStreams(JsView view, JsEsriMap map) {
     visibleGraphicsStreamGroup.add(
       _getCurrentVisibleGraphicsStreams(view, map),
     );
@@ -454,50 +462,47 @@ class LayerController {
     );
 
     handle = watch(
-      allowInterop(() => view.extent),
-      allowInterop(
-        (extent, _) {
-          if (!controller.isClosed) {
-            final List<String> graphicIdsInView = <String>[];
+      (() => view.extent).toJS,
+      (JsExtentInterop? extent, JSAny? _) {
+        if (!controller.isClosed) {
+          final List<String> graphicIdsInView = <String>[];
 
-            // Return all the visible graphic ids in the MapView
-            view.graphics.forEach(
-              allowInterop((JsGraphic graphic, _, __) {
-                final bool isInView = (extent as JsExtent?)
-                        ?.intersects(graphic.geometry.extent) ??
-                    false;
-                if (isInView) {
-                  graphicIdsInView.add(graphic.attributes.id);
-                }
-              }),
-            );
+          // Return all the visible graphic ids in the MapView
+          view.graphics.forEach(
+            (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
+              final bool isInView =
+                  extent?.intersects(graphic.geometry.extent) ?? false;
+              if (isInView) {
+                graphicIdsInView.add(graphic.attributes.id);
+              }
+            }.toJS,
+          );
 
-            // Return all the visible graphic ids in the graphic layers
-            final layers = map.layers;
-            layers?.forEach(
-              allowInterop((layer, _, __) {
-                if (layer is JsGraphicsLayer) {
-                  layer.graphics?.forEach(
-                    allowInterop((JsGraphic graphic, _, __) {
-                      final bool isInView = (extent as JsExtent?)
-                              ?.intersects(graphic.geometry.extent) ??
-                          false;
-                      if (isInView) {
-                        graphicIdsInView.add(graphic.attributes.id);
-                      }
-                    }),
-                  );
-                }
-              }),
-            );
+          // Return all the visible graphic ids in the graphic layers
+          final layers = map.layers;
+          layers?.forEach(
+            (JsLayerInterop layer, JSAny? _, JSAny? __) {
+              if (layer.type == 'graphics') {
+                final graphicsLayer = JsGraphicsLayerInterop(layer);
+                graphicsLayer.graphics?.forEach(
+                  (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
+                    final bool isInView =
+                        extent?.intersects(graphic.geometry.extent) ?? false;
+                    if (isInView) {
+                      graphicIdsInView.add(graphic.attributes.id);
+                    }
+                  }.toJS,
+                );
+              }
+            }.toJS,
+          );
 
-            if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
-              controller.add(graphicIdsInView);
-              graphicIdsInViewBuffer = graphicIdsInView;
-            }
+          if (!listEquals(graphicIdsInViewBuffer, graphicIdsInView)) {
+            controller.add(graphicIdsInView);
+            graphicIdsInViewBuffer = graphicIdsInView;
           }
-        },
-      ),
+        }
+      }.toJS,
     );
     // Merge all the streams into one
     return controller.stream;
@@ -506,38 +511,36 @@ class LayerController {
   /// Return a List with the ids of the Graphics, that are visible in the current view, on demand.
   ///
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-geometry-Extent.html#intersects
-  List<String> getVisibleGraphicIds(
-    JsView view,
-    JsEsriMap map,
-  ) {
+  List<String> getVisibleGraphicIds(JsView view, JsEsriMap map) {
     final extent = view.extent;
 
     // Return all the visible graphic ids in the MapView
     final List<String> graphicIdsInView = <String>[];
     view.graphics.forEach(
-      allowInterop((JsGraphic graphic, _, __) {
+      (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
         final bool isInView = extent.intersects(graphic.geometry.extent);
         if (isInView) {
           graphicIdsInView.add(graphic.attributes.id);
         }
-      }),
+      }.toJS,
     );
 
     // Return all the visible graphic ids in the graphic layers
     final layers = map.layers;
     layers?.forEach(
-      allowInterop((layer, _, __) {
-        if (layer is JsGraphicsLayer) {
-          layer.graphics?.forEach(
-            allowInterop((JsGraphic graphic, _, __) {
+      (JsLayerInterop layer, JSAny? _, JSAny? __) {
+        if (layer.type == 'graphics') {
+          final graphicsLayer = JsGraphicsLayerInterop(layer);
+          graphicsLayer.graphics?.forEach(
+            (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
               final bool isInView = extent.intersects(graphic.geometry.extent);
               if (isInView) {
                 graphicIdsInView.add(graphic.attributes.id);
               }
-            }),
+            }.toJS,
           );
         }
-      }),
+      }.toJS,
     );
 
     return graphicIdsInView;
@@ -568,44 +571,45 @@ class LayerController {
     // In order to stop watching on the bounds when the stream is canceled in Dart,
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
     WatchHandle? handle;
-    final StreamController<BoundingBox> controller =
-        StreamController(onCancel: () => handle?.remove());
+    final StreamController<BoundingBox> controller = StreamController(
+      onCancel: () => handle?.remove(),
+    );
 
     handle = watch(
-      allowInterop(() => view.extent),
-      allowInterop(
-        (newValue, _) {
-          if (newValue is JsExtent && !controller.isClosed) {
-            final centerViewPoint =
-                LatLng(newValue.center.latitude, newValue.center.longitude);
-            final xDistanceFromViewCenter = newValue.width / 2;
-            final yDistanceFromViewCenter = newValue.height / 2;
+      (() => view.extent).toJS,
+      (JsExtentInterop? extent, JSAny? _) {
+        if (extent != null && !controller.isClosed) {
+          final centerViewPoint = LatLng(
+            extent.center.latitude,
+            extent.center.longitude,
+          );
+          final xDistanceFromViewCenter = extent.width / 2;
+          final yDistanceFromViewCenter = extent.height / 2;
 
-            // Lower left point
-            final latLngMin = BoundingBox.getLatLngFromMapUnits(
-              referencePoint: centerViewPoint,
-              x: -xDistanceFromViewCenter,
-              y: -yDistanceFromViewCenter,
-            );
+          // Lower left point
+          final latLngMin = BoundingBox.getLatLngFromMapUnits(
+            referencePoint: centerViewPoint,
+            x: -xDistanceFromViewCenter,
+            y: -yDistanceFromViewCenter,
+          );
 
-            // Top right point
-            final latLngMax = BoundingBox.getLatLngFromMapUnits(
-              referencePoint: centerViewPoint,
-              x: xDistanceFromViewCenter,
-              y: yDistanceFromViewCenter,
-            );
+          // Top right point
+          final latLngMax = BoundingBox.getLatLngFromMapUnits(
+            referencePoint: centerViewPoint,
+            x: xDistanceFromViewCenter,
+            y: yDistanceFromViewCenter,
+          );
 
-            controller.add(
-              BoundingBox(
-                height: newValue.height,
-                width: newValue.width,
-                lowerLeft: latLngMin,
-                topRight: latLngMax,
-              ),
-            );
-          }
-        },
-      ),
+          controller.add(
+            BoundingBox(
+              height: extent.height,
+              width: extent.width,
+              lowerLeft: latLngMin,
+              topRight: latLngMax,
+            ),
+          );
+        }
+      }.toJS,
     );
 
     return controller.stream;
@@ -626,9 +630,7 @@ class LayerController {
 
   /// Binds the [getAttributionStream] to the active views.
   void refreshAttributionStreams(JsView view) {
-    attributionTextStreamGroup.add(
-      _getCurrentAttributionStreams(view),
-    );
+    attributionTextStreamGroup.add(_getCurrentAttributionStreams(view));
   }
 
   /// Gets the current attribution streams of the active views.
@@ -638,8 +640,9 @@ class LayerController {
     // a handle is assigned to the watch method, and it is removed when the Stream is canceled.
 
     WatchHandle? handle;
-    final StreamController<String> controller =
-        StreamController(onCancel: () => handle?.remove());
+    final StreamController<String> controller = StreamController(
+      onCancel: () => handle?.remove(),
+    );
 
     // A Javascript widget is created to get the Stream with the attribution text, then it is removed from the view,
     // so that a custom widget can be implemented in Dart.
@@ -647,12 +650,12 @@ class LayerController {
     view.ui.add(attributionWidget, "manual");
 
     handle = watch(
-      allowInterop(() => attributionWidget.attributionText),
-      allowInterop((newValue, _) {
-        if (newValue is String && newValue.isNotEmpty && !controller.isClosed) {
+      (() => attributionWidget.attributionText).toJS,
+      (String? newValue, JSAny? _) {
+        if (newValue != null && newValue.isNotEmpty && !controller.isClosed) {
           controller.add(newValue);
         }
-      }),
+      }.toJS,
     );
     view.ui.remove(attributionWidget);
 
@@ -664,7 +667,9 @@ class LayerController {
   JsHandle preventInteraction(JsView view) => view.on(
         ['key-down', 'drag', 'double-click', 'mouse-wheel'],
         // ignore: avoid_dynamic_calls
-        allowInterop((event) => event.stopPropagation()),
+        (JsViewEvent event) {
+          event.stopPropagation();
+        }.toJS,
       );
 
   /// Changes the mouse cursor to a specified [SystemMouseCursor].
@@ -682,11 +687,11 @@ class LayerController {
   }) {
     final layer = map.findLayerById(layerId);
     if (layer is JsGraphicsLayer) {
-      final JsGraphic? graphic = layer.graphics?.find(
-        allowInterop((JsGraphic graphic, _, __) {
+      final JsGraphicInterop? graphic = layer.graphics?.find(
+        (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
           final result = graphic.attributes.id;
           return result == graphicId;
-        }),
+        }.toJS,
       );
 
       if (graphic != null) graphic.set('symbol', jsify(symbol.toJson()));
@@ -717,10 +722,7 @@ class LayerController {
   }
 
   /// Removes the layer with [layerId] from the map
-  bool destroyLayer({
-    required JsEsriMap map,
-    required String layerId,
-  }) {
+  bool destroyLayer({required JsEsriMap map, required String layerId}) {
     final layer = map.findLayerById(layerId);
     if (layer is JsGraphicsLayer) {
       layer.destroy();
@@ -744,34 +746,30 @@ class LayerController {
     List<String> layerTypes = const ['scene'],
   }) {
     final filteredLayers = map.layers?.filter(
-      allowInterop((JsLayer layer, _, __) {
+      (JsLayerInterop layer, JSAny? _, JSAny? __) {
         return layerTypes.contains(layer.type);
-      }),
+      }.toJS,
     );
 
     filteredLayers?.forEach(
-      allowInterop((JsLayer layer, _, __) {
+      (JsLayerInterop layer, JSAny? _, JSAny? __) {
         _temp3DLayers.add(layer);
         _layers.remove(layer);
         destroyLayer(map: map, layerId: layer.id);
-      }),
+      }.toJS,
     );
   }
 
   /// Adds the 3D layers for the 3D view saved in the [_temp3DLayers] list.
-  Future<void> add3dLayers({
-    required JsEsriMap map,
-  }) async {
-    for (final JsLayer layer in _temp3DLayers) {
+  Future<void> add3dLayers({required JsEsriMap map}) async {
+    for (final JsLayerInterop layer in _temp3DLayers) {
       /// Instead of reusing the old layer we have to create a new one.
       /// "The layer can no longer be used once it has been destroyed."
       /// => https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-Layer.html#destroy
       createSceneLayer(
         layerId: layer.id,
         options: SceneLayerOptions(
-          symbol: const MeshSymbol3D(
-            color: Color(0xFFFF8282),
-          ),
+          symbol: const MeshSymbol3D(color: Color(0xFFFF8282)),
         ),
         url: layer.url,
         map: map,
@@ -850,9 +848,7 @@ class LayerController {
       }),
     );
 
-    final target = {
-      'target': extentMap,
-    };
+    final target = {'target': extentMap};
 
     final targetOptions = <String, dynamic>{};
     if (animationOptions != null) {
@@ -995,37 +991,30 @@ class LayerController {
     bool executing = false;
     return view.on(
       ['pointer-move'],
-      allowInterop((event) {
+      (JSObject event) {
         if (executing) return;
-        _deBouncer.run(
-          () async {
-            try {
-              executing = true;
-              // Just show results from graphics layers
-              final graphicsLayers = map.layers?.filter(
-                allowInterop((JsLayer layer, _, __) {
-                  return layer.type == 'graphics';
-                }),
-              );
-              final JsHitTestResult hitTestResult = await view
-                  .hitTest(
-                    event,
-                    jsify({
-                      'include': graphicsLayers,
-                    }),
-                  )
-                  .toFuture();
+        _deBouncer.run(() async {
+          try {
+            executing = true;
+            // Just show results from graphics layers
+            final graphicsLayers = map.layers?.filter(
+              (JsLayerInterop layer, JSAny? _, JSAny? __) {
+                return layer.type == 'graphics';
+              }.toJS,
+            );
+            final JsHitTestResult hitTestResult = await view
+                .hitTest(event, jsify({'include': graphicsLayers}))
+                .toFuture();
 
-              final int resultsLength = hitTestResult.results?.length ?? 0;
-              // Returns true when the mouse cursor hovers over at least one Graphic in any layer
-              isGraphicHoveredStreamController.add(resultsLength >= 1);
-              _setGraphicsHoverStatus(resultsLength, hitTestResult);
-            } finally {
-              executing = false;
-            }
-          },
-        );
-      }),
+            final int resultsLength = hitTestResult.results?.length ?? 0;
+            // Returns true when the mouse cursor hovers over at least one Graphic in any layer
+            isGraphicHoveredStreamController.add(resultsLength >= 1);
+            _setGraphicsHoverStatus(resultsLength, hitTestResult);
+          } finally {
+            executing = false;
+          }
+        });
+      }.toJS,
     );
   }
 
@@ -1067,12 +1056,12 @@ class LayerController {
     final layer = map.findLayerById(layerId);
     if (layer is JsGraphicsLayer) {
       layer.graphics?.forEach(
-        allowInterop((JsGraphic graphic, _, __) {
+        (JsGraphicInterop graphic, JSAny? _, JSAny? __) {
           if (graphic.attributes.id == graphicId) {
             layer.remove(graphic);
             _graphicObjectIds.remove(graphicId);
           }
-        }),
+        }.toJS,
       );
       return Future(() => null);
     } else {
@@ -1114,7 +1103,7 @@ class LayerController {
       final layer = map.findLayerById(layerId);
       if (layer is JsGraphicsLayer) {
         _removeGraphicsFromLayer(
-          layer: layer,
+          layer: JsGraphicsLayerInterop(JSObject.fromInteropObject(layer)),
           removeByAttributeKey: removeByAttributeKey,
           removeByAttributeValue: removeByAttributeValue,
           excludeAttributeKey: excludeAttributeKey,
@@ -1124,23 +1113,23 @@ class LayerController {
     } else {
       // Remove the graphics from every Graphic Layer
       map.layers?.forEach(
-        allowInterop((layer, _, __) {
-          if (layer is JsGraphicsLayer) {
+        (JsLayerInterop layer, JSAny? _, JSAny? __) {
+          if (layer.type == 'graphics') {
             _removeGraphicsFromLayer(
-              layer: layer,
+              layer: JsGraphicsLayerInterop(layer),
               removeByAttributeKey: removeByAttributeKey,
               removeByAttributeValue: removeByAttributeValue,
               excludeAttributeKey: excludeAttributeKey,
               excludeAttributeValues: excludeAttributeValues,
             );
           }
-        }),
+        }.toJS,
       );
     }
   }
 
   void _removeGraphicsFromLayer({
-    required JsGraphicsLayer layer,
+    required JsGraphicsLayerInterop layer,
     String? removeByAttributeKey,
     String? removeByAttributeValue,
     String? excludeAttributeKey,
@@ -1154,7 +1143,7 @@ class LayerController {
       return;
     }
     final graphicsCollection = layer.graphics?.filter(
-      allowInterop((JsGraphic jsGraphic, _, __) {
+      (JsGraphicInterop jsGraphic, JSAny? _, JSAny? __) {
         final dartGraphic = jsNativeObjectToMap(jsGraphic);
         final result = (dartGraphic['attributes']
             as Map?)?[removeByAttributeKey] as String?;
@@ -1163,14 +1152,15 @@ class LayerController {
           if (excludeAttributeKey != null && excludeAttributeValues != null) {
             final resultAttributeToKeep = (dartGraphic['attributes']
                 as Map?)?[excludeAttributeKey] as String?;
-            final keepGraphic =
-                excludeAttributeValues.contains(resultAttributeToKeep);
+            final keepGraphic = excludeAttributeValues.contains(
+              resultAttributeToKeep,
+            );
             return !keepGraphic;
           }
           return removeGraphic;
         }
         return false;
-      }),
+      }.toJS,
     );
 
     layer.graphics?.removeMany(graphicsCollection);
@@ -1178,14 +1168,16 @@ class LayerController {
     // Remove the graphics from the list that tracks the hovered state.
     final List<String> graphicIdsToRemove = [];
     graphicsCollection?.forEach(
-      allowInterop((JsGraphic jsGraphic, _, __) {
+      (JsGraphicInterop jsGraphic, JSAny? _, JSAny? __) {
         final dartGraphic = jsNativeObjectToMap(jsGraphic);
-        graphicIdsToRemove
-            .add((dartGraphic['attributes'] as Map?)?['id'] as String);
-      }),
+        graphicIdsToRemove.add(
+          (dartGraphic['attributes'] as Map?)?['id'] as String,
+        );
+      }.toJS,
     );
-    _graphicObjectIds
-        .removeWhere((graphicId) => graphicIdsToRemove.contains(graphicId));
+    _graphicObjectIds.removeWhere(
+      (graphicId) => graphicIdsToRemove.contains(graphicId),
+    );
     _graphics.removeWhere(
       (graphic, _) => graphicIdsToRemove.contains(graphic.getAttributesId()),
     );
@@ -1215,12 +1207,12 @@ class LayerController {
 
       // Watch for the basemap load status after initiating the toggle
       final handle = watch(
-        allowInterop(() => basemapToggle.activeBasemap.loaded),
-        allowInterop((loaded, _) {
-          if (loaded as bool && !baseMapLoaded.isCompleted) {
+        (() => basemapToggle.activeBasemap.loaded).toJS,
+        (bool loaded, JSAny? _) {
+          if (loaded && !baseMapLoaded.isCompleted) {
             baseMapLoaded.complete();
           }
-        }),
+        }.toJS,
       );
 
       await baseMapLoaded.future;
@@ -1240,10 +1232,7 @@ class LayerController {
   }
 
   /// Enable/disable the 3D ground elevation of the [map].
-  void setGroundElevation({
-    required JsEsriMap map,
-    required bool enable,
-  }) {
+  void setGroundElevation({required JsEsriMap map, required bool enable}) {
     map.ground = enable ? Ground.worldElevation.value : null;
   }
 
@@ -1265,21 +1254,25 @@ class LayerController {
 
     // Get the url of the labels layer, so that we can recreate it.
     labelsLayers.forEach(
-      allowInterop((JsLayer layer, _, __) {
+      (JsLayerInterop layer, JSAny? _, JSAny? __) {
         labelsLayerUrl = layer.url;
         // Remove the existing labels layer from the map.
         layer.destroy();
-      }),
+      }.toJS,
     );
 
     if (labelsLayerUrl == null) return;
 
     // By recreating the labels layer, it allows us to push it to the back of the map.
-    _recreatedLabelsLayer =
-        VectorLayer().init(url: labelsLayerUrl!, apiKey: apiKey);
+    _recreatedLabelsLayer = VectorLayer().init(
+      url: labelsLayerUrl!,
+      apiKey: apiKey,
+    );
 
     if (_recreatedLabelsLayer != null) {
-      _layers.add(_recreatedLabelsLayer!);
+      _layers.add(
+        JsLayerInterop(JSObject.fromInteropObject(_recreatedLabelsLayer!)),
+      );
 
       // Add layer to map, not a promise
       map.add(_recreatedLabelsLayer);

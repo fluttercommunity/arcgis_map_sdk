@@ -1,11 +1,14 @@
 @JS()
 import 'dart:async';
+import 'dart:js_interop' hide JS;
 
+import 'package:arcgis_map_sdk_web/src/js_interop_types.dart';
 import 'package:js/js.dart';
-import 'package:js/js_util.dart';
 import 'package:web/web.dart';
 
 export 'package:arcgis_map_sdk_web/src/arcgis_map_sdk_web.dart';
+export 'package:arcgis_map_sdk_web/src/js_interop_types.dart'
+    show HitTestResultItem, JsFeatureSet, JsHitTestResult;
 
 @JS("JSON.stringify")
 external dynamic jsonStringify(dynamic value);
@@ -20,7 +23,7 @@ class JsPoint {
 }
 
 @JS("loadFeatureLayer")
-external Object loadFeatureLayer();
+external Promise<JSAny?> loadFeatureLayer();
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-Layer.html
 @JS("esri.core.layers.Layer")
@@ -46,7 +49,7 @@ class JsFeatureLayer {
 
   external Promise<JsFeatureSet> queryFeatures();
 
-  external Promise<JsEditsResult> applyEdits(dynamic data);
+  external Promise<JSAny?> applyEdits(dynamic data);
 
   external String get id;
 }
@@ -59,7 +62,7 @@ class JsGraphicsLayer extends Accessor {
 
   external void addMany(Collection<JsGraphic> graphic);
 
-  external void remove(JsGraphic graphic);
+  external void remove(JSObject graphic);
 
   external void removeAll();
 
@@ -69,7 +72,7 @@ class JsGraphicsLayer extends Accessor {
 
   external dynamic get elevationInfo;
 
-  external Collection<JsGraphic>? get graphics;
+  external JsCollectionInterop? get graphics;
 
   external String get id;
 }
@@ -118,7 +121,7 @@ class JsEsriMap {
 
   external dynamic findLayerById(String layerId);
 
-  external Collection<JsLayer>? get layers;
+  external JsCollectionInterop? get layers;
 
   external JsBaseMap get basemap;
 
@@ -138,7 +141,7 @@ class JsVectorTileLayer extends JsLayer {
 class JsBaseMap extends Accessor {
   external factory JsBaseMap(dynamic basemap);
 
-  external Collection referenceLayers;
+  external JsCollectionInterop referenceLayers;
 
   external bool get loaded;
 }
@@ -147,13 +150,13 @@ class JsBaseMap extends Accessor {
 class Collection<T> {
   external int get length;
 
-  external T? find(Function callback);
+  external T? find(JSFunction callback);
 
-  external Collection<T>? filter(Function callback);
+  external Collection<T>? filter(JSFunction callback);
 
-  external int findIndex(Function callback);
+  external int findIndex(JSFunction callback);
 
-  external void forEach(Function collection);
+  external void forEach(JSFunction collection);
 
   external void removeAt(int index);
 
@@ -221,16 +224,16 @@ class JsView extends Accessor {
 
   external dynamic get padding;
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#hitTest
   external Promise<JsHitTestResult> hitTest(dynamic event, [dynamic options]);
 
-  external Promise<Object?> goTo(dynamic target, [dynamic targetOptions]);
+  external Promise<JSAny?> goTo(dynamic target, [dynamic targetOptions]);
 
-  external Collection<JsGraphic> get graphics;
+  external JsCollectionInterop get graphics;
 
-  external Object get center;
+  external JsPointInterop get center;
 
   external set popup(Popup? popup);
 
@@ -238,7 +241,7 @@ class JsView extends Accessor {
 
   external dynamic container;
 
-  external JsExtent get extent;
+  external JsExtentInterop get extent;
 }
 
 @JS("esri.core.views.MapView")
@@ -253,13 +256,13 @@ class JsMapView extends Accessor {
 
   external dynamic get padding;
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   external Promise<JsHitTestResult> hitTest(dynamic event);
 
-  external Promise<Object?> goTo(dynamic target, [dynamic targetOptions]);
+  external Promise<JSAny?> goTo(dynamic target, [dynamic targetOptions]);
 
-  external Collection<JsGraphic> get graphics;
+  external JsCollectionInterop get graphics;
 
   external String get id;
 
@@ -267,7 +270,7 @@ class JsMapView extends Accessor {
 
   external set components(dynamic components);
 
-  external Object get center;
+  external JsPointInterop get center;
 
   external set popup(Popup? popup);
 
@@ -293,13 +296,13 @@ class JsSceneView extends Accessor {
 
   external set padding(dynamic padding);
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   external Promise<JsHitTestResult> hitTest(dynamic event);
 
-  external Promise<Object?> goTo(dynamic target, [dynamic targetOptions]);
+  external Promise<JSAny?> goTo(dynamic target, [dynamic targetOptions]);
 
-  external Collection<JsGraphic> get graphics;
+  external JsCollectionInterop get graphics;
 
   external String get id;
 
@@ -348,7 +351,7 @@ class BasemapToggle extends Accessor {
   external factory BasemapToggle(dynamic map);
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-BasemapToggle.html#toggle
-  external Promise toggle();
+  external Promise<JSAny?> toggle();
 
   external JsBaseMap get activeBasemap;
 }
@@ -361,11 +364,11 @@ class JsElevationProfile {
   external String get id;
 }
 
-@JS()
-abstract class Promise<T> {}
+extension type Promise<T extends JSAny?>(JSPromise<T> _)
+    implements JSPromise<T> {}
 
-extension PromiseExtension<T> on Promise<T> {
-  Future<T> toFuture() => promiseToFuture(this);
+extension PromiseExtension<T extends JSAny?> on Promise<T> {
+  Future<T> toFuture() => toDart;
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html
@@ -382,24 +385,6 @@ class Accessor {
 @JS()
 class WatchHandle {
   external void remove();
-}
-
-/// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#HitTestResult
-@JS()
-class JsHitTestResult {
-  external List<HitTestResultItem>? results;
-}
-
-@JS()
-class HitTestResultItem {
-  external JsGraphic? graphic;
-  external JsPoint point;
-}
-
-///https://developers.arcgis.com/javascript/latest/api-reference/esri-rest-support-FeatureSet.html@JS()
-@JS("esri.rest.support.FeatureSet")
-class JsFeatureSet {
-  external Collection<JsGraphic>? features;
 }
 
 @JS("esri.layers.FeatureLayer")
@@ -434,5 +419,8 @@ extension WebglLoseContextExtension on WebglLoseContext {
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
 @JS('esri.core.reactiveUtils.watch')
-external WatchHandle watch(Function getValue, Function callback,
-    [dynamic options]);
+external WatchHandle watch(
+  JSFunction getValue,
+  JSFunction callback, [
+  dynamic options,
+]);
