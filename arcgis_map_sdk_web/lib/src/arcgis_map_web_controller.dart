@@ -57,9 +57,7 @@ class ArcgisMapWebController {
   /// The Flutter widget that will contain the rendered Map. Used for caching.
   Widget? get widget {
     if (_widget == null && !_streamController.isClosed) {
-      _widget = HtmlElementView(
-        viewType: _getViewType(_mapId),
-      );
+      _widget = HtmlElementView(viewType: _getViewType(_mapId));
     }
     return _widget;
   }
@@ -129,8 +127,9 @@ class ArcgisMapWebController {
     }
 
     if (!_mapOptions.isInteractive) {
-      _preventInteractionHandle =
-          _layerController!.preventInteraction(_activeView!);
+      _preventInteractionHandle = _layerController!.preventInteraction(
+        _activeView!,
+      );
     }
 
     _pointerMoveHandle = _layerController!
@@ -406,10 +405,7 @@ class ArcgisMapWebController {
   }
 
   bool destroyLayer(String layerId) {
-    return _layerController!.destroyLayer(
-      map: _map!,
-      layerId: layerId,
-    );
+    return _layerController!.destroyLayer(map: _map!, layerId: layerId);
   }
 
   bool polygonContainsPoint(String polygonId, LatLng pointCoordinates) {

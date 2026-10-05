@@ -419,5 +419,8 @@ extension WebglLoseContextExtension on WebglLoseContext {
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
 @JS('esri.core.reactiveUtils.watch')
-external WatchHandle watch(JSFunction getValue, JSFunction callback,
-    [dynamic options]);
+external WatchHandle watch(
+  JSFunction getValue,
+  JSFunction callback, [
+  dynamic options,
+]);

@@ -15,19 +15,15 @@ class EsriMap {
         jsify({
           "basemap": JsBaseMap(
             jsify({
-              'baseLayers': vectorTileLayerUrls.map(
-                (String url) {
-                  return VectorLayer().init(url: url);
-                },
-              ).toList(growable: false),
+              'baseLayers': vectorTileLayerUrls.map((String url) {
+                return VectorLayer().init(url: url);
+              }).toList(growable: false),
             }),
           ),
         }),
       );
     } else {
-      return JsEsriMap(
-        jsify({"basemap": basemap, "ground": ground}),
-      );
+      return JsEsriMap(jsify({"basemap": basemap, "ground": ground}));
     }
   }
 }
