@@ -78,6 +78,14 @@ internal class ArcgisMapView(
     private lateinit var centerPositionStreamHandler: CenterPositionStreamHandler
     private val methodChannel =
         MethodChannel(binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId")
+    private val zoomEventChannel = EventChannel(
+        binding.binaryMessenger,
+        "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom"
+    )
+    private val centerPositionEventChannel = EventChannel(
+        binding.binaryMessenger,
+        "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
+    )
 
     override fun getView(): View = view
 
@@ -156,8 +164,11 @@ internal class ArcgisMapView(
     }
 
     override fun dispose() {
+        if (isDisposed) return
         isDisposed = true
         methodChannel.setMethodCallHandler(null)
+        zoomEventChannel.setStreamHandler(null)
+        centerPositionEventChannel.setStreamHandler(null)
         coroutineScope.cancel()
 
         lifecycle.removeObserver(mapView)
@@ -169,8 +180,8 @@ internal class ArcgisMapView(
     private fun setupMethodChannel() {
         methodChannel.setMethodCallHandler { call, result ->
             if (call.method == "dispose") {
-                // Only used on iOS for now. No need to cleanup anything on android
                 result.success(true)
+                dispose()
                 return@setMethodCallHandler
             }
 
@@ -429,14 +440,8 @@ internal class ArcgisMapView(
         zoomStreamHandler = ZoomStreamHandler()
         centerPositionStreamHandler = CenterPositionStreamHandler()
 
-        EventChannel(
-            binding.binaryMessenger,
-            "dev.fluttercommunity.arcgis_map_sdk/$viewId/zoom"
-        ).setStreamHandler(zoomStreamHandler)
-
-        EventChannel(
-            binding.binaryMessenger, "dev.fluttercommunity.arcgis_map_sdk/$viewId/centerPosition"
-        ).setStreamHandler(centerPositionStreamHandler)
+        zoomEventChannel.setStreamHandler(zoomStreamHandler)
+        centerPositionEventChannel.setStreamHandler(centerPositionStreamHandler)
     }
 
     private fun onZoomIn(call: MethodCall, result: MethodChannel.Result) {
