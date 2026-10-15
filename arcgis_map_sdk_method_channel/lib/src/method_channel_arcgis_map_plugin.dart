@@ -92,10 +92,9 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
 
   @override
   Stream<LatLng> centerPosition(int mapId) {
-    _centerPositionEventStream ??=
-        EventChannel(
-          "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
-        ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
+    _centerPositionEventStream ??= EventChannel(
+      "dev.fluttercommunity.arcgis_map_sdk/$mapId/centerPosition",
+    ).receiveBroadcastStream().cast<Map<dynamic, dynamic>>().map(
           (data) => LatLng(
             (data['latitude'] as num).toDouble(),
             (data['longitude'] as num).toDouble(),
@@ -177,13 +176,11 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     int? threeDHeading,
     int? threeDTilt,
   }) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod<bool>("move_camera", {
-          "point": point.toMap(),
-          "zoomLevel": zoomLevel?.round(),
-          "animationOptions": animationOptions?.toMap(),
-        })
-        .then((value) => value!);
+    return _methodChannelBuilder(mapId).invokeMethod<bool>("move_camera", {
+      "point": point.toMap(),
+      "zoomLevel": zoomLevel?.round(),
+      "animationOptions": animationOptions?.toMap(),
+    }).then((value) => value!);
   }
 
   @override
@@ -204,9 +201,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod<bool>("zoom_in", {"lodFactor": lodFactor})
-        .then((value) => value!);
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+        "zoom_in", {"lodFactor": lodFactor}).then((value) => value!);
   }
 
   @override
@@ -215,9 +211,8 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
     required int mapId,
     AnimationOptions? animationOptions,
   }) {
-    return _methodChannelBuilder(mapId)
-        .invokeMethod<bool>("zoom_out", {"lodFactor": lodFactor})
-        .then((value) => value!);
+    return _methodChannelBuilder(mapId).invokeMethod<bool>(
+        "zoom_out", {"lodFactor": lodFactor}).then((value) => value!);
   }
 
   @override
