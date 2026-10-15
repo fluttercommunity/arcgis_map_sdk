@@ -1,6 +1,7 @@
+import 'dart:js_interop';
+
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
-import 'package:js/js_util.dart';
 
 class MapView {
   JsMapView init({
@@ -18,7 +19,7 @@ class MapView {
     required double yMax,
   }) =>
       JsMapView(
-        jsify({
+        {
           "container": container,
           "map": map,
           "center": center,
@@ -41,6 +42,6 @@ class MapView {
               "ymax": yMax,
             },
           },
-        }),
+        }.jsify(),
       );
 }

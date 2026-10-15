@@ -18,7 +18,7 @@ class MethodChannelArcgisMapPlugin extends ArcgisMapPlatform {
   @override
   Future<void> init(int mapId) async {
     if (Platform.isIOS) {
-      return _methodChannelBuilder(mapId).invokeMethod('on_init_complete');
+      await _methodChannelBuilder(mapId).invokeMethod('on_init_complete');
     }
   }
 

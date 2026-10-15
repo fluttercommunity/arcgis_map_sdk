@@ -1,8 +1,14 @@
+// The bindings in this file are `package:js` classes, while `Function.toJS`
+// and `JSPromise` require `dart:js_interop` types. Both are plain JS values on
+// dart2js and DDC, the only compilers that support `package:js`, so casting
+// between them is safe here.
+// ignore_for_file: invalid_runtime_check_with_js_interop_types
+
 @JS()
 import 'dart:async';
+import 'dart:js_interop' hide JS;
 
 import 'package:js/js.dart';
-import 'package:js/js_util.dart';
 import 'package:web/web.dart';
 
 export 'package:arcgis_map_sdk_web/src/arcgis_map_sdk_web.dart';
@@ -20,7 +26,7 @@ class JsPoint {
 }
 
 @JS("loadFeatureLayer")
-external Object loadFeatureLayer();
+external Promise<Object?> loadFeatureLayer();
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-Layer.html
 @JS("esri.core.layers.Layer")
@@ -138,7 +144,7 @@ class JsVectorTileLayer extends JsLayer {
 class JsBaseMap extends Accessor {
   external factory JsBaseMap(dynamic basemap);
 
-  external Collection referenceLayers;
+  external Collection<JsLayer> referenceLayers;
 
   external bool get loaded;
 }
@@ -147,13 +153,13 @@ class JsBaseMap extends Accessor {
 class Collection<T> {
   external int get length;
 
-  external T? find(Function callback);
+  external T? find(JSFunction callback);
 
-  external Collection<T>? filter(Function callback);
+  external Collection<T>? filter(JSFunction callback);
 
-  external int findIndex(Function callback);
+  external int findIndex(JSFunction callback);
 
-  external void forEach(Function collection);
+  external void forEach(JSFunction collection);
 
   external void removeAt(int index);
 
@@ -162,6 +168,21 @@ class Collection<T> {
   external void removeAll();
 
   external void add(dynamic graphics, [int? index]);
+}
+
+/// Typed versions of the [Collection] callback methods.
+///
+/// [Function.toJS] only allows JS interop types and primitives in the callback
+/// signature, so the items are received as [JSAny] and cast to [T].
+extension CollectionExtension<T> on Collection<T> {
+  T? findItem(bool Function(T item) test) =>
+      find(((JSAny item, JSAny? _, JSAny? __) => test(item as T)).toJS);
+
+  Collection<T>? filterItems(bool Function(T item) test) =>
+      filter(((JSAny item, JSAny? _, JSAny? __) => test(item as T)).toJS);
+
+  void forEachItem(void Function(T item) action) =>
+      forEach(((JSAny item, JSAny? _, JSAny? __) => action(item as T)).toJS);
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-Graphic.html
@@ -221,7 +242,7 @@ class JsView extends Accessor {
 
   external dynamic get padding;
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   /// https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#hitTest
   external Promise<JsHitTestResult> hitTest(dynamic event, [dynamic options]);
@@ -253,7 +274,7 @@ class JsMapView extends Accessor {
 
   external dynamic get padding;
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   external Promise<JsHitTestResult> hitTest(dynamic event);
 
@@ -293,7 +314,7 @@ class JsSceneView extends Accessor {
 
   external set padding(dynamic padding);
 
-  external JsHandle on(List<String> event, void Function(dynamic) callback);
+  external JsHandle on(List<String> event, JSFunction callback);
 
   external Promise<JsHitTestResult> hitTest(dynamic event);
 
@@ -365,7 +386,10 @@ class JsElevationProfile {
 abstract class Promise<T> {}
 
 extension PromiseExtension<T> on Promise<T> {
-  Future<T> toFuture() => promiseToFuture(this);
+  Future<T> toFuture() async {
+    final result = await (this as JSPromise<JSAny?>).toDart;
+    return result as T;
+  }
 }
 
 /// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-Accessor.html
@@ -432,7 +456,16 @@ extension WebglLoseContextExtension on WebglLoseContext {
   external void restoreContext();
 }
 
-/// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
 @JS('esri.core.reactiveUtils.watch')
-external WatchHandle watch(Function getValue, Function callback,
-    [dynamic options]);
+external WatchHandle _watch(JSFunction getValue, JSFunction callback);
+
+/// https://developers.arcgis.com/javascript/latest/api-reference/esri-core-reactiveUtils.html#watch
+WatchHandle watch<T>(
+  T Function() getValue,
+  void Function(T newValue, T? oldValue) callback,
+) =>
+    _watch(
+      (() => getValue() as JSAny?).toJS,
+      ((JSAny? newValue, JSAny? oldValue) =>
+          callback(newValue as T, oldValue as T?)).toJS,
+    );
