@@ -1,6 +1,7 @@
+import 'dart:js_interop';
+
 import 'package:arcgis_map_sdk_platform_interface/arcgis_map_sdk_platform_interface.dart';
 import 'package:arcgis_map_sdk_web/arcgis_map_web_js.dart';
-import 'package:js/js_util.dart';
 
 class SceneView {
   JsSceneView init({
@@ -20,7 +21,7 @@ class SceneView {
     required double yMax,
   }) {
     return JsSceneView(
-      jsify({
+      {
         "container": container,
         "map": map,
         "center": position,
@@ -43,7 +44,7 @@ class SceneView {
             "ymax": yMax,
           },
         },
-      }),
+      }.jsify(),
     );
   }
 }
