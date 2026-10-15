@@ -67,6 +67,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'com.esri:arcgis-maps-kotlin:200.7.0'
+    api 'com.esri:arcgis-maps-kotlin:200.7.0'
     implementation 'com.google.code.gson:gson:2.13.1'
 }
