@@ -1,7 +1,7 @@
 // The bindings in this file are `package:js` classes, while `Function.toJS`
-// and `JSPromise` require `dart:js_interop` types. Both are plain JS values on
-// dart2js and DDC, the only compilers that support `package:js`, so casting
-// between them is safe here.
+// and `JSPromise` require `dart:js_interop` types. On dart2js and DDC, the only
+// compilers that support `package:js`, both are plain JS values (and Dart
+// primitives are JS primitives), so casting between them is safe here.
 // ignore_for_file: invalid_runtime_check_with_js_interop_types
 
 @JS()
@@ -159,7 +159,7 @@ class Collection<T> {
 
   external int findIndex(JSFunction callback);
 
-  external void forEach(JSFunction collection);
+  external void forEach(JSFunction callback);
 
   external void removeAt(int index);
 
